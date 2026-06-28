@@ -1,9 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -13,21 +9,14 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     const { data, error } = await supabase
-      .from('dietas')
-      .select('*')
-      .order('created_at', { ascending: true })
+      .from('tutores_pets').select('*').order('created_at', { ascending: false })
     if (error) return res.status(500).json({ error: error.message })
     return res.status(200).json(data)
   }
 
   if (req.method === 'POST') {
-    const { nome, especie, fase, obs, garantias, ingredientes } = req.body
-    if (!nome || !especie || !fase) return res.status(400).json({ error: 'Campos obrigatórios: nome, especie, fase' })
     const { data, error } = await supabase
-      .from('dietas')
-      .insert([{ nome, especie, fase, obs, garantias, ingredientes }])
-      .select()
-      .single()
+      .from('tutores_pets').insert([req.body]).select().single()
     if (error) return res.status(500).json({ error: error.message })
     return res.status(201).json(data)
   }

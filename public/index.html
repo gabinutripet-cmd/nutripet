@@ -8,15 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-  :root {
-    --green:#1D9E75;--green-light:#E1F5EE;--green-mid:#0F6E56;--green-dark:#085041;
-    --purple:#534AB7;--purple-light:#EEEDFE;--purple-mid:#3C3489;--purple-border:#AFA9EC;
-    --bg:#F7F6F2;--surface:#FFFFFF;--border:rgba(0,0,0,0.08);--border-md:rgba(0,0,0,0.13);
-    --text:#1A1A18;--text-2:#6B6B65;--text-3:#ADADAA;
-    --amber:#BA7517;--amber-light:#FAEEDA;--blue:#185FA5;--blue-light:#E6F1FB;
-    --red:#A32D2D;--red-light:#FCEBEB;
-    --radius:10px;--radius-lg:14px;--shadow:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
-  }
+  :root{--green:#1D9E75;--green-light:#E1F5EE;--green-mid:#0F6E56;--green-dark:#085041;--purple:#534AB7;--purple-light:#EEEDFE;--purple-mid:#3C3489;--purple-border:#AFA9EC;--bg:#F7F6F2;--surface:#FFFFFF;--border:rgba(0,0,0,0.08);--border-md:rgba(0,0,0,0.13);--text:#1A1A18;--text-2:#6B6B65;--text-3:#ADADAA;--amber:#BA7517;--amber-light:#FAEEDA;--blue:#185FA5;--blue-light:#E6F1FB;--red:#A32D2D;--red-light:#FCEBEB;--radius:10px;--radius-lg:14px;--shadow:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;}
   .sidebar{width:224px;min-width:224px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;}
@@ -53,14 +45,15 @@
   .form-grid{display:grid;gap:14px;}
   .form-grid-2{grid-template-columns:1fr 1fr;}
   .form-grid-3{grid-template-columns:1fr 1fr 1fr;}
+  .form-grid-4{grid-template-columns:1fr 1fr 1fr 1fr;}
   .field label{display:block;font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
   .field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--surface);transition:border-color .15s;appearance:none;}
-  .field input:focus,.field select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.12);}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.12);}
+  .field textarea{resize:vertical;min-height:80px;}
   .field-var label{color:var(--purple);}
   .field-var input,.field-var select{border-color:var(--purple-border);background:var(--purple-light);color:var(--purple-mid);font-weight:500;}
   .field-var input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(83,74,183,.13);}
   .legend{display:flex;align-items:center;gap:16px;font-size:11px;color:var(--text-3);margin-bottom:16px;}
-  .legend-item{display:flex;align-items:center;gap:5px;}
   .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
   .dot-green{background:var(--green);}
   .dot-purple{background:var(--purple);}
@@ -69,6 +62,7 @@
   .badge-cat{background:var(--amber-light);color:var(--amber);}
   .badge-phase{background:var(--green-light);color:var(--green-dark);}
   .badge-protein{background:#F3EEF8;color:#6B3FA0;}
+  /* FILTROS */
   .filtros-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center;}
   .filtros-label{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-right:2px;}
   .filtro-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:5px 11px;border-radius:20px;cursor:pointer;transition:all .15s;border:1.5px solid var(--border-md);background:var(--surface);color:var(--text-2);user-select:none;}
@@ -78,31 +72,37 @@
   .filtros-count{font-size:11px;color:var(--text-3);margin-left:auto;}
   .btn-limpar{font-size:11px;color:var(--text-3);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;text-decoration:underline;padding:0;}
   .btn-limpar:hover{color:var(--text);}
+  /* DIET ITEMS */
   .diet-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;transition:all .15s;margin-bottom:8px;}
   .diet-item:hover{border-color:var(--border-md);box-shadow:var(--shadow);}
   .diet-item-name{font-size:14px;font-weight:500;}
   .diet-item-meta{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
   .diet-item-actions{display:flex;gap:6px;}
+  /* DIET SELECT */
   .diet-select-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s;margin-bottom:8px;}
   .diet-select-item:hover{border-color:var(--green);}
   .diet-select-item.selected{border-color:var(--green);background:#F0FCF8;}
   .radio-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
   .diet-select-item.selected .radio-dot{border-color:var(--green);background:var(--green);}
   .diet-select-item.selected .radio-dot::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff;}
+  /* STATS */
   .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
   .stat-box{background:var(--bg);border-radius:var(--radius);padding:12px 14px;}
   .stat-label{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;}
   .stat-value{font-size:22px;font-weight:600;color:var(--text);margin-top:2px;font-family:'DM Mono',monospace;}
   .stat-unit{font-size:11px;color:var(--text-3);margin-top:1px;}
+  /* INGR */
   .ingr-header{display:grid;grid-template-columns:1fr 90px 60px 34px;gap:8px;padding:0 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;}
   .ingr-header span{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;}
   .ingr-row{display:grid;grid-template-columns:1fr 90px 60px 34px;gap:8px;align-items:center;margin-bottom:7px;}
   .ingr-row input{font-size:13px;padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius);font-family:'DM Sans',sans-serif;color:var(--text);background:var(--surface);}
   .ingr-row input:focus{outline:none;border-color:var(--green);}
   .garantias-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  /* TABS */
   .seg{display:flex;background:var(--bg);border-radius:var(--radius);padding:3px;margin-bottom:18px;}
   .seg-btn{flex:1;padding:8px;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;border-radius:7px;text-align:center;transition:all .15s;border:none;background:none;font-family:'DM Sans',sans-serif;}
   .seg-btn.active{background:var(--surface);color:var(--green);box-shadow:var(--shadow);}
+  /* ALERT */
   .alert{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:14px;}
   .alert-info{background:var(--green-light);color:var(--green-dark);}
   .alert i{font-size:16px;flex-shrink:0;margin-top:1px;}
@@ -120,6 +120,32 @@
   .toast.success{background:var(--green-mid);}
   .toast.error{background:var(--red);}
   @keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  /* PETS */
+  .pet-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;transition:all .15s;margin-bottom:8px;cursor:pointer;}
+  .pet-item:hover{border-color:var(--green);box-shadow:var(--shadow);}
+  .pet-avatar{width:40px;height:40px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;margin-right:12px;}
+  .pet-name{font-size:14px;font-weight:600;}
+  .pet-tutor{font-size:12px;color:var(--text-2);margin-top:2px;}
+  .pet-meta{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+  /* SEARCH */
+  .search-bar{display:flex;gap:10px;margin-bottom:16px;}
+  .search-bar input{flex:1;padding:9px 12px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--surface);}
+  .search-bar input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.12);}
+  /* PERFIL */
+  .perfil-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+  .perfil-avatar{width:56px;height:56px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+  .perfil-nome{font-size:20px;font-weight:600;}
+  .perfil-sub{font-size:13px;color:var(--text-2);margin-top:3px;}
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+  .info-box{background:var(--bg);border-radius:var(--radius);padding:10px 14px;}
+  .info-box-label{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;}
+  .info-box-val{font-size:13px;font-weight:500;color:var(--text);margin-top:3px;}
+  /* HISTÓRICO */
+  .hist-item{background:var(--bg);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+  .hist-data{font-size:11px;color:var(--text-3);}
+  .hist-dieta{font-size:13px;font-weight:500;margin-top:2px;}
+  .hist-vals{font-size:12px;color:var(--text-2);margin-top:2px;font-family:'DM Mono',monospace;}
+  /* CARDÁPIO */
   .cp-wrap{max-width:580px;margin:0 auto;}
   .cp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;}
   .cp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
@@ -158,18 +184,17 @@
 
 <nav class="sidebar">
   <div class="logo">
-    <div class="logo-mark">
-      <div class="paw"><i class="ti ti-paw"></i></div>NutriPet
-    </div>
+    <div class="logo-mark"><div class="paw"><i class="ti ti-paw"></i></div>NutriPet</div>
     <div class="logo-sub">Plataforma de dietas</div>
   </div>
   <div class="nav">
     <div class="nav-group-label">Menu</div>
     <div class="nav-item active" onclick="goTo('banco',this)"><i class="ti ti-database"></i> Banco de dietas</div>
+    <div class="nav-item" onclick="goTo('pacientes',this)"><i class="ti ti-paw"></i> Pacientes</div>
     <div class="nav-item" onclick="goTo('consulta',this)"><i class="ti ti-calculator"></i> Nova consulta</div>
     <div class="nav-item" onclick="goTo('cardapio',this)"><i class="ti ti-file-text"></i> Cardápio gerado</div>
   </div>
-  <div class="sidebar-footer"><span id="sb-count">0</span> dietas cadastradas</div>
+  <div class="sidebar-footer"><span id="sb-count">0</span> dietas · <span id="sb-pets">0</span> pacientes</div>
 </nav>
 
 <div class="main">
@@ -178,6 +203,7 @@
       <h1 id="topbar-title">Banco de dietas</h1>
       <p id="topbar-sub">Gerencie as receitas formuladas no Supercrac</p>
     </div>
+    <div id="topbar-actions"></div>
   </div>
   <div class="content">
 
@@ -193,38 +219,25 @@
           <div class="card-title">Identificação</div>
           <div class="form-grid form-grid-2" style="margin-bottom:14px">
             <div class="field"><label>Nome da dieta</label><input type="text" id="n-nome" placeholder="Ex: Frango Grain Free — Manutenção"></div>
-            <div class="field"><label>Espécie</label>
-              <select id="n-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select>
-            </div>
+            <div class="field"><label>Espécie</label><select id="n-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select></div>
           </div>
           <div class="form-grid form-grid-2">
             <div class="field"><label>Fase / Objetivo</label>
-              <select id="n-fase">
-                <option>Manutenção</option><option>Filhote</option><option>Gestação / Lactação</option>
-                <option>Idoso</option><option>Perda de peso</option><option>Renal</option><option>Outro</option>
-              </select>
+              <select id="n-fase"><option>Manutenção</option><option>Filhote</option><option>Gestação / Lactação</option><option>Idoso</option><option>Perda de peso</option><option>Renal</option><option>Outro</option></select>
             </div>
             <div class="field"><label>Observações</label><input type="text" id="n-obs" placeholder="Indicações, restrições..."></div>
           </div>
         </div>
         <div class="card">
           <div class="section-header">
-            <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:0">
-              <span class="dot dot-green" style="width:9px;height:9px"></span>
-              Ingredientes — valores SC (fixos, do Supercrac)
-            </div>
+            <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:0"><span class="dot dot-green" style="width:9px;height:9px"></span> Ingredientes — valores SC</div>
             <button class="btn btn-sm" onclick="addIngr()"><i class="ti ti-plus"></i> Adicionar</button>
           </div>
-          <div class="ingr-header" style="margin-top:14px">
-            <span>Ingrediente</span><span>Valor SC</span><span>Unidade</span><span></span>
-          </div>
+          <div class="ingr-header" style="margin-top:14px"><span>Ingrediente</span><span>Valor SC</span><span>Unidade</span><span></span></div>
           <div id="ingr-list"></div>
         </div>
         <div class="card">
-          <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
-            <span class="dot dot-green" style="width:9px;height:9px"></span>
-            Níveis de garantia — valores base (Supercrac)
-          </div>
+          <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:16px"><span class="dot dot-green" style="width:9px;height:9px"></span> Níveis de garantia — valores base (Supercrac)</div>
           <div class="garantias-grid">
             <div class="field"><label>Proteína Bruta mín (g/kg)</label><input type="number" id="g-pb" placeholder="123.87"></div>
             <div class="field"><label>Extrato Etéreo mín (g/kg)</label><input type="number" id="g-ee" placeholder="29.99"></div>
@@ -245,16 +258,118 @@
       </div>
     </div>
 
-    <!-- CONSULTA -->
-    <div class="page" id="page-consulta">
-      <div class="card">
-        <div class="card-title">Identificação</div>
-        <div class="form-grid form-grid-3">
-          <div class="field"><label>Nome do tutor</label><input type="text" id="c-tutor" placeholder="Ex: Maria Silva"></div>
-          <div class="field"><label>Nome do pet</label><input type="text" id="c-pet" placeholder="Ex: Bob"></div>
-          <div class="field"><label>Data</label><input type="date" id="c-data"></div>
+    <!-- PACIENTES -->
+    <div class="page" id="page-pacientes">
+      <div id="pacientes-lista-view">
+        <div class="search-bar">
+          <input type="text" id="pets-busca" placeholder="Buscar por nome do pet ou tutor..." oninput="renderPets()">
+          <select id="pets-esp-filtro" onchange="renderPets()" style="width:160px;padding:9px 12px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;appearance:none;">
+            <option value="">Todas as espécies</option>
+            <option value="cao">Cão</option>
+            <option value="gato">Gato</option>
+          </select>
+          <button class="btn btn-primary" onclick="abrirNovoPet()"><i class="ti ti-plus"></i> Novo paciente</button>
+        </div>
+        <div id="pets-lista"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+      </div>
+
+      <!-- FORMULÁRIO NOVO/EDITAR PET -->
+      <div id="pacientes-form-view" style="display:none">
+        <div class="card">
+          <div class="card-title">Dados do tutor</div>
+          <div class="form-grid form-grid-3" style="margin-bottom:14px">
+            <div class="field"><label>Nome do tutor *</label><input type="text" id="pt-tutor" placeholder="Ex: Maria Silva"></div>
+            <div class="field"><label>CPF</label><input type="text" id="pt-cpf" placeholder="000.000.000-00"></div>
+            <div class="field"><label>Telefone</label><input type="text" id="pt-tel" placeholder="(11) 99999-9999"></div>
+          </div>
+          <div class="form-grid form-grid-3">
+            <div class="field"><label>E-mail</label><input type="email" id="pt-email" placeholder="email@exemplo.com"></div>
+            <div class="field"><label>Cidade</label><input type="text" id="pt-cidade" placeholder="São Paulo"></div>
+            <div class="field"><label>Estado</label><input type="text" id="pt-estado" placeholder="SP"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Dados do pet</div>
+          <div class="form-grid form-grid-3" style="margin-bottom:14px">
+            <div class="field"><label>Nome do pet *</label><input type="text" id="pt-nome" placeholder="Ex: Bob"></div>
+            <div class="field"><label>Espécie</label><select id="pt-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select></div>
+            <div class="field"><label>Raça</label><input type="text" id="pt-raca" placeholder="Ex: Golden Retriever"></div>
+          </div>
+          <div class="form-grid form-grid-4" style="margin-bottom:14px">
+            <div class="field"><label>Sexo</label><select id="pt-sexo"><option value="">Não informado</option><option value="macho">Macho</option><option value="femea">Fêmea</option></select></div>
+            <div class="field"><label>Castrado</label><select id="pt-castrado"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></div>
+            <div class="field"><label>Idade (anos)</label><input type="number" id="pt-idade" min="0" step="0.1" placeholder="Ex: 3"></div>
+            <div class="field"><label>Aniversário</label><input type="date" id="pt-aniversario"></div>
+          </div>
+          <div class="form-grid form-grid-3">
+            <div class="field"><label>Peso atual (kg)</label><input type="number" id="pt-peso" step="0.1" min="0" placeholder="Ex: 12.5"></div>
+            <div class="field"><label>Peso ideal (kg)</label><input type="number" id="pt-pesoideal" step="0.1" min="0" placeholder="Ex: 11.0"></div>
+            <div class="field"><label>Dentro do peso ideal</label><select id="pt-dentropes"><option value="">Não avaliado</option><option value="true">Sim</option><option value="false">Não</option></select></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Estilo de vida</div>
+          <div class="form-grid form-grid-3" style="margin-bottom:14px">
+            <div class="field"><label>Tipo de dieta atual</label><select id="pt-tipdieta"><option value="">Não informado</option><option value="racao">Ração</option><option value="natural">Alimentação natural</option><option value="mista">Mista</option></select></div>
+            <div class="field"><label>Nível de atividade</label><select id="pt-atividade"><option value="">Não informado</option><option value="baixo">Baixo</option><option value="moderado">Moderado</option><option value="alto">Alto</option></select></div>
+            <div class="field"><label>Frequência de exercícios</label><input type="text" id="pt-exercicios" placeholder="Ex: 2x por dia, 30min"></div>
+          </div>
+          <div class="form-grid form-grid-3">
+            <div class="field"><label>Ambiente</label><select id="pt-ambiente"><option value="">Não informado</option><option value="apartamento">Apartamento</option><option value="casa">Casa</option><option value="quintal">Casa com quintal</option><option value="rural">Área rural</option></select></div>
+            <div class="field"><label>Convivência com outros animais</label><select id="pt-convivencia"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Histórico e objetivos</div>
+          <div class="form-grid form-grid-2">
+            <div class="field"><label>Histórico de saúde</label><textarea id="pt-historico" placeholder="Doenças, cirurgias, medicamentos em uso, alergias, intolerâncias..."></textarea></div>
+            <div class="field"><label>Objetivos do tutor</label><textarea id="pt-objetivos" placeholder="O que o tutor espera alcançar com a consulta..."></textarea></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;padding-bottom:30px">
+          <button class="btn btn-primary" onclick="salvarPet()"><i class="ti ti-check"></i> Salvar paciente</button>
+          <button class="btn" onclick="fecharFormPet()">Cancelar</button>
         </div>
       </div>
+
+      <!-- PERFIL DO PET -->
+      <div id="pacientes-perfil-view" style="display:none"></div>
+    </div>
+
+    <!-- CONSULTA -->
+    <div class="page" id="page-consulta">
+      <!-- Buscar pet cadastrado -->
+      <div class="card">
+        <div class="card-title">Pet atendido</div>
+        <div class="form-grid form-grid-2" style="margin-bottom:12px">
+          <div class="field">
+            <label>Buscar paciente cadastrado</label>
+            <input type="text" id="c-busca-pet" placeholder="Digite nome do pet ou tutor..." oninput="buscarPetConsulta()">
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:8px">
+            <button class="btn btn-sm" onclick="limparPetConsulta()" style="margin-bottom:1px"><i class="ti ti-x"></i> Limpar</button>
+          </div>
+        </div>
+        <div id="c-pets-resultados" style="display:none"></div>
+        <div id="c-pet-selecionado" style="display:none">
+          <div style="background:var(--green-light);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--green-dark)" id="c-pet-sel-nome">—</div>
+              <div style="font-size:11px;color:var(--green-mid);margin-top:2px" id="c-pet-sel-info">—</div>
+            </div>
+            <button class="btn btn-sm" onclick="limparPetConsulta()"><i class="ti ti-x"></i> Trocar</button>
+          </div>
+        </div>
+        <div style="margin-top:12px" id="c-ou-manual">
+          <p style="font-size:11px;color:var(--text-3)">Ou preencha manualmente:</p>
+          <div class="form-grid form-grid-3" style="margin-top:10px">
+            <div class="field"><label>Nome do tutor</label><input type="text" id="c-tutor" placeholder="Ex: Maria Silva"></div>
+            <div class="field"><label>Nome do pet</label><input type="text" id="c-pet" placeholder="Ex: Bob"></div>
+            <div class="field"><label>Data</label><input type="date" id="c-data"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-title">Selecionar dieta</div>
         <div class="form-grid form-grid-2" style="margin-bottom:14px">
@@ -264,13 +379,12 @@
             </select>
           </div>
         </div>
-        <div id="consulta-dietas"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+        <div id="consulta-dietas"></div>
       </div>
+
       <div class="card">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
-          <span class="dot dot-purple" style="width:9px;height:9px"></span> Variáveis da consulta
-        </div>
-        <div class="legend"><div class="legend-item"><span class="dot dot-purple"></span> Ajustáveis a cada consulta</div></div>
+        <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:16px"><span class="dot dot-purple" style="width:9px;height:9px"></span> Variáveis da consulta</div>
+        <div class="legend"><div style="display:flex;align-items:center;gap:5px"><span class="dot dot-purple"></span> Ajustáveis a cada consulta</div></div>
         <div class="form-grid form-grid-3">
           <div class="field field-var"><label>Peso do animal (kg)</label><input type="number" id="c-peso" step="0.1" min="0.1" placeholder="Ex: 3.4" oninput="recalcular()"></div>
           <div class="field field-var"><label>Fator nutricional</label><input type="number" id="c-fator" step="1" min="1" placeholder="Ex: 130" oninput="recalcular()"></div>
@@ -289,13 +403,14 @@
           </div>
         </div>
       </div>
+
       <div id="preview-section" style="display:none">
         <div class="card">
           <div class="card-title">Cálculo nutricional</div>
           <div class="stats-row">
             <div class="stat-box"><div class="stat-label">NEM</div><div class="stat-value" id="p-nem">—</div><div class="stat-unit">kcal / dia</div><div style="font-size:10px;color:var(--text-3);margin-top:4px">Peso^0,75 × Fator</div></div>
-            <div class="stat-box"><div class="stat-label">Consumo diário</div><div class="stat-value" id="p-consumo">—</div><div class="stat-unit">g / dia</div><div style="font-size:10px;color:var(--text-3);margin-top:4px">NEM ÷ EM × 1000</div></div>
-            <div class="stat-box"><div class="stat-label">Por refeição</div><div class="stat-value" id="p-refei">—</div><div class="stat-unit">g / refeição</div><div style="font-size:10px;color:var(--text-3);margin-top:4px">Consumo ÷ refeições</div></div>
+            <div class="stat-box"><div class="stat-label">Consumo diário</div><div class="stat-value" id="p-consumo">—</div><div class="stat-unit">g / dia</div></div>
+            <div class="stat-box"><div class="stat-label">Por refeição</div><div class="stat-value" id="p-refei">—</div><div class="stat-unit">g / refeição</div></div>
           </div>
           <div class="alert alert-info"><i class="ti ti-check"></i><span id="p-info">—</span></div>
         </div>
@@ -309,7 +424,7 @@
     <div class="page" id="page-cardapio">
       <div class="no-print" style="display:flex;gap:8px;margin-bottom:20px">
         <button class="btn btn-primary" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir / Salvar PDF</button>
-        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[1])"><i class="ti ti-plus"></i> Nova consulta</button>
+        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[2])"><i class="ti ti-plus"></i> Nova consulta</button>
       </div>
       <div id="cardapio-output"></div>
     </div>
@@ -318,35 +433,26 @@
 </div>
 
 <script>
-// ── CONFIG ──
 const API = '/api'
-
-// ── STATE ──
-let dietas = [], selectedDietId = null, editingId = null, lastCalc = null, ingrCount = 0
+let dietas = [], pets = [], selectedDietId = null, editingDietId = null, editingPetId = null
+let lastCalc = null, ingrCount = 0, petConsultaId = null
 let filtroProteinas = [], filtroEspecie = '', filtroFase = ''
 
 // ── PROTEÍNAS ──
 const PROTEINAS = [
-  { label: '🍗 Frango', key: 'frango',  palavras: ['frango','galinha','ave','peru','pato','moela','fígado de frango','figado de frango'] },
-  { label: '🥩 Bovino', key: 'bovino',  palavras: ['bovino','músculo','musculo','carne','patinho','acém','acem','fígado bovino','figado bovino','coração bovino','coracao bovino'] },
-  { label: '🐷 Suíno',  key: 'suino',   palavras: ['suíno','suino','lombo','pernil'] },
-  { label: '🐟 Peixe',  key: 'peixe',   palavras: ['peixe','tilápia','tilapia','salmão','salmao','atum','sardinha','pescada'] },
-  { label: '🪲 BSF',    key: 'bsf',     palavras: ['bsf','black soldier','mosca soldado'] },
+  { label:'🍗 Frango', key:'frango',  palavras:['frango','galinha','ave','peru','pato','moela','fígado de frango','figado de frango'] },
+  { label:'🥩 Bovino', key:'bovino',  palavras:['bovino','músculo','musculo','patinho','acém','acem','fígado bovino','figado bovino','coração bovino','coracao bovino'] },
+  { label:'🐷 Suíno',  key:'suino',   palavras:['suíno','suino','lombo','pernil'] },
+  { label:'🐟 Peixe',  key:'peixe',   palavras:['peixe','tilápia','tilapia','salmão','salmao','atum','sardinha','pescada'] },
+  { label:'🪲 BSF',    key:'bsf',     palavras:['bsf','black soldier','mosca soldado'] },
 ]
-
 function detectarProteinas(ingredientes) {
   const nomes = ingredientes.map(i => i.n.toLowerCase())
   return PROTEINAS.filter(p => p.palavras.some(pal => nomes.some(n => n.includes(pal)))).map(p => p.key)
 }
-
-function proteínasBadges(keys) {
-  return keys.map(k => {
-    const p = PROTEINAS.find(x => x.key === k)
-    return p ? `<span class="badge badge-protein">${p.label}</span>` : ''
-  }).join('')
+function protBadges(keys) {
+  return keys.map(k => { const p = PROTEINAS.find(x => x.key===k); return p ? `<span class="badge badge-protein">${p.label}</span>` : '' }).join('')
 }
-
-const FASES_LISTA = ['Manutenção','Filhote','Gestação / Lactação','Idoso','Perda de peso','Renal','Outro']
 
 // ── TOAST ──
 function toast(msg, type='success') {
@@ -360,7 +466,7 @@ function toast(msg, type='success') {
 // ── API ──
 async function apiFetch(url, opts={}) {
   const res = await fetch(API + url, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: {'Content-Type':'application/json'},
     ...opts,
     body: opts.body ? JSON.stringify(opts.body) : undefined
   })
@@ -369,12 +475,12 @@ async function apiFetch(url, opts={}) {
 }
 
 async function carregarDietas() {
-  try {
-    dietas = await apiFetch('/dietas')
-    document.getElementById('sb-count').textContent = dietas.length
-  } catch(e) {
-    toast('Erro ao carregar dietas.', 'error')
-  }
+  try { dietas = await apiFetch('/dietas'); document.getElementById('sb-count').textContent = dietas.length }
+  catch(e) { toast('Erro ao carregar dietas.','error') }
+}
+async function carregarPets() {
+  try { pets = await apiFetch('/pets'); document.getElementById('sb-pets').textContent = pets.length }
+  catch(e) { toast('Erro ao carregar pacientes.','error') }
 }
 
 // ── NAV ──
@@ -384,14 +490,16 @@ function goTo(page, el) {
   document.getElementById('page-' + page).classList.add('active')
   if (el) el.classList.add('active')
   const map = {
-    banco:    ['Banco de dietas',  'Gerencie as receitas formuladas no Supercrac'],
-    consulta: ['Nova consulta',    'Preencha os dados e gere o cardápio'],
-    cardapio: ['Cardápio gerado',  'Pronto para imprimir ou salvar como PDF']
+    banco:     ['Banco de dietas',   'Gerencie as receitas formuladas no Supercrac'],
+    pacientes: ['Pacientes',         'Cadastro e histórico dos pets atendidos'],
+    consulta:  ['Nova consulta',     'Preencha os dados e gere o cardápio'],
+    cardapio:  ['Cardápio gerado',   'Pronto para imprimir ou salvar como PDF'],
   }
   document.getElementById('topbar-title').textContent = map[page][0]
   document.getElementById('topbar-sub').textContent   = map[page][1]
-  if (page === 'banco')    renderLista()
-  if (page === 'consulta') { renderConsultaDietas(); setDataHoje() }
+  if (page==='banco')     renderLista()
+  if (page==='pacientes') { mostrarListaPets(); renderPets() }
+  if (page==='consulta')  { renderConsultaDietas(); setDataHoje() }
 }
 
 function setDataHoje() {
@@ -399,14 +507,14 @@ function setDataHoje() {
   if (!d.value) d.value = new Date().toISOString().split('T')[0]
 }
 
-// ── BANCO ──
+// ══ BANCO ══
 function bancoTab(tab, el) {
   document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'))
   el.classList.add('active')
-  document.getElementById('banco-lista-view').style.display = tab === 'lista' ? 'block' : 'none'
-  document.getElementById('banco-nova-view').style.display  = tab === 'nova'  ? 'block' : 'none'
-  if (tab === 'lista') renderLista()
-  if (tab === 'nova' && !editingId) initNova()
+  document.getElementById('banco-lista-view').style.display = tab==='lista' ? 'block' : 'none'
+  document.getElementById('banco-nova-view').style.display  = tab==='nova'  ? 'block' : 'none'
+  if (tab==='lista') renderLista()
+  if (tab==='nova' && !editingDietId) initNova()
 }
 
 function dietaPassaFiltro(d) {
@@ -416,89 +524,55 @@ function dietaPassaFiltro(d) {
   if (filtroFase && d.fase !== filtroFase) return false
   return true
 }
-
-function toggleFiltroProteina(key) {
-  filtroProteinas = filtroProteinas.includes(key)
-    ? filtroProteinas.filter(k => k !== key)
-    : [...filtroProteinas, key]
-  renderLista()
-}
-
-function toggleFiltroEspecie(val) {
-  filtroEspecie = filtroEspecie === val ? '' : val
-  renderLista()
-}
-
-function toggleFiltroFase(val) {
-  filtroFase = filtroFase === val ? '' : val
-  renderLista()
-}
-
-function limparFiltros() {
-  filtroProteinas = []; filtroEspecie = ''; filtroFase = ''
-  renderLista()
-}
+function toggleFP(key) { filtroProteinas = filtroProteinas.includes(key) ? filtroProteinas.filter(k=>k!==key) : [...filtroProteinas,key]; renderLista() }
+function toggleFE(val) { filtroEspecie = filtroEspecie===val?'':val; renderLista() }
+function toggleFF(val) { filtroFase = filtroFase===val?'':val; renderLista() }
+function limparFiltros() { filtroProteinas=[]; filtroEspecie=''; filtroFase=''; renderLista() }
 
 function renderLista() {
   document.getElementById('sb-count').textContent = dietas.length
   const el = document.getElementById('banco-lista-view')
-  if (!dietas.length) {
-    el.innerHTML = '<div class="empty"><i class="ti ti-database"></i><p>Nenhuma dieta cadastrada.</p></div>'
-    return
-  }
-
-  // proteínas disponíveis no banco
-  const protsDisponiveis = PROTEINAS.filter(p =>
-    dietas.some(d => detectarProteinas(d.ingredientes).includes(p.key))
-  )
-  const fasesDisponiveis = [...new Set(dietas.map(d => d.fase))]
+  if (!dietas.length) { el.innerHTML = '<div class="empty"><i class="ti ti-database"></i><p>Nenhuma dieta cadastrada.</p></div>'; return }
+  const protsDisp = PROTEINAS.filter(p => dietas.some(d => detectarProteinas(d.ingredientes).includes(p.key)))
+  const fasesDisp = [...new Set(dietas.map(d => d.fase))]
   const temFiltro = filtroProteinas.length || filtroEspecie || filtroFase
   const filtradas = dietas.filter(dietaPassaFiltro)
-
-  const filtrosHtml = `
-    <div class="filtros-wrap">
-      <span class="filtros-label">Proteína</span>
-      ${protsDisponiveis.map(p => `
-        <span class="filtro-tag ${filtroProteinas.includes(p.key)?'ativo':''}" onclick="toggleFiltroProteina('${p.key}')">${p.label}</span>
-      `).join('')}
-      <div class="filtros-sep"></div>
-      <span class="filtro-tag ${filtroEspecie==='cao'?'ativo':''}" onclick="toggleFiltroEspecie('cao')">🐕 Cão</span>
-      <span class="filtro-tag ${filtroEspecie==='gato'?'ativo':''}" onclick="toggleFiltroEspecie('gato')">🐈 Gato</span>
-      <div class="filtros-sep"></div>
-      ${fasesDisponiveis.map(f => `
-        <span class="filtro-tag ${filtroFase===f?'ativo':''}" onclick="toggleFiltroFase('${f}')">${f}</span>
-      `).join('')}
-      ${temFiltro ? `<button class="btn-limpar" onclick="limparFiltros()">Limpar filtros</button>` : ''}
-      <span class="filtros-count">${filtradas.length} de ${dietas.length}</span>
-    </div>`
-
-  const listHtml = filtradas.length === 0
-    ? '<div class="empty"><i class="ti ti-filter-off"></i><p>Nenhuma dieta encontrada com esses filtros.</p></div>'
+  const filtrosHtml = `<div class="filtros-wrap">
+    <span class="filtros-label">Proteína</span>
+    ${protsDisp.map(p=>`<span class="filtro-tag ${filtroProteinas.includes(p.key)?'ativo':''}" onclick="toggleFP('${p.key}')">${p.label}</span>`).join('')}
+    <div class="filtros-sep"></div>
+    <span class="filtro-tag ${filtroEspecie==='cao'?'ativo':''}" onclick="toggleFE('cao')">🐕 Cão</span>
+    <span class="filtro-tag ${filtroEspecie==='gato'?'ativo':''}" onclick="toggleFE('gato')">🐈 Gato</span>
+    <div class="filtros-sep"></div>
+    ${fasesDisp.map(f=>`<span class="filtro-tag ${filtroFase===f?'ativo':''}" onclick="toggleFF('${f}')">${f}</span>`).join('')}
+    ${temFiltro?`<button class="btn-limpar" onclick="limparFiltros()">Limpar filtros</button>`:''}
+    <span class="filtros-count">${filtradas.length} de ${dietas.length}</span>
+  </div>`
+  const listHtml = filtradas.length===0
+    ? '<div class="empty"><i class="ti ti-filter-off"></i><p>Nenhuma dieta com esses filtros.</p></div>'
     : filtradas.map(d => {
         const prots = detectarProteinas(d.ingredientes)
-        return `
-          <div class="diet-item">
-            <div style="flex:1">
-              <div class="diet-item-name">${d.nome}</div>
-              <div class="diet-item-meta">
-                <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
-                <span class="badge badge-phase">${d.fase}</span>
-                ${proteínasBadges(prots)}
-                <span class="badge" style="background:var(--bg);color:var(--text-2)">${d.ingredientes.length} ingredientes</span>
-              </div>
+        return `<div class="diet-item">
+          <div style="flex:1">
+            <div class="diet-item-name">${d.nome}</div>
+            <div class="diet-item-meta">
+              <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
+              <span class="badge badge-phase">${d.fase}</span>
+              ${protBadges(prots)}
+              <span class="badge" style="background:var(--bg);color:var(--text-2)">${d.ingredientes.length} ingredientes</span>
             </div>
-            <div class="diet-item-actions">
-              <button class="btn btn-sm" onclick="editarDieta('${d.id}')"><i class="ti ti-edit"></i> Editar</button>
-              <button class="btn btn-sm btn-danger" onclick="excluirDieta('${d.id}')"><i class="ti ti-trash"></i></button>
-            </div>
-          </div>`
+          </div>
+          <div class="diet-item-actions">
+            <button class="btn btn-sm" onclick="editarDieta('${d.id}')"><i class="ti ti-edit"></i> Editar</button>
+            <button class="btn btn-sm btn-danger" onclick="excluirDieta('${d.id}')"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>`
       }).join('')
-
   el.innerHTML = filtrosHtml + listHtml
 }
 
 function initNova() {
-  editingId = null; ingrCount = 0
+  editingDietId = null; ingrCount = 0
   document.getElementById('ingr-list').innerHTML = ''
   ;['n-nome','n-obs','g-pb','g-ee','g-fb','g-mm','g-ca-min','g-ca-max','g-p','g-um','g-em'].forEach(id => document.getElementById(id).value = '')
   document.getElementById('n-especie').value = 'cao'
@@ -506,15 +580,11 @@ function initNova() {
   addIngr(); addIngr(); addIngr()
 }
 
-function addIngr(n='', sc='', u='g') {
-  const id = 'ir-' + ingrCount++
+function addIngr(n='',sc='',u='g') {
+  const id = 'ir-'+ingrCount++
   const div = document.createElement('div')
-  div.className = 'ingr-row'; div.id = id
-  div.innerHTML = `
-    <input type="text" placeholder="Nome do ingrediente" value="${n}">
-    <input type="number" placeholder="0.0" value="${sc}" min="0" step="0.01">
-    <input type="text" placeholder="g" value="${u}">
-    <button class="btn btn-sm btn-danger btn-icon" onclick="document.getElementById('${id}').remove()"><i class="ti ti-x"></i></button>`
+  div.className='ingr-row'; div.id=id
+  div.innerHTML=`<input type="text" placeholder="Nome do ingrediente" value="${n}"><input type="number" placeholder="0.0" value="${sc}" min="0" step="0.01"><input type="text" placeholder="g" value="${u}"><button class="btn btn-sm btn-danger btn-icon" onclick="document.getElementById('${id}').remove()"><i class="ti ti-x"></i></button>`
   document.getElementById('ingr-list').appendChild(div)
 }
 
@@ -524,72 +594,332 @@ async function salvarDieta() {
   const ingredientes = []
   document.querySelectorAll('#ingr-list .ingr-row').forEach(row => {
     const inp = row.querySelectorAll('input')
-    const n = inp[0].value.trim(), sc = parseFloat(inp[1].value), u = inp[2].value.trim()
-    if (n && sc) ingredientes.push({ n, sc, u: u||'g' })
+    const n=inp[0].value.trim(), sc=parseFloat(inp[1].value), u=inp[2].value.trim()
+    if (n && sc) ingredientes.push({n, sc, u:u||'g'})
   })
   if (!ingredientes.length) { alert('Adicione pelo menos um ingrediente.'); return }
   const garantias = {}
   ;[['pb','g-pb'],['ee','g-ee'],['fb','g-fb'],['mm','g-mm'],['ca_min','g-ca-min'],['ca_max','g-ca-max'],['p','g-p'],['um','g-um'],['em','g-em']].forEach(([k,id]) => {
-    const v = parseFloat(document.getElementById(id).value)
-    if (!isNaN(v)) garantias[k] = v
+    const v = parseFloat(document.getElementById(id).value); if (!isNaN(v)) garantias[k]=v
   })
-  const body = { nome, especie: document.getElementById('n-especie').value, fase: document.getElementById('n-fase').value, obs: document.getElementById('n-obs').value.trim(), garantias, ingredientes }
+  const body = {nome, especie:document.getElementById('n-especie').value, fase:document.getElementById('n-fase').value, obs:document.getElementById('n-obs').value.trim(), garantias, ingredientes}
   try {
-    if (editingId) {
-      const updated = await apiFetch(`/dietas/${editingId}`, { method: 'PUT', body })
-      dietas = dietas.map(d => d.id === editingId ? updated : d)
-      toast('Dieta atualizada!')
-    } else {
-      const nova = await apiFetch('/dietas', { method: 'POST', body })
-      dietas.push(nova)
-      toast('Dieta cadastrada!')
-    }
-    editingId = null
-    bancoTab('lista', document.querySelector('.seg-btn'))
-  } catch(e) {
-    toast('Erro ao salvar.', 'error')
-  }
+    if (editingDietId) { const u=await apiFetch(`/dietas/${editingDietId}`,{method:'PUT',body}); dietas=dietas.map(d=>d.id===editingDietId?u:d); toast('Dieta atualizada!') }
+    else { const nova=await apiFetch('/dietas',{method:'POST',body}); dietas.push(nova); toast('Dieta cadastrada!') }
+    editingDietId=null; bancoTab('lista',document.querySelector('.seg-btn'))
+  } catch(e) { toast('Erro ao salvar.','error') }
 }
 
 async function excluirDieta(id) {
   if (!confirm('Excluir esta dieta?')) return
-  try {
-    await apiFetch(`/dietas/${id}`, { method: 'DELETE' })
-    dietas = dietas.filter(d => d.id !== id)
-    renderLista()
-    toast('Dieta excluída.')
-  } catch(e) { toast('Erro ao excluir.', 'error') }
+  try { await apiFetch(`/dietas/${id}`,{method:'DELETE'}); dietas=dietas.filter(d=>d.id!==id); renderLista(); toast('Dieta excluída.') }
+  catch(e) { toast('Erro ao excluir.','error') }
 }
 
 function editarDieta(id) {
-  const d = dietas.find(x => x.id === id); if (!d) return
-  editingId = id
-  bancoTab('nova', document.querySelectorAll('.seg-btn')[1])
-  setTimeout(() => {
-    document.getElementById('n-nome').value    = d.nome
-    document.getElementById('n-especie').value = d.especie
-    document.getElementById('n-fase').value    = d.fase
-    document.getElementById('n-obs').value     = d.obs||''
-    ;[['pb','g-pb'],['ee','g-ee'],['fb','g-fb'],['mm','g-mm'],['ca_min','g-ca-min'],['ca_max','g-ca-max'],['p','g-p'],['um','g-um'],['em','g-em']].forEach(([k,id]) => {
-      document.getElementById(id).value = d.garantias[k]||''
-    })
-    document.getElementById('ingr-list').innerHTML = ''; ingrCount = 0
-    d.ingredientes.forEach(i => addIngr(i.n, i.sc, i.u))
-  }, 30)
+  const d=dietas.find(x=>x.id===id); if (!d) return
+  editingDietId=id
+  bancoTab('nova',document.querySelectorAll('.seg-btn')[1])
+  setTimeout(()=>{
+    document.getElementById('n-nome').value=d.nome
+    document.getElementById('n-especie').value=d.especie
+    document.getElementById('n-fase').value=d.fase
+    document.getElementById('n-obs').value=d.obs||''
+    ;[['pb','g-pb'],['ee','g-ee'],['fb','g-fb'],['mm','g-mm'],['ca_min','g-ca-min'],['ca_max','g-ca-max'],['p','g-p'],['um','g-um'],['em','g-em']].forEach(([k,id])=>{ document.getElementById(id).value=d.garantias[k]||'' })
+    document.getElementById('ingr-list').innerHTML=''; ingrCount=0
+    d.ingredientes.forEach(i=>addIngr(i.n,i.sc,i.u))
+  },30)
+}
+function cancelarNova() { editingDietId=null; bancoTab('lista',document.querySelector('.seg-btn')) }
+
+// ══ PACIENTES ══
+function mostrarListaPets() {
+  document.getElementById('pacientes-lista-view').style.display='block'
+  document.getElementById('pacientes-form-view').style.display='none'
+  document.getElementById('pacientes-perfil-view').style.display='none'
 }
 
-function cancelarNova() {
-  editingId = null
-  bancoTab('lista', document.querySelector('.seg-btn'))
+function renderPets() {
+  const busca = (document.getElementById('pets-busca').value||'').toLowerCase()
+  const esp   = document.getElementById('pets-esp-filtro').value
+  document.getElementById('sb-pets').textContent = pets.length
+  const el = document.getElementById('pets-lista')
+  let filtrados = pets
+  if (busca) filtrados = filtrados.filter(p => (p.nome_pet||'').toLowerCase().includes(busca)||(p.nome_tutor||'').toLowerCase().includes(busca))
+  if (esp)   filtrados = filtrados.filter(p => p.especie===esp)
+  if (!filtrados.length) { el.innerHTML='<div class="empty"><i class="ti ti-paw"></i><p>Nenhum paciente encontrado.</p></div>'; return }
+  el.innerHTML = filtrados.map(p => `
+    <div class="pet-item" onclick="abrirPerfil('${p.id}')">
+      <div style="display:flex;align-items:center;flex:1">
+        <div class="pet-avatar">${p.especie==='gato'?'🐈':'🐕'}</div>
+        <div>
+          <div class="pet-name">${p.nome_pet}</div>
+          <div class="pet-tutor">Tutor: ${p.nome_tutor}</div>
+          <div class="pet-meta">
+            <span class="badge ${p.especie==='cao'?'badge-dog':'badge-cat'}">${p.especie==='cao'?'Cão':'Gato'}</span>
+            ${p.raca?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.raca}</span>`:''}
+            ${p.peso_atual?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.peso_atual} kg</span>`:''}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
+        <button class="btn btn-sm" onclick="editarPet('${p.id}')"><i class="ti ti-edit"></i> Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="excluirPet('${p.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`).join('')
+}
+
+function abrirNovoPet() {
+  editingPetId=null
+  ;['pt-tutor','pt-cpf','pt-tel','pt-email','pt-cidade','pt-estado','pt-nome','pt-raca','pt-exercicios','pt-historico','pt-objetivos'].forEach(id=>document.getElementById(id).value='')
+  ;['pt-especie','pt-sexo','pt-castrado','pt-dentropes','pt-tipdieta','pt-atividade','pt-ambiente','pt-convivencia'].forEach(id=>document.getElementById(id).value='')
+  document.getElementById('pt-especie').value='cao'
+  ;['pt-idade','pt-peso','pt-pesoideal'].forEach(id=>document.getElementById(id).value='')
+  document.getElementById('pt-aniversario').value=''
+  document.getElementById('pacientes-lista-view').style.display='none'
+  document.getElementById('pacientes-form-view').style.display='block'
+  document.getElementById('pacientes-perfil-view').style.display='none'
+}
+
+function editarPet(id) {
+  const p=pets.find(x=>x.id===id); if (!p) return
+  editingPetId=id
+  document.getElementById('pt-tutor').value=p.nome_tutor||''
+  document.getElementById('pt-cpf').value=p.cpf||''
+  document.getElementById('pt-tel').value=p.telefone||''
+  document.getElementById('pt-email').value=p.email||''
+  document.getElementById('pt-cidade').value=p.cidade||''
+  document.getElementById('pt-estado').value=p.estado||''
+  document.getElementById('pt-nome').value=p.nome_pet||''
+  document.getElementById('pt-especie').value=p.especie||'cao'
+  document.getElementById('pt-raca').value=p.raca||''
+  document.getElementById('pt-sexo').value=p.sexo||''
+  document.getElementById('pt-castrado').value=p.castrado===null?'':String(p.castrado)
+  document.getElementById('pt-idade').value=p.idade_anos||''
+  document.getElementById('pt-aniversario').value=p.aniversario||''
+  document.getElementById('pt-peso').value=p.peso_atual||''
+  document.getElementById('pt-pesoideal').value=p.peso_ideal||''
+  document.getElementById('pt-dentropes').value=p.dentro_peso_ideal===null?'':String(p.dentro_peso_ideal)
+  document.getElementById('pt-tipdieta').value=p.tipo_dieta_atual||''
+  document.getElementById('pt-atividade').value=p.nivel_atividade||''
+  document.getElementById('pt-exercicios').value=p.frequencia_exercicios||''
+  document.getElementById('pt-ambiente').value=p.ambiente||''
+  document.getElementById('pt-convivencia').value=p.convivencia_animais===null?'':String(p.convivencia_animais)
+  document.getElementById('pt-historico').value=p.historico_saude||''
+  document.getElementById('pt-objetivos').value=p.objetivos_tutor||''
+  document.getElementById('pacientes-lista-view').style.display='none'
+  document.getElementById('pacientes-form-view').style.display='block'
+  document.getElementById('pacientes-perfil-view').style.display='none'
+}
+
+async function salvarPet() {
+  const nome_tutor=document.getElementById('pt-tutor').value.trim()
+  const nome_pet=document.getElementById('pt-nome').value.trim()
+  if (!nome_tutor||!nome_pet) { alert('Informe nome do tutor e do pet.'); return }
+  const boolVal = (id) => { const v=document.getElementById(id).value; return v===''?null:v==='true' }
+  const body = {
+    nome_tutor, nome_pet,
+    cpf:document.getElementById('pt-cpf').value.trim()||null,
+    telefone:document.getElementById('pt-tel').value.trim()||null,
+    email:document.getElementById('pt-email').value.trim()||null,
+    cidade:document.getElementById('pt-cidade').value.trim()||null,
+    estado:document.getElementById('pt-estado').value.trim()||null,
+    especie:document.getElementById('pt-especie').value||'cao',
+    raca:document.getElementById('pt-raca').value.trim()||null,
+    sexo:document.getElementById('pt-sexo').value||null,
+    castrado:boolVal('pt-castrado'),
+    idade_anos:parseFloat(document.getElementById('pt-idade').value)||null,
+    aniversario:document.getElementById('pt-aniversario').value||null,
+    peso_atual:parseFloat(document.getElementById('pt-peso').value)||null,
+    peso_ideal:parseFloat(document.getElementById('pt-pesoideal').value)||null,
+    dentro_peso_ideal:boolVal('pt-dentropes'),
+    tipo_dieta_atual:document.getElementById('pt-tipdieta').value||null,
+    nivel_atividade:document.getElementById('pt-atividade').value||null,
+    frequencia_exercicios:document.getElementById('pt-exercicios').value.trim()||null,
+    ambiente:document.getElementById('pt-ambiente').value||null,
+    convivencia_animais:boolVal('pt-convivencia'),
+    historico_saude:document.getElementById('pt-historico').value.trim()||null,
+    objetivos_tutor:document.getElementById('pt-objetivos').value.trim()||null,
+  }
+  try {
+    if (editingPetId) {
+      const u=await apiFetch(`/pets/${editingPetId}`,{method:'PUT',body}); pets=pets.map(p=>p.id===editingPetId?u:p); toast('Paciente atualizado!')
+    } else {
+      const novo=await apiFetch('/pets',{method:'POST',body}); pets.push(novo); toast('Paciente cadastrado!')
+    }
+    editingPetId=null; fecharFormPet()
+  } catch(e) { toast('Erro ao salvar paciente.','error') }
+}
+
+async function excluirPet(id) {
+  if (!confirm('Excluir este paciente e todo o histórico?')) return
+  try { await apiFetch(`/pets/${id}`,{method:'DELETE'}); pets=pets.filter(p=>p.id!==id); renderPets(); toast('Paciente excluído.') }
+  catch(e) { toast('Erro ao excluir.','error') }
+}
+
+function fecharFormPet() {
+  editingPetId=null; mostrarListaPets(); renderPets()
+}
+
+// ── PERFIL DO PET ──
+async function abrirPerfil(id) {
+  const p=pets.find(x=>x.id===id); if (!p) return
+  document.getElementById('pacientes-lista-view').style.display='none'
+  document.getElementById('pacientes-form-view').style.display='none'
+  const el=document.getElementById('pacientes-perfil-view')
+  el.style.display='block'
+  el.innerHTML='<div class="loading"><div class="spinner"></div> Carregando perfil...</div>'
+
+  let consultas=[]
+  try { consultas = await apiFetch(`/pets/${id}/consultas`) } catch(e){}
+
+  const bool = (v) => v===null||v===undefined ? '—' : v ? 'Sim' : 'Não'
+  const dietaMap = v => ({racao:'Ração',natural:'Alimentação natural',mista:'Mista'}[v]||v||'—')
+  const atividadeMap = v => ({baixo:'Baixo',moderado:'Moderado',alto:'Alto'}[v]||v||'—')
+  const ambienteMap = v => ({apartamento:'Apartamento',casa:'Casa',quintal:'Casa com quintal',rural:'Área rural'}[v]||v||'—')
+
+  const consultasHtml = !consultas.length
+    ? '<div class="empty" style="padding:20px"><i class="ti ti-history"></i><p>Nenhuma consulta registrada ainda.</p></div>'
+    : consultas.map(c => {
+        const d=dietas.find(x=>x.id===c.dieta_id)
+        const dataFmt=c.data_consulta?new Date(c.data_consulta+'T12:00').toLocaleDateString('pt-BR'):''
+        return `<div class="hist-item">
+          <div>
+            <div class="hist-data">${dataFmt}</div>
+            <div class="hist-dieta">${d?d.nome:'Dieta removida'}</div>
+            <div class="hist-vals">${c.peso_consulta}kg · Fator ${c.fator_nutricional} · ${c.consumo_g?c.consumo_g.toFixed(1)+'g/dia':''}</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            ${d?`<button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}','${d.id}',${c.peso_consulta})"><i class="ti ti-refresh"></i> Nova consulta</button>`:''}
+          </div>
+        </div>`
+      }).join('')
+
+  el.innerHTML = `
+    <button class="btn" style="margin-bottom:16px" onclick="mostrarListaPets();renderPets()"><i class="ti ti-arrow-left"></i> Voltar</button>
+    <div class="perfil-header">
+      <div class="perfil-avatar">${p.especie==='gato'?'🐈':'🐕'}</div>
+      <div>
+        <div class="perfil-nome">${p.nome_pet}</div>
+        <div class="perfil-sub">Tutor: ${p.nome_tutor}${p.telefone?' · '+p.telefone:''}${p.email?' · '+p.email:''}</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <span class="badge ${p.especie==='cao'?'badge-dog':'badge-cat'}">${p.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
+          ${p.raca?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.raca}</span>`:''}
+          ${p.sexo?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.sexo==='macho'?'♂ Macho':'♀ Fêmea'}</span>`:''}
+          ${p.castrado!==null?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.castrado?'Castrado':'Não castrado'}</span>`:''}
+        </div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-sm" onclick="editarPet('${p.id}')"><i class="ti ti-edit"></i> Editar</button>
+        <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="ti ti-calculator"></i> Nova consulta</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Dados clínicos</div>
+      <div class="info-grid">
+        <div class="info-box"><div class="info-box-label">Peso atual</div><div class="info-box-val">${p.peso_atual?p.peso_atual+' kg':'—'}</div></div>
+        <div class="info-box"><div class="info-box-label">Peso ideal</div><div class="info-box-val">${p.peso_ideal?p.peso_ideal+' kg':'—'}</div></div>
+        <div class="info-box"><div class="info-box-label">Dentro do peso ideal</div><div class="info-box-val">${bool(p.dentro_peso_ideal)}</div></div>
+        <div class="info-box"><div class="info-box-label">Idade</div><div class="info-box-val">${p.idade_anos?p.idade_anos+' anos':'—'}</div></div>
+        <div class="info-box"><div class="info-box-label">Aniversário</div><div class="info-box-val">${p.aniversario?new Date(p.aniversario+'T12:00').toLocaleDateString('pt-BR'):'—'}</div></div>
+        <div class="info-box"><div class="info-box-label">Dieta atual</div><div class="info-box-val">${dietaMap(p.tipo_dieta_atual)}</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Estilo de vida</div>
+      <div class="info-grid">
+        <div class="info-box"><div class="info-box-label">Nível de atividade</div><div class="info-box-val">${atividadeMap(p.nivel_atividade)}</div></div>
+        <div class="info-box"><div class="info-box-label">Frequência de exercícios</div><div class="info-box-val">${p.frequencia_exercicios||'—'}</div></div>
+        <div class="info-box"><div class="info-box-label">Ambiente</div><div class="info-box-val">${ambienteMap(p.ambiente)}</div></div>
+        <div class="info-box"><div class="info-box-label">Convivência com animais</div><div class="info-box-val">${bool(p.convivencia_animais)}</div></div>
+        <div class="info-box"><div class="info-box-label">Cidade / Estado</div><div class="info-box-val">${[p.cidade,p.estado].filter(Boolean).join(' / ')||'—'}</div></div>
+      </div>
+    </div>
+
+    ${p.historico_saude?`<div class="card"><div class="card-title">Histórico de saúde</div><p style="font-size:13px;color:var(--text-2);line-height:1.6">${p.historico_saude}</p></div>`:''}
+    ${p.objetivos_tutor?`<div class="card"><div class="card-title">Objetivos do tutor</div><p style="font-size:13px;color:var(--text-2);line-height:1.6">${p.objetivos_tutor}</p></div>`:''}
+
+    <div class="card">
+      <div class="section-header"><div class="card-title" style="margin-bottom:0">Histórico de consultas</div>
+        <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="ti ti-plus"></i> Nova consulta</button>
+      </div>
+      ${consultasHtml}
+    </div>
+    <div style="padding-bottom:30px"></div>`
+}
+
+function iniciarConsultaPet(petId, dietaId, peso) {
+  const p=pets.find(x=>x.id===petId); if (!p) return
+  petConsultaId=petId
+  goTo('consulta',document.querySelectorAll('.nav-item')[2])
+  setTimeout(()=>{
+    // preencher pet selecionado
+    document.getElementById('c-busca-pet').value=''
+    document.getElementById('c-pets-resultados').style.display='none'
+    document.getElementById('c-ou-manual').style.display='none'
+    document.getElementById('c-pet-selecionado').style.display='block'
+    document.getElementById('c-pet-sel-nome').textContent=`${p.nome_pet} · Tutor: ${p.nome_tutor}`
+    document.getElementById('c-pet-sel-info').textContent=`${p.especie==='cao'?'Cão':'Gato'}${p.raca?' · '+p.raca:''}${p.peso_atual?' · '+p.peso_atual+' kg':''}`
+    document.getElementById('c-tutor').value=p.nome_tutor
+    document.getElementById('c-pet').value=p.nome_pet
+    if (peso) document.getElementById('c-peso').value=peso
+    document.getElementById('c-especie').value=p.especie||''
+    filtrarConsulta()
+    if (dietaId) { setTimeout(()=>{ selecionarDieta(dietaId) },100) }
+    recalcular()
+  },100)
+}
+
+// ── BUSCA PET NA CONSULTA ──
+function buscarPetConsulta() {
+  const q=(document.getElementById('c-busca-pet').value||'').toLowerCase()
+  const res=document.getElementById('c-pets-resultados')
+  if (!q) { res.style.display='none'; return }
+  const matches=pets.filter(p=>(p.nome_pet||'').toLowerCase().includes(q)||(p.nome_tutor||'').toLowerCase().includes(q)).slice(0,5)
+  if (!matches.length) { res.innerHTML='<p style="font-size:12px;color:var(--text-3);padding:8px 0">Nenhum paciente encontrado.</p>'; res.style.display='block'; return }
+  res.innerHTML=matches.map(p=>`
+    <div class="diet-select-item" onclick="selecionarPetConsulta('${p.id}')">
+      <div style="font-size:20px">${p.especie==='gato'?'🐈':'🐕'}</div>
+      <div>
+        <div style="font-size:13px;font-weight:500">${p.nome_pet}</div>
+        <div style="font-size:11px;color:var(--text-2)">Tutor: ${p.nome_tutor}${p.peso_atual?' · '+p.peso_atual+' kg':''}</div>
+      </div>
+    </div>`).join('')
+  res.style.display='block'
+}
+
+function selecionarPetConsulta(id) {
+  const p=pets.find(x=>x.id===id); if (!p) return
+  petConsultaId=id
+  document.getElementById('c-pets-resultados').style.display='none'
+  document.getElementById('c-ou-manual').style.display='none'
+  document.getElementById('c-pet-selecionado').style.display='block'
+  document.getElementById('c-pet-sel-nome').textContent=`${p.nome_pet} · Tutor: ${p.nome_tutor}`
+  document.getElementById('c-pet-sel-info').textContent=`${p.especie==='cao'?'Cão':'Gato'}${p.raca?' · '+p.raca:''}${p.peso_atual?' · '+p.peso_atual+' kg':''}`
+  document.getElementById('c-tutor').value=p.nome_tutor
+  document.getElementById('c-pet').value=p.nome_pet
+  if (p.peso_atual) document.getElementById('c-peso').value=p.peso_atual
+  if (p.especie) { document.getElementById('c-especie').value=p.especie; filtrarConsulta() }
+  recalcular()
+}
+
+function limparPetConsulta() {
+  petConsultaId=null
+  document.getElementById('c-busca-pet').value=''
+  document.getElementById('c-pets-resultados').style.display='none'
+  document.getElementById('c-pet-selecionado').style.display='none'
+  document.getElementById('c-ou-manual').style.display='block'
 }
 
 // ── CONSULTA ──
 function renderConsultaDietas() {
-  const esp = document.getElementById('c-especie').value
-  const filtered = esp ? dietas.filter(d => d.especie === esp) : dietas
-  const el = document.getElementById('consulta-dietas')
-  if (!filtered.length) { el.innerHTML = '<div class="empty"><i class="ti ti-salad"></i><p>Nenhuma dieta encontrada.</p></div>'; return }
-  el.innerHTML = filtered.map(d => `
+  const esp=document.getElementById('c-especie').value
+  const filtered=esp?dietas.filter(d=>d.especie===esp):dietas
+  const el=document.getElementById('consulta-dietas')
+  if (!filtered.length) { el.innerHTML='<div class="empty"><i class="ti ti-salad"></i><p>Nenhuma dieta encontrada.</p></div>'; return }
+  el.innerHTML=filtered.map(d=>`
     <div class="diet-select-item ${selectedDietId===d.id?'selected':''}" onclick="selecionarDieta('${d.id}')">
       <div class="radio-dot"></div>
       <div style="flex:1">
@@ -597,72 +927,77 @@ function renderConsultaDietas() {
         <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
           <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
           <span class="badge badge-phase">${d.fase}</span>
-          <span class="badge" style="background:var(--bg);color:var(--text-2)">${d.ingredientes.length} ingredientes</span>
+          ${protBadges(detectarProteinas(d.ingredientes))}
         </div>
       </div>
     </div>`).join('')
 }
 
-function filtrarConsulta() {
-  selectedDietId = null
-  document.getElementById('c-em-display').textContent = '— selecione a dieta'
-  renderConsultaDietas(); recalcular()
-}
+function filtrarConsulta() { selectedDietId=null; document.getElementById('c-em-display').textContent='— selecione a dieta'; renderConsultaDietas(); recalcular() }
 
 function selecionarDieta(id) {
-  selectedDietId = id
-  const d = dietas.find(x => x.id === id)
-  document.getElementById('c-em-display').textContent = d?.garantias?.em ? d.garantias.em + ' kcal/kg' : '— não informado'
+  selectedDietId=id
+  const d=dietas.find(x=>x.id===id)
+  document.getElementById('c-em-display').textContent=d?.garantias?.em?d.garantias.em+' kcal/kg':'— não informado'
   renderConsultaDietas(); recalcular()
 }
 
 function recalcular() {
-  const peso = parseFloat(document.getElementById('c-peso').value)
-  const fator = parseFloat(document.getElementById('c-fator').value)
-  const refei = parseInt(document.getElementById('c-refeicoes').value)||2
-  const d = dietas.find(x => x.id === selectedDietId)
-  const em = d?.garantias?.em||0
+  const peso=parseFloat(document.getElementById('c-peso').value)
+  const fator=parseFloat(document.getElementById('c-fator').value)
+  const refei=parseInt(document.getElementById('c-refeicoes').value)||2
+  const d=dietas.find(x=>x.id===selectedDietId)
+  const em=d?.garantias?.em||0
   if (!d||!peso||!fator||!em||peso<=0||fator<=0) { document.getElementById('preview-section').style.display='none'; return }
-  const nem = Math.pow(peso,0.75)*fator
-  const consumoKg = nem/em
-  const consumoG = consumoKg*1000
-  const porRefei = consumoG/refei
-  document.getElementById('p-nem').textContent    = nem.toFixed(1)
-  document.getElementById('p-consumo').textContent = consumoG.toFixed(1)
-  document.getElementById('p-refei').textContent   = porRefei.toFixed(1)
-  document.getElementById('p-info').textContent    = `${d.nome} · Consumo: ${consumoG.toFixed(1)} g/dia · ${refei}x de ${porRefei.toFixed(1)} g`
-  document.getElementById('preview-section').style.display = 'block'
-  lastCalc = { d, peso, em, fator, nem, consumoKg, consumoG, porRefei, refei }
+  const nem=Math.pow(peso,0.75)*fator
+  const consumoKg=nem/em, consumoG=consumoKg*1000, porRefei=consumoG/refei
+  document.getElementById('p-nem').textContent=nem.toFixed(1)
+  document.getElementById('p-consumo').textContent=consumoG.toFixed(1)
+  document.getElementById('p-refei').textContent=porRefei.toFixed(1)
+  document.getElementById('p-info').textContent=`${d.nome} · Consumo: ${consumoG.toFixed(1)} g/dia · ${refei}x de ${porRefei.toFixed(1)} g`
+  document.getElementById('preview-section').style.display='block'
+  lastCalc={d,peso,em,fator,nem,consumoKg,consumoG,porRefei,refei}
 }
 
-function gerarCardapio() {
+async function gerarCardapio() {
   if (!lastCalc) return
-  const { d, peso, em, fator, nem, consumoKg, consumoG, porRefei, refei } = lastCalc
-  const tutor = document.getElementById('c-tutor').value||'Tutor'
-  const pet   = document.getElementById('c-pet').value||'Pet'
-  const dataRaw = document.getElementById('c-data').value
-  const dataFmt = dataRaw ? new Date(dataRaw+'T12:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR')
+  const {d,peso,em,fator,nem,consumoKg,consumoG,porRefei,refei}=lastCalc
+  const tutor=document.getElementById('c-tutor').value||'Tutor'
+  const pet=document.getElementById('c-pet').value||'Pet'
+  const dataRaw=document.getElementById('c-data').value
+  const dataFmt=dataRaw?new Date(dataRaw+'T12:00').toLocaleDateString('pt-BR'):new Date().toLocaleDateString('pt-BR')
 
-  const ingrRows = d.ingredientes.map(i => {
-    const gTotal = consumoKg*i.sc/100*1000
-    const gRefei = gTotal/refei
+  // Salvar consulta no histórico se pet selecionado
+  if (petConsultaId) {
+    try {
+      await apiFetch('/consultas',{method:'POST',body:{
+        pet_id:petConsultaId, dieta_id:d.id, peso_consulta:peso, fator_nutricional:fator,
+        refeicoes_dia:refei, nem:parseFloat(nem.toFixed(1)), consumo_g:parseFloat(consumoG.toFixed(1)),
+        por_refeicao:parseFloat(porRefei.toFixed(1)), data_consulta:dataRaw||new Date().toISOString().split('T')[0]
+      }})
+      toast('Consulta salva no histórico do paciente!')
+    } catch(e) { toast('Cardápio gerado (erro ao salvar histórico)','error') }
+  }
+
+  const ingrRows=d.ingredientes.map(i=>{
+    const gTotal=consumoKg*i.sc/100*1000, gRefei=gTotal/refei
     return `<tr><td>${i.n}</td><td>${gTotal.toFixed(1)} ${i.u}</td><td class="bold-val">${gRefei.toFixed(1)} ${i.u}</td></tr>`
   }).join('')
 
-  const G = d.garantias
-  const garantRows = [
-    G.pb     && `<tr><td>Proteína Bruta</td><td>mín</td><td>${(G.pb*0.9).toFixed(2)}</td><td>g/kg</td></tr>`,
-    G.ee     && `<tr><td>Extrato Etéreo</td><td>mín</td><td>${(G.ee*0.9).toFixed(2)}</td><td>g/kg</td></tr>`,
-    G.fb     && `<tr><td>Fibra Bruta</td><td>máx</td><td>${(G.fb*1.1).toFixed(2)}</td><td>g/kg</td></tr>`,
-    G.mm     && `<tr><td>Matéria Mineral</td><td>máx</td><td>${(G.mm*1.1).toFixed(2)}</td><td>g/kg</td></tr>`,
-    G.ca_min && `<tr><td>Cálcio</td><td>mín</td><td>${(G.ca_min*0.9).toFixed(0)}</td><td>mg/kg</td></tr>`,
-    G.ca_max && `<tr><td>Cálcio</td><td>máx</td><td>${(G.ca_max*1.1).toFixed(0)}</td><td>mg/kg</td></tr>`,
-    G.p      && `<tr><td>Fósforo</td><td>mín</td><td>${(G.p*0.9).toFixed(0)}</td><td>mg/kg</td></tr>`,
-    G.um     && `<tr><td>Umidade</td><td>máx</td><td>${(G.um*1.1).toFixed(0)}</td><td>g/kg</td></tr>`,
-    G.em     && `<tr><td>Energia Metabolizável</td><td>ref</td><td>${G.em.toFixed(0)}</td><td>kcal/kg</td></tr>`,
+  const G=d.garantias
+  const garantRows=[
+    G.pb&&`<tr><td>Proteína Bruta</td><td>mín</td><td>${(G.pb*0.9).toFixed(2)}</td><td>g/kg</td></tr>`,
+    G.ee&&`<tr><td>Extrato Etéreo</td><td>mín</td><td>${(G.ee*0.9).toFixed(2)}</td><td>g/kg</td></tr>`,
+    G.fb&&`<tr><td>Fibra Bruta</td><td>máx</td><td>${(G.fb*1.1).toFixed(2)}</td><td>g/kg</td></tr>`,
+    G.mm&&`<tr><td>Matéria Mineral</td><td>máx</td><td>${(G.mm*1.1).toFixed(2)}</td><td>g/kg</td></tr>`,
+    G.ca_min&&`<tr><td>Cálcio</td><td>mín</td><td>${(G.ca_min*0.9).toFixed(0)}</td><td>mg/kg</td></tr>`,
+    G.ca_max&&`<tr><td>Cálcio</td><td>máx</td><td>${(G.ca_max*1.1).toFixed(0)}</td><td>mg/kg</td></tr>`,
+    G.p&&`<tr><td>Fósforo</td><td>mín</td><td>${(G.p*0.9).toFixed(0)}</td><td>mg/kg</td></tr>`,
+    G.um&&`<tr><td>Umidade</td><td>máx</td><td>${(G.um*1.1).toFixed(0)}</td><td>g/kg</td></tr>`,
+    G.em&&`<tr><td>Energia Metabolizável</td><td>ref</td><td>${G.em.toFixed(0)}</td><td>kcal/kg</td></tr>`,
   ].filter(Boolean).join('')
 
-  document.getElementById('cardapio-output').innerHTML = `
+  document.getElementById('cardapio-output').innerHTML=`
     <div class="cp-wrap"><div class="cp-card">
       <div class="cp-header">
         <div><div class="cp-brand">🐾 NutriPet</div><div class="cp-brand-sub">Cardápio Nutricional Personalizado</div></div>
@@ -681,21 +1016,18 @@ function gerarCardapio() {
         <tbody>${ingrRows}</tbody>
         <tfoot><tr class="cp-total-row"><td>Total</td><td>${consumoG.toFixed(1)} g</td><td>${porRefei.toFixed(1)} g</td></tr></tfoot>
       </table>
-      ${garantRows ? `<div class="cp-section-title" style="margin-top:4px">Níveis de garantia</div>
-      <table class="cp-garantias-table">
-        <thead><tr><th>Nutriente</th><th>Limite</th><th style="text-align:right">Valor</th><th style="text-align:right">Un.</th></tr></thead>
-        <tbody>${garantRows}</tbody>
-      </table>` : ''}
-      ${d.obs ? `<div class="cp-obs"><strong>Observações:</strong> ${d.obs}</div>` : ''}
+      ${garantRows?`<div class="cp-section-title" style="margin-top:4px">Níveis de garantia</div>
+      <table class="cp-garantias-table"><thead><tr><th>Nutriente</th><th>Limite</th><th style="text-align:right">Valor</th><th style="text-align:right">Un.</th></tr></thead><tbody>${garantRows}</tbody></table>`:''}
+      ${d.obs?`<div class="cp-obs"><strong>Observações:</strong> ${d.obs}</div>`:''}
       <div class="cp-obs"><strong>Modo de preparo:</strong> Pese cada ingrediente separadamente. Cozinhe as proteínas e vegetais. Após esfriar, acrescente o suplemento e o óleo. Misture bem e sirva em temperatura ambiente. Ofereça água fresca à vontade.</div>
       <div class="cp-footer">Formulado e balanceado no Supercrac · NutriPet · ${dataFmt}<br>NEM = ${peso}^0,75 × ${fator} = ${nem.toFixed(1)} kcal · Consumo = ${nem.toFixed(1)} ÷ ${em} = ${consumoG.toFixed(1)} g/dia</div>
     </div></div>`
 
-  goTo('cardapio', document.querySelectorAll('.nav-item')[2])
+  goTo('cardapio',document.querySelectorAll('.nav-item')[3])
 }
 
 // ── INIT ──
-carregarDietas().then(() => { renderLista(); setDataHoje() })
+Promise.all([carregarDietas(),carregarPets()]).then(()=>{renderLista();setDataHoje()})
 </script>
 </body>
 </html>
