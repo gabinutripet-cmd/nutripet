@@ -217,7 +217,7 @@
     <div class="nav-group-label">Menu</div>
     <div class="nav-item active" onclick="goTo('banco',this)"><i class="ti ti-database"></i> Banco de dietas</div>
     <div class="nav-item" onclick="goTo('pacientes',this)"><i class="ti ti-paw"></i> Pacientes</div>
-    <div class="nav-item" onclick="goTo('consulta',this)"><i class="ti ti-calculator"></i> Nova consulta</div>
+    <div class="nav-item" onclick="goTo('consulta',this)"><i class="ti ti-calculator"></i> Plano nutricional</div>
     <div class="nav-item" onclick="goTo('cardapio',this)"><i class="ti ti-file-text"></i> Cardápio gerado</div>
   </div>
   <div class="sidebar-footer"><span id="sb-count">0</span> dietas · <span id="sb-pets">0</span> pacientes</div>
@@ -451,7 +451,7 @@
     <div class="page" id="page-cardapio">
       <div class="no-print" style="display:flex;gap:8px;margin-bottom:20px">
         <button class="btn btn-primary" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir / Salvar PDF</button>
-        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[2])"><i class="ti ti-plus"></i> Nova consulta</button>
+        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[2])"><i class="ti ti-plus"></i> Nova dieta</button>
       </div>
       <div id="cardapio-output"></div>
     </div>
@@ -582,7 +582,7 @@ function goTo(page, el) {
   const map = {
     banco:     ['Banco de dietas',   'Gerencie as receitas formuladas no Supercrac'],
     pacientes: ['Pacientes',         'Cadastro e histórico dos pets atendidos'],
-    consulta:  ['Nova consulta',     'Preencha os dados e gere o cardápio'],
+    consulta:  ['Plano nutricional',     'Preencha os dados e gere o cardápio'],
     cardapio:  ['Cardápio gerado',   'Pronto para imprimir ou salvar como PDF'],
   }
   document.getElementById('topbar-title').textContent = map[page][0]
@@ -881,9 +881,9 @@ async function abrirPerfil(id) {
 
   const consultasHtml2 = !consultas.length
     ? `<div class="empty" style="padding:20px"><i class="ti ti-history"></i><p>Nenhuma consulta registrada ainda.</p></div>
-       <div style="text-align:center;margin-top:16px"><button class="btn btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="ti ti-plus"></i> Nova consulta</button></div>`
-    : `<div class="card"><div class="section-header"><div class="card-title" style="margin-bottom:0">Histórico de consultas</div>
-        <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="ti ti-plus"></i> Nova consulta</button>
+       <div style="text-align:center;margin-top:16px"><button class="btn btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="ti ti-plus"></i> Nova dieta</button></div>`
+    : `<div class="card"><div class="section-header"><div class="card-title" style="margin-bottom:0">Histórico de dietas</div>
+        <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="ti ti-plus"></i> Nova dieta</button>
       </div>` + consultas.map(cc => {
         const d=dietas.find(x=>x.id===cc.dieta_id)
         const dataFmt=cc.data_consulta?new Date(cc.data_consulta+'T12:00').toLocaleDateString('pt-BR'):''
@@ -894,7 +894,7 @@ async function abrirPerfil(id) {
             <div class="hist-vals">${cc.peso_consulta}kg · Fator ${cc.fator_nutricional} · ${cc.consumo_g?cc.consumo_g.toFixed(1)+'g/dia':''}</div>
           </div>
           <div style="display:flex;gap:6px">
-            ${d?`<button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}','${d.id}',${cc.peso_consulta})"><i class="ti ti-refresh"></i> Nova consulta</button>`:''}
+            ${d?`<button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}','${d.id}',${cc.peso_consulta})"><i class="ti ti-refresh"></i> Nova dieta</button>`:''}
           </div>
         </div>`
       }).join('') + '</div>'
@@ -943,7 +943,7 @@ async function abrirPerfil(id) {
       <div style="margin-left:auto;display:flex;gap:8px">
         <button class="btn btn-sm" onclick="editarPet('${p.id}')"><i class="ti ti-edit"></i> Editar</button>
         <button class="btn btn-sm" onclick="abrirModalMedidas('${p.id}')"><i class="ti ti-ruler"></i> Peso e medidas</button>
-        <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="ti ti-calculator"></i> Nova consulta</button>
+        <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="ti ti-calculator"></i> Nova dieta</button>
       </div>
     </div>
 
@@ -973,7 +973,7 @@ async function abrirPerfil(id) {
     <div class="perfil-tabs">
       <button class="perfil-tab active" onclick="trocarAba(this,'aba-dados','${p.id}')">📋 Dados clínicos</button>
       <button class="perfil-tab" onclick="trocarAba(this,'aba-medidas','${p.id}')">📏 Diário de medidas</button>
-      <button class="perfil-tab" onclick="trocarAba(this,'aba-consultas','${p.id}')">📅 Histórico de consultas</button>
+      <button class="perfil-tab" onclick="trocarAba(this,'aba-consultas','${p.id}')">📅 Histórico de dietas</button>
     </div>
 
     <div id="aba-dados">
