@@ -68,6 +68,16 @@
   .badge-dog{background:var(--blue-light);color:var(--blue);}
   .badge-cat{background:var(--amber-light);color:var(--amber);}
   .badge-phase{background:var(--green-light);color:var(--green-dark);}
+  .badge-protein{background:#F3EEF8;color:#6B3FA0;}
+  .filtros-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center;}
+  .filtros-label{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-right:2px;}
+  .filtro-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:5px 11px;border-radius:20px;cursor:pointer;transition:all .15s;border:1.5px solid var(--border-md);background:var(--surface);color:var(--text-2);user-select:none;}
+  .filtro-tag:hover{border-color:var(--green);color:var(--green);}
+  .filtro-tag.ativo{border-color:var(--green);background:var(--green-light);color:var(--green-dark);font-weight:600;}
+  .filtros-sep{width:1px;height:20px;background:var(--border-md);margin:0 2px;}
+  .filtros-count{font-size:11px;color:var(--text-3);margin-left:auto;}
+  .btn-limpar{font-size:11px;color:var(--text-3);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;text-decoration:underline;padding:0;}
+  .btn-limpar:hover{color:var(--text);}
   .diet-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;transition:all .15s;margin-bottom:8px;}
   .diet-item:hover{border-color:var(--border-md);box-shadow:var(--shadow);}
   .diet-item-name{font-size:14px;font-weight:500;}
@@ -313,6 +323,30 @@ const API = '/api'
 
 // ── STATE ──
 let dietas = [], selectedDietId = null, editingId = null, lastCalc = null, ingrCount = 0
+let filtroProteinas = [], filtroEspecie = '', filtroFase = ''
+
+// ── PROTEÍNAS ──
+const PROTEINAS = [
+  { label: '🍗 Frango', key: 'frango',  palavras: ['frango','galinha','ave','peru','pato','moela','fígado de frango','figado de frango'] },
+  { label: '🥩 Bovino', key: 'bovino',  palavras: ['bovino','músculo','musculo','carne','patinho','acém','acem','fígado bovino','figado bovino','coração bovino','coracao bovino'] },
+  { label: '🐷 Suíno',  key: 'suino',   palavras: ['suíno','suino','lombo','pernil'] },
+  { label: '🐟 Peixe',  key: 'peixe',   palavras: ['peixe','tilápia','tilapia','salmão','salmao','atum','sardinha','pescada'] },
+  { label: '🪲 BSF',    key: 'bsf',     palavras: ['bsf','black soldier','mosca soldado'] },
+]
+
+function detectarProteinas(ingredientes) {
+  const nomes = ingredientes.map(i => i.n.toLowerCase())
+  return PROTEINAS.filter(p => p.palavras.some(pal => nomes.some(n => n.includes(pal)))).map(p => p.key)
+}
+
+function proteínasBadges(keys) {
+  return keys.map(k => {
+    const p = PROTEINAS.find(x => x.key === k)
+    return p ? `<span class="badge badge-protein">${p.label}</span>` : ''
+  }).join('')
+}
+
+const FASES_LISTA = ['Manutenção','Filhote','Gestação / Lactação','Idoso','Perda de peso','Renal','Outro']
 
 // ── TOAST ──
 function toast(msg, type='success') {
@@ -375,6 +409,36 @@ function bancoTab(tab, el) {
   if (tab === 'nova' && !editingId) initNova()
 }
 
+function dietaPassaFiltro(d) {
+  const prots = detectarProteinas(d.ingredientes)
+  if (filtroProteinas.length && !filtroProteinas.some(p => prots.includes(p))) return false
+  if (filtroEspecie && d.especie !== filtroEspecie) return false
+  if (filtroFase && d.fase !== filtroFase) return false
+  return true
+}
+
+function toggleFiltroProteina(key) {
+  filtroProteinas = filtroProteinas.includes(key)
+    ? filtroProteinas.filter(k => k !== key)
+    : [...filtroProteinas, key]
+  renderLista()
+}
+
+function toggleFiltroEspecie(val) {
+  filtroEspecie = filtroEspecie === val ? '' : val
+  renderLista()
+}
+
+function toggleFiltroFase(val) {
+  filtroFase = filtroFase === val ? '' : val
+  renderLista()
+}
+
+function limparFiltros() {
+  filtroProteinas = []; filtroEspecie = ''; filtroFase = ''
+  renderLista()
+}
+
 function renderLista() {
   document.getElementById('sb-count').textContent = dietas.length
   const el = document.getElementById('banco-lista-view')
@@ -382,21 +446,55 @@ function renderLista() {
     el.innerHTML = '<div class="empty"><i class="ti ti-database"></i><p>Nenhuma dieta cadastrada.</p></div>'
     return
   }
-  el.innerHTML = dietas.map(d => `
-    <div class="diet-item">
-      <div>
-        <div class="diet-item-name">${d.nome}</div>
-        <div class="diet-item-meta">
-          <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
-          <span class="badge badge-phase">${d.fase}</span>
-          <span class="badge" style="background:var(--bg);color:var(--text-2)">${d.ingredientes.length} ingredientes</span>
-        </div>
-      </div>
-      <div class="diet-item-actions">
-        <button class="btn btn-sm" onclick="editarDieta('${d.id}')"><i class="ti ti-edit"></i> Editar</button>
-        <button class="btn btn-sm btn-danger" onclick="excluirDieta('${d.id}')"><i class="ti ti-trash"></i></button>
-      </div>
-    </div>`).join('')
+
+  // proteínas disponíveis no banco
+  const protsDisponiveis = PROTEINAS.filter(p =>
+    dietas.some(d => detectarProteinas(d.ingredientes).includes(p.key))
+  )
+  const fasesDisponiveis = [...new Set(dietas.map(d => d.fase))]
+  const temFiltro = filtroProteinas.length || filtroEspecie || filtroFase
+  const filtradas = dietas.filter(dietaPassaFiltro)
+
+  const filtrosHtml = `
+    <div class="filtros-wrap">
+      <span class="filtros-label">Proteína</span>
+      ${protsDisponiveis.map(p => `
+        <span class="filtro-tag ${filtroProteinas.includes(p.key)?'ativo':''}" onclick="toggleFiltroProteina('${p.key}')">${p.label}</span>
+      `).join('')}
+      <div class="filtros-sep"></div>
+      <span class="filtro-tag ${filtroEspecie==='cao'?'ativo':''}" onclick="toggleFiltroEspecie('cao')">🐕 Cão</span>
+      <span class="filtro-tag ${filtroEspecie==='gato'?'ativo':''}" onclick="toggleFiltroEspecie('gato')">🐈 Gato</span>
+      <div class="filtros-sep"></div>
+      ${fasesDisponiveis.map(f => `
+        <span class="filtro-tag ${filtroFase===f?'ativo':''}" onclick="toggleFiltroFase('${f}')">${f}</span>
+      `).join('')}
+      ${temFiltro ? `<button class="btn-limpar" onclick="limparFiltros()">Limpar filtros</button>` : ''}
+      <span class="filtros-count">${filtradas.length} de ${dietas.length}</span>
+    </div>`
+
+  const listHtml = filtradas.length === 0
+    ? '<div class="empty"><i class="ti ti-filter-off"></i><p>Nenhuma dieta encontrada com esses filtros.</p></div>'
+    : filtradas.map(d => {
+        const prots = detectarProteinas(d.ingredientes)
+        return `
+          <div class="diet-item">
+            <div style="flex:1">
+              <div class="diet-item-name">${d.nome}</div>
+              <div class="diet-item-meta">
+                <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
+                <span class="badge badge-phase">${d.fase}</span>
+                ${proteínasBadges(prots)}
+                <span class="badge" style="background:var(--bg);color:var(--text-2)">${d.ingredientes.length} ingredientes</span>
+              </div>
+            </div>
+            <div class="diet-item-actions">
+              <button class="btn btn-sm" onclick="editarDieta('${d.id}')"><i class="ti ti-edit"></i> Editar</button>
+              <button class="btn btn-sm btn-danger" onclick="excluirDieta('${d.id}')"><i class="ti ti-trash"></i></button>
+            </div>
+          </div>`
+      }).join('')
+
+  el.innerHTML = filtrosHtml + listHtml
 }
 
 function initNova() {
