@@ -645,7 +645,7 @@
     <div class="page" id="page-cardapio">
       <div class="no-print" style="display:flex;gap:8px;margin-bottom:20px">
         <button class="btn btn-primary" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir / Salvar PDF</button>
-        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[2])"><i class="ti ti-plus"></i> Nova dieta</button>
+        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[3])"><i class="ti ti-plus"></i> Nova dieta</button>
       </div>
       <div id="cardapio-output"></div>
     </div>
@@ -1128,7 +1128,7 @@ async function renderAbaAnamneses(petId) {
 
 function iniciarAnamnese(petId) {
   selecionarPetAnamnese(petId)
-  goTo('anamnese', document.querySelectorAll('.nav-item')[2])
+  goTo('anamnese',document.querySelectorAll('.nav-item')[2])
   setTimeout(() => irParaAnamnese(), 100)
 }
 
@@ -1266,7 +1266,7 @@ async function abrirPerfil(id) {
 function iniciarConsultaPet(petId, dietaId, peso) {
   const p=pets.find(x=>x.id===petId); if (!p) return
   petConsultaId=petId
-  goTo('consulta',document.querySelectorAll('.nav-item')[2])
+  goTo('consulta',document.querySelectorAll('.nav-item')[3])
   setTimeout(()=>{
     // preencher pet selecionado
     document.getElementById('c-busca-pet').value=''
@@ -1433,10 +1433,17 @@ async function gerarCardapio() {
       <table class="cp-garantias-table"><thead><tr><th>Nutriente</th><th>Limite</th><th style="text-align:right">Valor</th><th style="text-align:right">Un.</th></tr></thead><tbody>${garantRows}</tbody></table>`:''}
       ${d.obs?`<div class="cp-obs"><strong>Observações:</strong> ${d.obs}</div>`:''}
       <div class="cp-obs"><strong>Modo de preparo:</strong> Pese cada ingrediente separadamente. Cozinhe as proteínas e vegetais. Após esfriar, acrescente o suplemento e o óleo. Misture bem e sirva em temperatura ambiente. Ofereça água fresca à vontade.</div>
+      <div class="cp-obs" style="background:var(--blue-light);color:var(--blue)">
+        <strong>💧 Água diária:</strong> ${(peso * 60).toFixed(0)} mL/dia
+        <span style="font-size:10px;opacity:.7;margin-left:6px">(60 mL × ${peso} kg)</span>
+        &nbsp;&nbsp;·&nbsp;&nbsp;
+        <strong>🍃 Própolis:</strong> ${Math.max(1, Math.round(peso / 5 * 3))} gotas/dia
+        <span style="font-size:10px;opacity:.7;margin-left:6px">(3 gotas a cada 5 kg)</span>
+      </div>
       <div class="cp-footer">Formulado e balanceado no Supercrac · NutriPet · ${dataFmt}<br>NEM = ${peso}^0,75 × ${fator} = ${nem.toFixed(1)} kcal · Consumo = ${nem.toFixed(1)} ÷ ${em} = ${consumoG.toFixed(1)} g/dia</div>
     </div></div>`
 
-  goTo('cardapio',document.querySelectorAll('.nav-item')[3])
+  goTo('cardapio',document.querySelectorAll('.nav-item')[4])
 }
 
 // ══ ANAMNESE ══
