@@ -217,6 +217,7 @@
     <div class="nav-group-label">Menu</div>
     <div class="nav-item active" onclick="goTo('banco',this)"><i class="ti ti-database"></i> Banco de dietas</div>
     <div class="nav-item" onclick="goTo('pacientes',this)"><i class="ti ti-paw"></i> Pacientes</div>
+    <div class="nav-item" onclick="goTo('anamnese',this)"><i class="ti ti-clipboard-heart"></i> Iniciar consulta</div>
     <div class="nav-item" onclick="goTo('consulta',this)"><i class="ti ti-calculator"></i> Plano nutricional</div>
     <div class="nav-item" onclick="goTo('cardapio',this)"><i class="ti ti-file-text"></i> Cardápio gerado</div>
   </div>
@@ -447,6 +448,199 @@
       </div>
     </div>
 
+    <!-- ANAMNESE -->
+    <div class="page" id="page-anamnese">
+
+      <!-- PASSO 1: SELECIONAR PET -->
+      <div id="an-step-1">
+        <div class="card">
+          <div class="card-title" style="display:flex;align-items:center;gap:8px">
+            <span style="background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">1</span>
+            Selecionar paciente
+          </div>
+          <div class="search-bar" style="margin-bottom:12px">
+            <input type="text" id="an-busca-pet" placeholder="Digite nome do pet ou tutor..." oninput="buscarPetAnamnese()">
+            <button class="btn btn-primary" onclick="abrirCadastroRapido()"><i class="ti ti-plus"></i> Novo paciente</button>
+          </div>
+          <div id="an-pets-resultados"></div>
+          <div id="an-pet-selecionado" style="display:none">
+            <div style="background:var(--green-light);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--green-dark)" id="an-pet-nome">—</div>
+                <div style="font-size:12px;color:var(--green-mid);margin-top:2px" id="an-pet-info">—</div>
+              </div>
+              <button class="btn btn-sm" onclick="limparPetAnamnese()"><i class="ti ti-x"></i> Trocar</button>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:14px">
+              <button class="btn btn-primary" onclick="irParaAnamnese()"><i class="ti ti-arrow-right"></i> Iniciar anamnese</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CADASTRO RÁPIDO -->
+        <div id="an-cadastro-rapido" style="display:none">
+          <div class="card">
+            <div class="card-title">Cadastro rápido do paciente</div>
+            <div class="form-grid form-grid-2" style="margin-bottom:14px">
+              <div class="field"><label>Nome do tutor *</label><input type="text" id="cr-tutor" placeholder="Ex: Maria Silva"></div>
+              <div class="field"><label>Telefone</label><input type="text" id="cr-tel" placeholder="(11) 99999-9999"></div>
+            </div>
+            <div class="form-grid form-grid-3" style="margin-bottom:14px">
+              <div class="field"><label>Nome do pet *</label><input type="text" id="cr-nome" placeholder="Ex: Bob"></div>
+              <div class="field"><label>Espécie</label>
+                <select id="cr-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select>
+              </div>
+              <div class="field"><label>Peso atual (kg)</label><input type="number" id="cr-peso" step="0.1" min="0" placeholder="Ex: 12.5"></div>
+            </div>
+            <div class="form-grid form-grid-2">
+              <div class="field"><label>Raça</label><input type="text" id="cr-raca" placeholder="Ex: Golden Retriever"></div>
+              <div class="field"><label>Porte</label>
+                <select id="cr-porte"><option value="">Não informado</option><option value="pequeno">Pequeno</option><option value="medio">Médio</option><option value="grande">Grande</option><option value="gigante">Gigante</option></select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:16px">
+              <button class="btn btn-primary" onclick="salvarCadastroRapido()"><i class="ti ti-check"></i> Salvar e continuar</button>
+              <button class="btn" onclick="fecharCadastroRapido()">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 2: ANAMNESE -->
+      <div id="an-step-2" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <div id="an-step2-pet-info" style="flex:1"></div>
+          <button class="btn btn-sm" onclick="voltarStep1()"><i class="ti ti-arrow-left"></i> Trocar pet</button>
+        </div>
+
+        <!-- DADOS CLÍNICOS -->
+        <div class="card">
+          <div class="card-title" style="display:flex;align-items:center;gap:8px">
+            <span style="background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span>
+            Dados clínicos na consulta
+          </div>
+          <div class="form-grid form-grid-3">
+            <div class="field"><label>Data da consulta</label><input type="date" id="an-data"></div>
+            <div class="field field-var"><label>Peso na consulta (kg)</label><input type="number" id="an-peso" step="0.1" min="0" placeholder="Ex: 12.5"></div>
+            <div class="field"><label>Fator NEM utilizado</label>
+              <select id="an-fator-nem">
+                <option value="Cães Inativos - 95">Cães Inativos — 95</option>
+                <option value="Cães Pouco Ativos - 110">Cães Pouco Ativos — 110</option>
+                <option value="Cães Moderados - 130">Cães Moderados — 130</option>
+                <option value="Cães Ativos - 140">Cães Ativos — 140</option>
+                <option value="Cães Muito Ativos - 175">Cães Muito Ativos — 175</option>
+                <option value="Gatos Castrados - 100">Gatos Castrados — 100</option>
+                <option value="Gatos Inteiros - 120">Gatos Inteiros — 120</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ALIMENTAÇÃO ATUAL -->
+        <div class="card">
+          <div class="card-title">🍽️ Alimentação atual</div>
+          <div class="form-grid" style="gap:14px">
+            <div class="field"><label>Por que considera o pet no peso atual? (abaixo / ideal / acima)</label><textarea id="an-por-que-peso" placeholder="Descreva a percepção do tutor sobre o peso do pet..."></textarea></div>
+            <div class="field"><label>Quantidade diária da alimentação atual e considerações</label><textarea id="an-qtd-diaria" placeholder="Quantidades, marcas, horários, divisão de refeições..."></textarea></div>
+            <div class="field"><label>Notou diferença no apetite / atividade / micção após castração?</label><textarea id="an-diff-castracao" placeholder="Descreva alterações observadas após a castração (se aplicável)..."></textarea></div>
+          </div>
+        </div>
+
+        <!-- PETISCOS -->
+        <div class="card">
+          <div class="card-title">🦴 Petiscos</div>
+          <div class="form-grid form-grid-2">
+            <div class="field"><label>Quais petiscos costuma oferecer?</label><textarea id="an-petiscos-quais" placeholder="Ex: bifinho, snacks industrializados, frutas..."></textarea></div>
+            <div class="field"><label>Quantas vezes oferece por dia? São todos os dias?</label><textarea id="an-petiscos-freq" placeholder="Ex: 2x ao dia, todos os dias..."></textarea></div>
+          </div>
+        </div>
+
+        <!-- PREFERÊNCIAS ALIMENTARES -->
+        <div class="card">
+          <div class="card-title">✅ Preferências alimentares</div>
+          <div class="form-grid" style="gap:14px">
+            <div class="field"><label>O que já ofereceu e o pet <strong>gostou</strong>?</label><textarea id="an-gostou" placeholder="Alimentos aceitos com boa palatabilidade..."></textarea></div>
+            <div class="field"><label>O que já ofereceu e o pet <strong>não gostou</strong>?</label><textarea id="an-nao-gostou" placeholder="Alimentos rejeitados..."></textarea></div>
+            <div class="field"><label>Já passou mal com algum alimento?</label><textarea id="an-passou-mal" placeholder="Vômitos, diarreia, reações adversas..."></textarea></div>
+          </div>
+        </div>
+
+        <!-- ROTINA DO TUTOR -->
+        <div class="card">
+          <div class="card-title">🏠 Rotina do tutor</div>
+          <div class="form-grid form-grid-2" style="margin-bottom:14px">
+            <div class="field"><label>Faz comida em casa?</label>
+              <select id="an-faz-comida"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select>
+            </div>
+            <div class="field"><label>Tipo de arroz que costuma comer</label><input type="text" id="an-arroz" placeholder="Ex: branco, integral, parboilizado..."></div>
+          </div>
+          <div class="form-grid form-grid-3">
+            <div class="field"><label>Quais alimentos costuma comer?</label><textarea id="an-alimentos-tutor" placeholder="Carnes, grãos, laticínios..."></textarea></div>
+            <div class="field"><label>Frutas mais consumidas</label><textarea id="an-frutas" placeholder="Ex: banana, maçã, mamão..."></textarea></div>
+            <div class="field"><label>Legumes mais consumidos</label><textarea id="an-legumes" placeholder="Ex: cenoura, abobrinha, brócolis..."></textarea></div>
+          </div>
+        </div>
+
+        <!-- NOVA DIETA -->
+        <div class="card">
+          <div class="card-title">🥗 Nova dieta</div>
+          <div class="form-grid form-grid-2" style="margin-bottom:14px">
+            <div class="field"><label>Opção de dieta pretendida pelo tutor</label>
+              <select id="an-dieta-pretendida">
+                <option value="">Não informado</option>
+                <option value="Alimentação Natural">Alimentação Natural</option>
+                <option value="Ração">Ração</option>
+                <option value="Mix">Mix (ração + AN)</option>
+                <option value="Petiscos naturais">Petiscos naturais</option>
+              </select>
+            </div>
+            <div class="field"><label>Opção de dieta escolhida</label>
+              <select id="an-dieta-escolhida">
+                <option value="">Não informado</option>
+                <option value="Alimentação Natural">Alimentação Natural</option>
+                <option value="Ração">Ração</option>
+                <option value="Mix">Mix (ração + AN)</option>
+                <option value="Petiscos naturais">Petiscos naturais</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid form-grid-3" style="margin-bottom:14px">
+            <div class="field"><label>Em caso de ração: manter a mesma?</label>
+              <select id="an-manter-racao"><option value="">N/A</option><option value="true">Sim</option><option value="false">Não</option></select>
+            </div>
+            <div class="field"><label>Em caso de mix: manter a mesma ração?</label>
+              <select id="an-manter-racao-mix"><option value="">N/A</option><option value="true">Sim</option><option value="false">Não</option></select>
+            </div>
+            <div class="field"><label>Em caso de mix: mudar ração. Qual?</label><input type="text" id="an-mudar-racao" placeholder="Nome/marca da nova ração..."></div>
+          </div>
+          <div class="form-grid" style="gap:14px">
+            <div class="field"><label>Alimentos que gostaria que tivesse na dieta</label><textarea id="an-alimentos-desejados" placeholder="Proteínas, vegetais, frutas desejados..."></textarea></div>
+            <div class="field"><label>Alimentos que gostaria que NÃO tivesse na dieta</label><textarea id="an-alimentos-indesejados" placeholder="Restrições, preferências de exclusão..."></textarea></div>
+            <div class="field"><label>Qual a expectativa com a nova dieta?</label><textarea id="an-expectativa" placeholder="Perda de peso, manutenção, ganho de massa, saúde geral..."></textarea></div>
+            <div class="field"><label>Quanto pretende gastar com a nova dieta?</label><input type="text" id="an-orcamento" placeholder="Ex: até R$ 300/mês, sem restrição..."></div>
+            <div class="field"><label>Observações sobre a nova dieta</label><textarea id="an-obs-dieta" placeholder="Considerações adicionais sobre a dieta..."></textarea></div>
+          </div>
+        </div>
+
+        <!-- OBSERVAÇÕES DA CONSULTORIA -->
+        <div class="card">
+          <div class="card-title">📝 Observações da consultoria</div>
+          <div class="form-grid" style="gap:14px">
+            <div class="field"><label>Observações gerais da consultoria</label><textarea id="an-obs-consultoria" placeholder="Anotações da consulta..."></textarea></div>
+            <div class="field"><label>Observações do momento da consultoria</label><textarea id="an-obs-momento" placeholder="Contexto, comportamento do pet/tutor..."></textarea></div>
+            <div class="field"><label>Observações de conclusão após a consultoria</label><textarea id="an-obs-conclusao" placeholder="Conclusões, encaminhamentos, próximos passos..."></textarea></div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;padding-bottom:30px">
+          <button class="btn btn-primary" onclick="salvarAnamnese(false)"><i class="ti ti-check"></i> Salvar anamnese</button>
+          <button class="btn btn-primary" style="background:var(--purple);border-color:var(--purple)" onclick="salvarAnamnese(true)"><i class="ti ti-arrow-right"></i> Salvar e ir para Plano nutricional</button>
+          <button class="btn" onclick="voltarStep1()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
     <!-- CARDÁPIO -->
     <div class="page" id="page-cardapio">
       <div class="no-print" style="display:flex;gap:8px;margin-bottom:20px">
@@ -582,13 +776,15 @@ function goTo(page, el) {
   const map = {
     banco:     ['Banco de dietas',   'Gerencie as receitas formuladas no Supercrac'],
     pacientes: ['Pacientes',         'Cadastro e histórico dos pets atendidos'],
-    consulta:  ['Plano nutricional',     'Preencha os dados e gere o cardápio'],
+    anamnese:  ['Iniciar consulta',  'Selecione o paciente e preencha a anamnese'],
+    consulta:  ['Plano nutricional', 'Preencha os dados e gere o cardápio'],
     cardapio:  ['Cardápio gerado',   'Pronto para imprimir ou salvar como PDF'],
   }
   document.getElementById('topbar-title').textContent = map[page][0]
   document.getElementById('topbar-sub').textContent   = map[page][1]
   if (page==='banco')     renderLista()
   if (page==='pacientes') { mostrarListaPets(); renderPets() }
+  if (page==='anamnese')  resetAnamnese()
   if (page==='consulta')  { renderConsultaDietas(); setDataHoje() }
 }
 
@@ -856,9 +1052,84 @@ function fecharFormPet() {
 function trocarAba(el, abaId, petId) {
   document.querySelectorAll('.perfil-tab').forEach(t => t.classList.remove('active'))
   el.classList.add('active')
-  document.querySelectorAll('#aba-dados,#aba-medidas,#aba-consultas').forEach(a => a.style.display='none')
+  document.querySelectorAll('#aba-dados,#aba-medidas,#aba-anamneses,#aba-consultas').forEach(a => a.style.display='none')
   document.getElementById(abaId).style.display = 'block'
-  if (abaId === 'aba-medidas' && petId) renderAbaMedias(petId)
+  if (abaId === 'aba-medidas'   && petId) renderAbaMedias(petId)
+  if (abaId === 'aba-anamneses' && petId) renderAbaAnamneses(petId)
+}
+
+async function renderAbaAnamneses(petId) {
+  const el = document.getElementById('perfil-tab-anamneses')
+  if (!el) return
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>'
+  let lista = []
+  try { lista = await apiFetch(`/pets/${petId}/anamneses`) } catch(e) {}
+  if (!lista.length) {
+    el.innerHTML = `<div class="empty"><i class="ti ti-clipboard-heart"></i><p>Nenhuma anamnese registrada.</p></div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="btn btn-primary" onclick="iniciarAnamnese('${petId}')"><i class="ti ti-plus"></i> Iniciar consulta</button>
+      </div>`
+    return
+  }
+  const boolStr = v => v===null||v===undefined?'—':v?'Sim':'Não'
+  el.innerHTML = `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+      <button class="btn btn-primary btn-sm" onclick="iniciarAnamnese('${petId}')"><i class="ti ti-plus"></i> Nova anamnese</button>
+    </div>` +
+    lista.map(a => {
+      const dataFmt = a.data_consulta ? new Date(a.data_consulta+'T12:00').toLocaleDateString('pt-BR') : '—'
+      const campos = [
+        ['Data', dataFmt],
+        ['Peso na consulta', a.peso_consulta ? a.peso_consulta+' kg' : null],
+        ['Fator NEM', a.fator_nem],
+        ['Por que peso atual', a.por_que_peso_atual],
+        ['Quantidade diária', a.quantidade_diaria],
+        ['Diferença pós-castração', a.diferenca_apos_castracao],
+        ['Petiscos — quais', a.petiscos_quais],
+        ['Petiscos — frequência', a.petiscos_frequencia],
+        ['Alimentos que gostou', a.alimentos_gostou],
+        ['Alimentos que não gostou', a.alimentos_nao_gostou],
+        ['Passou mal com', a.alimentos_passou_mal],
+        ['Tutor faz comida em casa', a.faz_comida_casa!==null?boolStr(a.faz_comida_casa):null],
+        ['Alimentos do tutor', a.alimentos_tutor],
+        ['Frutas do tutor', a.frutas_tutor],
+        ['Legumes do tutor', a.legumes_tutor],
+        ['Tipo de arroz', a.arroz_tipo],
+        ['Dieta pretendida pelo tutor', a.dieta_pretendida_tutor],
+        ['Dieta escolhida', a.dieta_escolhida],
+        ['Manter ração', a.manter_racao!==null?boolStr(a.manter_racao):null],
+        ['Manter ração (mix)', a.manter_racao_mix!==null?boolStr(a.manter_racao_mix):null],
+        ['Mudar ração para', a.mudar_racao_qual],
+        ['Alimentos desejados', a.alimentos_desejados],
+        ['Alimentos indesejados', a.alimentos_indesejados],
+        ['Expectativa da dieta', a.expectativa_dieta],
+        ['Orçamento', a.orcamento_dieta],
+        ['Obs. nova dieta', a.obs_nova_dieta],
+        ['Obs. consultoria', a.obs_consultoria],
+        ['Obs. momento', a.obs_momento_consultoria],
+        ['Obs. conclusão', a.obs_conclusao],
+      ].filter(([_, v]) => v)
+
+      return `<div class="card" style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:14px;font-weight:600">📄 Anamnese — ${dataFmt}</div>
+          ${a.peso_consulta?`<span class="badge badge-phase">${a.peso_consulta} kg</span>`:''}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${campos.map(([label,val]) => `
+            <div style="background:var(--bg);border-radius:var(--radius);padding:9px 12px">
+              <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">${label}</div>
+              <div style="font-size:13px;color:var(--text);line-height:1.5">${val}</div>
+            </div>`).join('')}
+        </div>
+      </div>`
+    }).join('')
+}
+
+function iniciarAnamnese(petId) {
+  selecionarPetAnamnese(petId)
+  goTo('anamnese', document.querySelectorAll('.nav-item')[2])
+  setTimeout(() => irParaAnamnese(), 100)
 }
 
 // ── PERFIL DO PET ──
@@ -973,6 +1244,7 @@ async function abrirPerfil(id) {
     <div class="perfil-tabs">
       <button class="perfil-tab active" onclick="trocarAba(this,'aba-dados','${p.id}')">📋 Dados clínicos</button>
       <button class="perfil-tab" onclick="trocarAba(this,'aba-medidas','${p.id}')">📏 Diário de medidas</button>
+      <button class="perfil-tab" onclick="trocarAba(this,'aba-anamneses','${p.id}')">📄 Anamneses</button>
       <button class="perfil-tab" onclick="trocarAba(this,'aba-consultas','${p.id}')">📅 Histórico de dietas</button>
     </div>
 
@@ -981,6 +1253,9 @@ async function abrirPerfil(id) {
     </div>
     <div id="aba-medidas" style="display:none">
       <div id="perfil-tab-medidas"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+    </div>
+    <div id="aba-anamneses" style="display:none">
+      <div id="perfil-tab-anamneses"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
     </div>
     <div id="aba-consultas" style="display:none">
       ${consultasHtml2}
@@ -1162,6 +1437,187 @@ async function gerarCardapio() {
     </div></div>`
 
   goTo('cardapio',document.querySelectorAll('.nav-item')[3])
+}
+
+// ══ ANAMNESE ══
+let anamnesePetId = null
+
+function resetAnamnese() {
+  anamnesePetId = null
+  document.getElementById('an-step-1').style.display = 'block'
+  document.getElementById('an-step-2').style.display = 'none'
+  document.getElementById('an-busca-pet').value = ''
+  document.getElementById('an-pets-resultados').innerHTML = ''
+  document.getElementById('an-pet-selecionado').style.display = 'none'
+  document.getElementById('an-cadastro-rapido').style.display = 'none'
+}
+
+function buscarPetAnamnese() {
+  const q = (document.getElementById('an-busca-pet').value || '').toLowerCase()
+  const el = document.getElementById('an-pets-resultados')
+  if (!q) { el.innerHTML = ''; return }
+  const matches = pets.filter(p =>
+    (p.nome_pet||'').toLowerCase().includes(q) || (p.nome_tutor||'').toLowerCase().includes(q)
+  ).slice(0, 6)
+  if (!matches.length) {
+    el.innerHTML = '<p style="font-size:12px;color:var(--text-3);padding:8px 0">Nenhum paciente encontrado. Clique em "Novo paciente" para cadastrar.</p>'
+    return
+  }
+  el.innerHTML = matches.map(p => `
+    <div class="diet-select-item" onclick="selecionarPetAnamnese('${p.id}')">
+      <div style="font-size:20px">${p.especie==='gato'?'🐈':'🐕'}</div>
+      <div>
+        <div style="font-size:13px;font-weight:500">${p.nome_pet}</div>
+        <div style="font-size:11px;color:var(--text-2)">Tutor: ${p.nome_tutor}${p.peso_atual?' · '+p.peso_atual+' kg':''}</div>
+      </div>
+    </div>`).join('')
+}
+
+function selecionarPetAnamnese(id) {
+  const p = pets.find(x => x.id === id); if (!p) return
+  anamnesePetId = id
+  document.getElementById('an-pets-resultados').innerHTML = ''
+  document.getElementById('an-pet-selecionado').style.display = 'block'
+  document.getElementById('an-pet-nome').textContent = `${p.nome_pet} · Tutor: ${p.nome_tutor}`
+  document.getElementById('an-pet-info').textContent = `${p.especie==='cao'?'Cão':'Gato'}${p.raca?' · '+p.raca:''}${p.peso_atual?' · '+p.peso_atual+' kg':''}`
+}
+
+function limparPetAnamnese() {
+  anamnesePetId = null
+  document.getElementById('an-busca-pet').value = ''
+  document.getElementById('an-pets-resultados').innerHTML = ''
+  document.getElementById('an-pet-selecionado').style.display = 'none'
+}
+
+function abrirCadastroRapido() {
+  document.getElementById('an-cadastro-rapido').style.display = 'block'
+  ;['cr-tutor','cr-tel','cr-nome','cr-raca'].forEach(id => document.getElementById(id).value = '')
+  document.getElementById('cr-especie').value = 'cao'
+  document.getElementById('cr-peso').value = ''
+  document.getElementById('cr-porte').value = ''
+}
+
+function fecharCadastroRapido() {
+  document.getElementById('an-cadastro-rapido').style.display = 'none'
+}
+
+async function salvarCadastroRapido() {
+  const nome_tutor = document.getElementById('cr-tutor').value.trim()
+  const nome_pet   = document.getElementById('cr-nome').value.trim()
+  if (!nome_tutor || !nome_pet) { alert('Informe o nome do tutor e do pet.'); return }
+  const body = {
+    nome_tutor, nome_pet,
+    telefone: document.getElementById('cr-tel').value.trim() || null,
+    especie:  document.getElementById('cr-especie').value,
+    peso_atual: parseFloat(document.getElementById('cr-peso').value) || null,
+    raca:     document.getElementById('cr-raca').value.trim() || null,
+    porte:    document.getElementById('cr-porte').value || null,
+  }
+  try {
+    const novo = await apiFetch('/pets', { method:'POST', body })
+    pets.push(novo)
+    document.getElementById('sb-pets').textContent = pets.length
+    fecharCadastroRapido()
+    selecionarPetAnamnese(novo.id)
+    toast('Paciente cadastrado!')
+  } catch(e) { toast('Erro ao cadastrar paciente.', 'error') }
+}
+
+function irParaAnamnese() {
+  if (!anamnesePetId) return
+  const p = pets.find(x => x.id === anamnesePetId)
+  // Preencher campos com dados do cadastro
+  document.getElementById('an-data').value = new Date().toISOString().split('T')[0]
+  document.getElementById('an-peso').value = p?.peso_atual || ''
+  // Sugerir fator baseado em atividade
+  if (p?.nivel_atividade === 'alto') document.getElementById('an-fator-nem').value = 'Cães Ativos - 140'
+  else if (p?.nivel_atividade === 'moderado') document.getElementById('an-fator-nem').value = 'Cães Moderados - 130'
+  else document.getElementById('an-fator-nem').value = 'Cães Inativos - 95'
+  // Tipo de dieta atual
+  if (p?.tipo_dieta_atual) {
+    const map = { racao:'Ração', natural:'Alimentação Natural', mista:'Mix' }
+    document.getElementById('an-dieta-pretendida').value = map[p.tipo_dieta_atual] || ''
+  }
+  // Limpar campos livres
+  ;['an-por-que-peso','an-qtd-diaria','an-diff-castracao','an-petiscos-quais','an-petiscos-freq',
+    'an-gostou','an-nao-gostou','an-passou-mal','an-alimentos-tutor','an-frutas','an-legumes',
+    'an-arroz','an-alimentos-desejados','an-alimentos-indesejados','an-expectativa','an-orcamento',
+    'an-obs-dieta','an-obs-consultoria','an-obs-momento','an-obs-conclusao','an-mudar-racao'
+  ].forEach(id => { const el = document.getElementById(id); if(el) el.value = '' })
+  document.getElementById('an-faz-comida').value = ''
+  document.getElementById('an-manter-racao').value = ''
+  document.getElementById('an-manter-racao-mix').value = ''
+  document.getElementById('an-dieta-escolhida').value = ''
+  // Mostrar step 2
+  document.getElementById('an-step-1').style.display = 'none'
+  document.getElementById('an-step-2').style.display = 'block'
+  document.getElementById('an-step2-pet-info').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="font-size:28px">${p?.especie==='gato'?'🐈':'🐕'}</div>
+      <div>
+        <div style="font-size:16px;font-weight:600">${p?.nome_pet}</div>
+        <div style="font-size:12px;color:var(--text-2)">Tutor: ${p?.nome_tutor}${p?.peso_atual?' · '+p.peso_atual+' kg':''}</div>
+      </div>
+    </div>`
+}
+
+function voltarStep1() {
+  document.getElementById('an-step-1').style.display = 'block'
+  document.getElementById('an-step-2').style.display = 'none'
+}
+
+async function salvarAnamnese(irParaPlano) {
+  if (!anamnesePetId) return
+  const boolVal = (id) => { const v = document.getElementById(id).value; return v===''?null:v==='true' }
+  const body = {
+    data_consulta:     document.getElementById('an-data').value || new Date().toISOString().split('T')[0],
+    peso_consulta:     parseFloat(document.getElementById('an-peso').value) || null,
+    fator_nem:         document.getElementById('an-fator-nem').value || null,
+    por_que_peso_atual:document.getElementById('an-por-que-peso').value.trim() || null,
+    quantidade_diaria: document.getElementById('an-qtd-diaria').value.trim() || null,
+    diferenca_apos_castracao: document.getElementById('an-diff-castracao').value.trim() || null,
+    petiscos_quais:    document.getElementById('an-petiscos-quais').value.trim() || null,
+    petiscos_frequencia: document.getElementById('an-petiscos-freq').value.trim() || null,
+    alimentos_gostou:  document.getElementById('an-gostou').value.trim() || null,
+    alimentos_nao_gostou: document.getElementById('an-nao-gostou').value.trim() || null,
+    alimentos_passou_mal: document.getElementById('an-passou-mal').value.trim() || null,
+    faz_comida_casa:   boolVal('an-faz-comida'),
+    alimentos_tutor:   document.getElementById('an-alimentos-tutor').value.trim() || null,
+    frutas_tutor:      document.getElementById('an-frutas').value.trim() || null,
+    legumes_tutor:     document.getElementById('an-legumes').value.trim() || null,
+    arroz_tipo:        document.getElementById('an-arroz').value.trim() || null,
+    dieta_pretendida_tutor: document.getElementById('an-dieta-pretendida').value || null,
+    dieta_escolhida:   document.getElementById('an-dieta-escolhida').value || null,
+    manter_racao:      boolVal('an-manter-racao'),
+    manter_racao_mix:  boolVal('an-manter-racao-mix'),
+    mudar_racao_qual:  document.getElementById('an-mudar-racao').value.trim() || null,
+    alimentos_desejados: document.getElementById('an-alimentos-desejados').value.trim() || null,
+    alimentos_indesejados: document.getElementById('an-alimentos-indesejados').value.trim() || null,
+    expectativa_dieta: document.getElementById('an-expectativa').value.trim() || null,
+    orcamento_dieta:   document.getElementById('an-orcamento').value.trim() || null,
+    obs_nova_dieta:    document.getElementById('an-obs-dieta').value.trim() || null,
+    obs_consultoria:   document.getElementById('an-obs-consultoria').value.trim() || null,
+    obs_momento_consultoria: document.getElementById('an-obs-momento').value.trim() || null,
+    obs_conclusao:     document.getElementById('an-obs-conclusao').value.trim() || null,
+  }
+
+  try {
+    await apiFetch(`/pets/${anamnesePetId}/anamneses`, { method:'POST', body })
+    // Atualizar peso do pet se informado
+    const peso = body.peso_consulta
+    const p = pets.find(x => x.id === anamnesePetId)
+    if (peso && p && peso !== p.peso_atual) {
+      const updated = await apiFetch(`/pets/${anamnesePetId}`, { method:'PUT', body: { ...p, peso_atual: peso } })
+      pets = pets.map(x => x.id === anamnesePetId ? updated : x)
+    }
+    toast('Anamnese salva!')
+    if (irParaPlano) {
+      iniciarConsultaPet(anamnesePetId, null, peso || p?.peso_atual)
+    } else {
+      resetAnamnese()
+      goTo('pacientes', document.querySelectorAll('.nav-item')[1])
+    }
+  } catch(e) { toast('Erro ao salvar anamnese.', 'error') }
 }
 
 // ── INIT ──
