@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriPet — Plataforma de Dietas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  :root {
+    --green:#1D9E75;--green-light:#E1F5EE;--green-mid:#0F6E56;--green-dark:#085041;
+    --purple:#534AB7;--purple-light:#EEEDFE;--purple-mid:#3C3489;--purple-border:#AFA9EC;
+    --bg:#F7F6F2;--surface:#FFFFFF;--border:rgba(0,0,0,0.08);--border-md:rgba(0,0,0,0.13);
+    --text:#1A1A18;--text-2:#6B6B65;--text-3:#ADADAA;
+    --amber:#BA7517;--amber-light:#FAEEDA;--blue:#185FA5;--blue-light:#E6F1FB;
+    --red:#A32D2D;--red-light:#FCEBEB;
+    --radius:10px;--radius-lg:14px;--shadow:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;}
+  .sidebar{width:224px;min-width:224px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;}
+  .logo{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
+  .logo-mark{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600;color:var(--green);}
+  .logo-mark .paw{width:28px;height:28px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+  .logo-mark .paw i{color:#fff;font-size:15px;}
+  .logo-sub{font-size:11px;color:var(--text-3);margin-top:3px;padding-left:37px;}
+  .nav{padding:10px 0;flex:1;}
+  .nav-group-label{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;padding:10px 20px 5px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;color:var(--text-2);cursor:pointer;transition:all .15s;border-left:2px solid transparent;user-select:none;}
+  .nav-item i{font-size:16px;}
+  .nav-item:hover{background:var(--bg);color:var(--text);}
+  .nav-item.active{color:var(--green);background:var(--green-light);border-left-color:var(--green);font-weight:500;}
+  .sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--text-3);}
+  .sidebar-footer span{color:var(--green);font-weight:500;}
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;min-height:58px;}
+  .topbar-left h1{font-size:16px;font-weight:600;}
+  .topbar-left p{font-size:12px;color:var(--text-3);margin-top:1px;}
+  .content{flex:1;overflow-y:auto;padding:24px 28px;}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid var(--border-md);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;}
+  .btn:hover{background:var(--bg);}
+  .btn:active{transform:scale(.98);}
+  .btn i{font-size:15px;}
+  .btn-primary{background:var(--green);border-color:var(--green);color:#fff;}
+  .btn-primary:hover{background:var(--green-mid);border-color:var(--green-mid);}
+  .btn-danger{background:var(--red-light);border-color:transparent;color:var(--red);}
+  .btn-danger:hover{background:#F7C1C1;}
+  .btn-sm{padding:5px 11px;font-size:12px;}
+  .btn-icon{padding:7px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:14px;}
+  .card-title{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;}
+  .form-grid{display:grid;gap:14px;}
+  .form-grid-2{grid-template-columns:1fr 1fr;}
+  .form-grid-3{grid-template-columns:1fr 1fr 1fr;}
+  .field label{display:block;font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
+  .field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--surface);transition:border-color .15s;appearance:none;}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.12);}
+  .field-var label{color:var(--purple);}
+  .field-var input,.field-var select{border-color:var(--purple-border);background:var(--purple-light);color:var(--purple-mid);font-weight:500;}
+  .field-var input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(83,74,183,.13);}
+  .legend{display:flex;align-items:center;gap:16px;font-size:11px;color:var(--text-3);margin-bottom:16px;}
+  .legend-item{display:flex;align-items:center;gap:5px;}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+  .dot-green{background:var(--green);}
+  .dot-purple{background:var(--purple);}
+  .badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;}
+  .badge-dog{background:var(--blue-light);color:var(--blue);}
+  .badge-cat{background:var(--amber-light);color:var(--amber);}
+  .badge-phase{background:var(--green-light);color:var(--green-dark);}
+  .diet-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;transition:all .15s;margin-bottom:8px;}
+  .diet-item:hover{border-color:var(--border-md);box-shadow:var(--shadow);}
+  .diet-item-name{font-size:14px;font-weight:500;}
+  .diet-item-meta{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+  .diet-item-actions{display:flex;gap:6px;}
+  .diet-select-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s;margin-bottom:8px;}
+  .diet-select-item:hover{border-color:var(--green);}
+  .diet-select-item.selected{border-color:var(--green);background:#F0FCF8;}
+  .radio-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+  .diet-select-item.selected .radio-dot{border-color:var(--green);background:var(--green);}
+  .diet-select-item.selected .radio-dot::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff;}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+  .stat-box{background:var(--bg);border-radius:var(--radius);padding:12px 14px;}
+  .stat-label{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;}
+  .stat-value{font-size:22px;font-weight:600;color:var(--text);margin-top:2px;font-family:'DM Mono',monospace;}
+  .stat-unit{font-size:11px;color:var(--text-3);margin-top:1px;}
+  .ingr-header{display:grid;grid-template-columns:1fr 90px 60px 34px;gap:8px;padding:0 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+  .ingr-header span{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;}
+  .ingr-row{display:grid;grid-template-columns:1fr 90px 60px 34px;gap:8px;align-items:center;margin-bottom:7px;}
+  .ingr-row input{font-size:13px;padding:7px 10px;border:1px solid var(--border-md);border-radius:var(--radius);font-family:'DM Sans',sans-serif;color:var(--text);background:var(--surface);}
+  .ingr-row input:focus{outline:none;border-color:var(--green);}
+  .garantias-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .seg{display:flex;background:var(--bg);border-radius:var(--radius);padding:3px;margin-bottom:18px;}
+  .seg-btn{flex:1;padding:8px;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;border-radius:7px;text-align:center;transition:all .15s;border:none;background:none;font-family:'DM Sans',sans-serif;}
+  .seg-btn.active{background:var(--surface);color:var(--green);box-shadow:var(--shadow);}
+  .alert{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:14px;}
+  .alert-info{background:var(--green-light);color:var(--green-dark);}
+  .alert i{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .section-header .card-title{margin-bottom:0;}
+  .empty{text-align:center;padding:50px 20px;color:var(--text-3);}
+  .empty i{font-size:36px;display:block;margin-bottom:10px;}
+  .empty p{font-size:13px;}
+  .page{display:none;}
+  .page.active{display:block;}
+  .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text-3);font-size:13px;gap:8px;}
+  .spinner{width:18px;height:18px;border:2px solid var(--border-md);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:12px 18px;border-radius:var(--radius);font-size:13px;z-index:9999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);animation:slideUp .2s ease;}
+  .toast.success{background:var(--green-mid);}
+  .toast.error{background:var(--red);}
+  @keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .cp-wrap{max-width:580px;margin:0 auto;}
+  .cp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;}
+  .cp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+  .cp-brand{font-size:14px;font-weight:600;color:var(--green);}
+  .cp-brand-sub{font-size:10px;color:var(--text-3);margin-top:2px;}
+  .cp-pet-name{font-size:16px;font-weight:600;text-align:right;}
+  .cp-pet-sub{font-size:11px;color:var(--text-3);text-align:right;margin-top:2px;}
+  .cp-diet-title{font-size:17px;font-weight:600;margin-bottom:4px;}
+  .cp-diet-meta{font-size:12px;color:var(--text-2);margin-bottom:18px;}
+  .cp-calcs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;}
+  .cp-calc{background:var(--bg);border-radius:var(--radius);padding:10px 12px;}
+  .cp-calc-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);}
+  .cp-calc-val{font-size:16px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text);margin-top:2px;}
+  .cp-calc-unit{font-size:10px;color:var(--text-3);}
+  .cp-section-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:10px;}
+  .cp-ingr-table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px;}
+  .cp-ingr-table th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);padding:6px 0;border-bottom:1px solid var(--border);text-align:left;}
+  .cp-ingr-table th:not(:first-child){text-align:right;}
+  .cp-ingr-table td{padding:9px 0;border-bottom:1px solid var(--border);color:var(--text);}
+  .cp-ingr-table td:not(:first-child){text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--text-2);}
+  .cp-ingr-table td.bold-val{font-weight:600;color:var(--text);font-size:13px;}
+  .cp-total-row td{font-weight:600;padding-top:10px;border-top:1.5px solid var(--border-md);border-bottom:none!important;font-family:'DM Mono',monospace;font-size:13px;}
+  .cp-total-row td:first-child{font-family:'DM Sans',sans-serif;}
+  .cp-garantias-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px;}
+  .cp-garantias-table th{font-size:10px;color:var(--text-3);font-weight:600;text-transform:uppercase;padding:5px 8px;border-bottom:1px solid var(--border);text-align:left;background:var(--bg);}
+  .cp-garantias-table td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text-2);font-size:12px;}
+  .cp-garantias-table td:not(:first-child){text-align:right;font-family:'DM Mono',monospace;color:var(--text);}
+  .cp-obs{background:var(--green-light);border-radius:var(--radius);padding:12px 14px;font-size:12px;color:var(--green-dark);margin-bottom:14px;line-height:1.6;}
+  .cp-footer{font-size:10px;color:var(--text-3);text-align:center;margin-top:20px;padding-top:14px;border-top:1px solid var(--border);}
+  ::-webkit-scrollbar{width:5px;}
+  ::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:10px;}
+  @media print{.sidebar,.topbar,.no-print{display:none!important;}.main{overflow:visible;}.content{padding:0;overflow:visible;}.cp-card{border:none;}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="paw"><i class="ti ti-paw"></i></div>NutriPet
+    </div>
+    <div class="logo-sub">Plataforma de dietas</div>
+  </div>
+  <div class="nav">
+    <div class="nav-group-label">Menu</div>
+    <div class="nav-item active" onclick="goTo('banco',this)"><i class="ti ti-database"></i> Banco de dietas</div>
+    <div class="nav-item" onclick="goTo('consulta',this)"><i class="ti ti-calculator"></i> Nova consulta</div>
+    <div class="nav-item" onclick="goTo('cardapio',this)"><i class="ti ti-file-text"></i> Cardápio gerado</div>
+  </div>
+  <div class="sidebar-footer"><span id="sb-count">0</span> dietas cadastradas</div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="topbar-title">Banco de dietas</h1>
+      <p id="topbar-sub">Gerencie as receitas formuladas no Supercrac</p>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- BANCO -->
+    <div class="page active" id="page-banco">
+      <div class="seg">
+        <button class="seg-btn active" onclick="bancoTab('lista',this)"><i class="ti ti-list" style="font-size:13px;margin-right:4px"></i> Dietas cadastradas</button>
+        <button class="seg-btn" onclick="bancoTab('nova',this)"><i class="ti ti-plus" style="font-size:13px;margin-right:4px"></i> Cadastrar nova dieta</button>
+      </div>
+      <div id="banco-lista-view"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+      <div id="banco-nova-view" style="display:none">
+        <div class="card">
+          <div class="card-title">Identificação</div>
+          <div class="form-grid form-grid-2" style="margin-bottom:14px">
+            <div class="field"><label>Nome da dieta</label><input type="text" id="n-nome" placeholder="Ex: Frango Grain Free — Manutenção"></div>
+            <div class="field"><label>Espécie</label>
+              <select id="n-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select>
+            </div>
+          </div>
+          <div class="form-grid form-grid-2">
+            <div class="field"><label>Fase / Objetivo</label>
+              <select id="n-fase">
+                <option>Manutenção</option><option>Filhote</option><option>Gestação / Lactação</option>
+                <option>Idoso</option><option>Perda de peso</option><option>Renal</option><option>Outro</option>
+              </select>
+            </div>
+            <div class="field"><label>Observações</label><input type="text" id="n-obs" placeholder="Indicações, restrições..."></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-header">
+            <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:0">
+              <span class="dot dot-green" style="width:9px;height:9px"></span>
+              Ingredientes — valores SC (fixos, do Supercrac)
+            </div>
+            <button class="btn btn-sm" onclick="addIngr()"><i class="ti ti-plus"></i> Adicionar</button>
+          </div>
+          <div class="ingr-header" style="margin-top:14px">
+            <span>Ingrediente</span><span>Valor SC</span><span>Unidade</span><span></span>
+          </div>
+          <div id="ingr-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+            <span class="dot dot-green" style="width:9px;height:9px"></span>
+            Níveis de garantia — valores base (Supercrac)
+          </div>
+          <div class="garantias-grid">
+            <div class="field"><label>Proteína Bruta mín (g/kg)</label><input type="number" id="g-pb" placeholder="123.87"></div>
+            <div class="field"><label>Extrato Etéreo mín (g/kg)</label><input type="number" id="g-ee" placeholder="29.99"></div>
+            <div class="field"><label>Fibra Bruta máx (g/kg)</label><input type="number" id="g-fb" placeholder="10.7"></div>
+            <div class="field"><label>Matéria Mineral máx (g/kg)</label><input type="number" id="g-mm" placeholder="9.19"></div>
+            <div class="field"><label>Cálcio mín (mg/kg)</label><input type="number" id="g-ca-min" placeholder="2058"></div>
+            <div class="field"><label>Cálcio máx (mg/kg)</label><input type="number" id="g-ca-max" placeholder="2516"></div>
+            <div class="field"><label>Fósforo mín (mg/kg)</label><input type="number" id="g-p" placeholder="1587"></div>
+            <div class="field"><label>Umidade máx (g/kg)</label><input type="number" id="g-um" placeholder="692"></div>
+            <div class="field"><label>Energia Metabolizável (kcal/kg)</label><input type="number" id="g-em" placeholder="1465"></div>
+          </div>
+          <p style="font-size:11px;color:var(--text-3);margin-top:12px"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>Mínimos × 0,9 · Máximos × 1,1 · EM e Umidade como referência fixa.</p>
+        </div>
+        <div style="display:flex;gap:8px;padding-bottom:30px">
+          <button class="btn btn-primary" onclick="salvarDieta()"><i class="ti ti-check"></i> Salvar dieta</button>
+          <button class="btn" onclick="cancelarNova()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSULTA -->
+    <div class="page" id="page-consulta">
+      <div class="card">
+        <div class="card-title">Identificação</div>
+        <div class="form-grid form-grid-3">
+          <div class="field"><label>Nome do tutor</label><input type="text" id="c-tutor" placeholder="Ex: Maria Silva"></div>
+          <div class="field"><label>Nome do pet</label><input type="text" id="c-pet" placeholder="Ex: Bob"></div>
+          <div class="field"><label>Data</label><input type="date" id="c-data"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Selecionar dieta</div>
+        <div class="form-grid form-grid-2" style="margin-bottom:14px">
+          <div class="field"><label>Filtrar por espécie</label>
+            <select id="c-especie" onchange="filtrarConsulta()">
+              <option value="">Todas</option><option value="cao">Cão</option><option value="gato">Gato</option>
+            </select>
+          </div>
+        </div>
+        <div id="consulta-dietas"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+          <span class="dot dot-purple" style="width:9px;height:9px"></span> Variáveis da consulta
+        </div>
+        <div class="legend"><div class="legend-item"><span class="dot dot-purple"></span> Ajustáveis a cada consulta</div></div>
+        <div class="form-grid form-grid-3">
+          <div class="field field-var"><label>Peso do animal (kg)</label><input type="number" id="c-peso" step="0.1" min="0.1" placeholder="Ex: 3.4" oninput="recalcular()"></div>
+          <div class="field field-var"><label>Fator nutricional</label><input type="number" id="c-fator" step="1" min="1" placeholder="Ex: 130" oninput="recalcular()"></div>
+          <div class="field" style="background:var(--bg);border-radius:var(--radius);padding:10px 12px;border:1px solid var(--border)">
+            <label style="color:var(--text-3)">Energia Metab. da dieta (kcal/kg)</label>
+            <div id="c-em-display" style="font-size:15px;font-weight:600;color:var(--text-2);margin-top:6px;font-family:'DM Mono',monospace">— selecione a dieta</div>
+            <div style="font-size:10px;color:var(--text-3);margin-top:2px">valor fixo do cadastro</div>
+          </div>
+        </div>
+        <div class="form-grid form-grid-2" style="margin-top:14px">
+          <div class="field"><label>Refeições por dia</label>
+            <select id="c-refeicoes" onchange="recalcular()">
+              <option value="1">1 refeição / dia</option><option value="2" selected>2 refeições / dia</option>
+              <option value="3">3 refeições / dia</option><option value="4">4 refeições / dia</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="preview-section" style="display:none">
+        <div class="card">
+          <div class="card-title">Cálculo nutricional</div>
+          <div class="stats-row">
+            <div class="stat-box"><div class="stat-label">NEM</div><div class="stat-value" id="p-nem">—</div><div class="stat-unit">kcal / dia</div><div style="font-size:10px;color:var(--text-3);margin-top:4px">Peso^0,75 × Fator</div></div>
+            <div class="stat-box"><div class="stat-label">Consumo diário</div><div class="stat-value" id="p-consumo">—</div><div class="stat-unit">g / dia</div><div style="font-size:10px;color:var(--text-3);margin-top:4px">NEM ÷ EM × 1000</div></div>
+            <div class="stat-box"><div class="stat-label">Por refeição</div><div class="stat-value" id="p-refei">—</div><div class="stat-unit">g / refeição</div><div style="font-size:10px;color:var(--text-3);margin-top:4px">Consumo ÷ refeições</div></div>
+          </div>
+          <div class="alert alert-info"><i class="ti ti-check"></i><span id="p-info">—</span></div>
+        </div>
+        <div style="display:flex;gap:8px;padding-bottom:30px" class="no-print">
+          <button class="btn btn-primary" onclick="gerarCardapio()"><i class="ti ti-file-text"></i> Gerar cardápio</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDÁPIO -->
+    <div class="page" id="page-cardapio">
+      <div class="no-print" style="display:flex;gap:8px;margin-bottom:20px">
+        <button class="btn btn-primary" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir / Salvar PDF</button>
+        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[1])"><i class="ti ti-plus"></i> Nova consulta</button>
+      </div>
+      <div id="cardapio-output"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const API = '/api'
+
+// ── STATE ──
+let dietas = [], selectedDietId = null, editingId = null, lastCalc = null, ingrCount = 0
+
+// ── TOAST ──
+function toast(msg, type='success') {
+  const el = document.createElement('div')
+  el.className = `toast ${type}`
+  el.innerHTML = `<i class="ti ${type==='success'?'ti-check':'ti-x'}"></i>${msg}`
+  document.body.appendChild(el)
+  setTimeout(() => el.remove(), 3000)
+}
+
+// ── API ──
+async function apiFetch(url, opts={}) {
+  const res = await fetch(API + url, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  })
+  if (res.status === 204) return null
+  return res.json()
+}
+
+async function carregarDietas() {
+  try {
+    dietas = await apiFetch('/dietas')
+    document.getElementById('sb-count').textContent = dietas.length
+  } catch(e) {
+    toast('Erro ao carregar dietas.', 'error')
+  }
+}
+
+// ── NAV ──
+function goTo(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
+  document.getElementById('page-' + page).classList.add('active')
+  if (el) el.classList.add('active')
+  const map = {
+    banco:    ['Banco de dietas',  'Gerencie as receitas formuladas no Supercrac'],
+    consulta: ['Nova consulta',    'Preencha os dados e gere o cardápio'],
+    cardapio: ['Cardápio gerado',  'Pronto para imprimir ou salvar como PDF']
+  }
+  document.getElementById('topbar-title').textContent = map[page][0]
+  document.getElementById('topbar-sub').textContent   = map[page][1]
+  if (page === 'banco')    renderLista()
+  if (page === 'consulta') { renderConsultaDietas(); setDataHoje() }
+}
+
+function setDataHoje() {
+  const d = document.getElementById('c-data')
+  if (!d.value) d.value = new Date().toISOString().split('T')[0]
+}
+
+// ── BANCO ──
+function bancoTab(tab, el) {
+  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'))
+  el.classList.add('active')
+  document.getElementById('banco-lista-view').style.display = tab === 'lista' ? 'block' : 'none'
+  document.getElementById('banco-nova-view').style.display  = tab === 'nova'  ? 'block' : 'none'
+  if (tab === 'lista') renderLista()
+  if (tab === 'nova' && !editingId) initNova()
+}
+
+function renderLista() {
+  document.getElementById('sb-count').textContent = dietas.length
+  const el = document.getElementById('banco-lista-view')
+  if (!dietas.length) {
+    el.innerHTML = '<div class="empty"><i class="ti ti-database"></i><p>Nenhuma dieta cadastrada.</p></div>'
+    return
+  }
+  el.innerHTML = dietas.map(d => `
+    <div class="diet-item">
+      <div>
+        <div class="diet-item-name">${d.nome}</div>
+        <div class="diet-item-meta">
+          <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
+          <span class="badge badge-phase">${d.fase}</span>
+          <span class="badge" style="background:var(--bg);color:var(--text-2)">${d.ingredientes.length} ingredientes</span>
+        </div>
+      </div>
+      <div class="diet-item-actions">
+        <button class="btn btn-sm" onclick="editarDieta('${d.id}')"><i class="ti ti-edit"></i> Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="excluirDieta('${d.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`).join('')
+}
+
+function initNova() {
+  editingId = null; ingrCount = 0
+  document.getElementById('ingr-list').innerHTML = ''
+  ;['n-nome','n-obs','g-pb','g-ee','g-fb','g-mm','g-ca-min','g-ca-max','g-p','g-um','g-em'].forEach(id => document.getElementById(id).value = '')
+  document.getElementById('n-especie').value = 'cao'
+  document.getElementById('n-fase').value = 'Manutenção'
+  addIngr(); addIngr(); addIngr()
+}
+
+function addIngr(n='', sc='', u='g') {
+  const id = 'ir-' + ingrCount++
+  const div = document.createElement('div')
+  div.className = 'ingr-row'; div.id = id
+  div.innerHTML = `
+    <input type="text" placeholder="Nome do ingrediente" value="${n}">
+    <input type="number" placeholder="0.0" value="${sc}" min="0" step="0.01">
+    <input type="text" placeholder="g" value="${u}">
+    <button class="btn btn-sm btn-danger btn-icon" onclick="document.getElementById('${id}').remove()"><i class="ti ti-x"></i></button>`
+  document.getElementById('ingr-list').appendChild(div)
+}
+
+async function salvarDieta() {
+  const nome = document.getElementById('n-nome').value.trim()
+  if (!nome) { alert('Informe o nome da dieta.'); return }
+  const ingredientes = []
+  document.querySelectorAll('#ingr-list .ingr-row').forEach(row => {
+    const inp = row.querySelectorAll('input')
+    const n = inp[0].value.trim(), sc = parseFloat(inp[1].value), u = inp[2].value.trim()
+    if (n && sc) ingredientes.push({ n, sc, u: u||'g' })
+  })
+  if (!ingredientes.length) { alert('Adicione pelo menos um ingrediente.'); return }
+  const garantias = {}
+  ;[['pb','g-pb'],['ee','g-ee'],['fb','g-fb'],['mm','g-mm'],['ca_min','g-ca-min'],['ca_max','g-ca-max'],['p','g-p'],['um','g-um'],['em','g-em']].forEach(([k,id]) => {
+    const v = parseFloat(document.getElementById(id).value)
+    if (!isNaN(v)) garantias[k] = v
+  })
+  const body = { nome, especie: document.getElementById('n-especie').value, fase: document.getElementById('n-fase').value, obs: document.getElementById('n-obs').value.trim(), garantias, ingredientes }
+  try {
+    if (editingId) {
+      const updated = await apiFetch(`/dietas/${editingId}`, { method: 'PUT', body })
+      dietas = dietas.map(d => d.id === editingId ? updated : d)
+      toast('Dieta atualizada!')
+    } else {
+      const nova = await apiFetch('/dietas', { method: 'POST', body })
+      dietas.push(nova)
+      toast('Dieta cadastrada!')
+    }
+    editingId = null
+    bancoTab('lista', document.querySelector('.seg-btn'))
+  } catch(e) {
+    toast('Erro ao salvar.', 'error')
+  }
+}
+
+async function excluirDieta(id) {
+  if (!confirm('Excluir esta dieta?')) return
+  try {
+    await apiFetch(`/dietas/${id}`, { method: 'DELETE' })
+    dietas = dietas.filter(d => d.id !== id)
+    renderLista()
+    toast('Dieta excluída.')
+  } catch(e) { toast('Erro ao excluir.', 'error') }
+}
+
+function editarDieta(id) {
+  const d = dietas.find(x => x.id === id); if (!d) return
+  editingId = id
+  bancoTab('nova', document.querySelectorAll('.seg-btn')[1])
+  setTimeout(() => {
+    document.getElementById('n-nome').value    = d.nome
+    document.getElementById('n-especie').value = d.especie
+    document.getElementById('n-fase').value    = d.fase
+    document.getElementById('n-obs').value     = d.obs||''
+    ;[['pb','g-pb'],['ee','g-ee'],['fb','g-fb'],['mm','g-mm'],['ca_min','g-ca-min'],['ca_max','g-ca-max'],['p','g-p'],['um','g-um'],['em','g-em']].forEach(([k,id]) => {
+      document.getElementById(id).value = d.garantias[k]||''
+    })
+    document.getElementById('ingr-list').innerHTML = ''; ingrCount = 0
+    d.ingredientes.forEach(i => addIngr(i.n, i.sc, i.u))
+  }, 30)
+}
+
+function cancelarNova() {
+  editingId = null
+  bancoTab('lista', document.querySelector('.seg-btn'))
+}
+
+// ── CONSULTA ──
+function renderConsultaDietas() {
+  const esp = document.getElementById('c-especie').value
+  const filtered = esp ? dietas.filter(d => d.especie === esp) : dietas
+  const el = document.getElementById('consulta-dietas')
+  if (!filtered.length) { el.innerHTML = '<div class="empty"><i class="ti ti-salad"></i><p>Nenhuma dieta encontrada.</p></div>'; return }
+  el.innerHTML = filtered.map(d => `
+    <div class="diet-select-item ${selectedDietId===d.id?'selected':''}" onclick="selecionarDieta('${d.id}')">
+      <div class="radio-dot"></div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500">${d.nome}</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+          <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
+          <span class="badge badge-phase">${d.fase}</span>
+          <span class="badge" style="background:var(--bg);color:var(--text-2)">${d.ingredientes.length} ingredientes</span>
+        </div>
+      </div>
+    </div>`).join('')
+}
+
+function filtrarConsulta() {
+  selectedDietId = null
+  document.getElementById('c-em-display').textContent = '— selecione a dieta'
+  renderConsultaDietas(); recalcular()
+}
+
+function selecionarDieta(id) {
+  selectedDietId = id
+  const d = dietas.find(x => x.id === id)
+  document.getElementById('c-em-display').textContent = d?.garantias?.em ? d.garantias.em + ' kcal/kg' : '— não informado'
+  renderConsultaDietas(); recalcular()
+}
+
+function recalcular() {
+  const peso = parseFloat(document.getElementById('c-peso').value)
+  const fator = parseFloat(document.getElementById('c-fator').value)
+  const refei = parseInt(document.getElementById('c-refeicoes').value)||2
+  const d = dietas.find(x => x.id === selectedDietId)
+  const em = d?.garantias?.em||0
+  if (!d||!peso||!fator||!em||peso<=0||fator<=0) { document.getElementById('preview-section').style.display='none'; return }
+  const nem = Math.pow(peso,0.75)*fator
+  const consumoKg = nem/em
+  const consumoG = consumoKg*1000
+  const porRefei = consumoG/refei
+  document.getElementById('p-nem').textContent    = nem.toFixed(1)
+  document.getElementById('p-consumo').textContent = consumoG.toFixed(1)
+  document.getElementById('p-refei').textContent   = porRefei.toFixed(1)
+  document.getElementById('p-info').textContent    = `${d.nome} · Consumo: ${consumoG.toFixed(1)} g/dia · ${refei}x de ${porRefei.toFixed(1)} g`
+  document.getElementById('preview-section').style.display = 'block'
+  lastCalc = { d, peso, em, fator, nem, consumoKg, consumoG, porRefei, refei }
+}
+
+function gerarCardapio() {
+  if (!lastCalc) return
+  const { d, peso, em, fator, nem, consumoKg, consumoG, porRefei, refei } = lastCalc
+  const tutor = document.getElementById('c-tutor').value||'Tutor'
+  const pet   = document.getElementById('c-pet').value||'Pet'
+  const dataRaw = document.getElementById('c-data').value
+  const dataFmt = dataRaw ? new Date(dataRaw+'T12:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR')
+
+  const ingrRows = d.ingredientes.map(i => {
+    const gTotal = consumoKg*i.sc/100*1000
+    const gRefei = gTotal/refei
+    return `<tr><td>${i.n}</td><td>${gTotal.toFixed(1)} ${i.u}</td><td class="bold-val">${gRefei.toFixed(1)} ${i.u}</td></tr>`
+  }).join('')
+
+  const G = d.garantias
+  const garantRows = [
+    G.pb     && `<tr><td>Proteína Bruta</td><td>mín</td><td>${(G.pb*0.9).toFixed(2)}</td><td>g/kg</td></tr>`,
+    G.ee     && `<tr><td>Extrato Etéreo</td><td>mín</td><td>${(G.ee*0.9).toFixed(2)}</td><td>g/kg</td></tr>`,
+    G.fb     && `<tr><td>Fibra Bruta</td><td>máx</td><td>${(G.fb*1.1).toFixed(2)}</td><td>g/kg</td></tr>`,
+    G.mm     && `<tr><td>Matéria Mineral</td><td>máx</td><td>${(G.mm*1.1).toFixed(2)}</td><td>g/kg</td></tr>`,
+    G.ca_min && `<tr><td>Cálcio</td><td>mín</td><td>${(G.ca_min*0.9).toFixed(0)}</td><td>mg/kg</td></tr>`,
+    G.ca_max && `<tr><td>Cálcio</td><td>máx</td><td>${(G.ca_max*1.1).toFixed(0)}</td><td>mg/kg</td></tr>`,
+    G.p      && `<tr><td>Fósforo</td><td>mín</td><td>${(G.p*0.9).toFixed(0)}</td><td>mg/kg</td></tr>`,
+    G.um     && `<tr><td>Umidade</td><td>máx</td><td>${(G.um*1.1).toFixed(0)}</td><td>g/kg</td></tr>`,
+    G.em     && `<tr><td>Energia Metabolizável</td><td>ref</td><td>${G.em.toFixed(0)}</td><td>kcal/kg</td></tr>`,
+  ].filter(Boolean).join('')
+
+  document.getElementById('cardapio-output').innerHTML = `
+    <div class="cp-wrap"><div class="cp-card">
+      <div class="cp-header">
+        <div><div class="cp-brand">🐾 NutriPet</div><div class="cp-brand-sub">Cardápio Nutricional Personalizado</div></div>
+        <div><div class="cp-pet-name">${pet}</div><div class="cp-pet-sub">Tutor: ${tutor}</div><div class="cp-pet-sub">${dataFmt}</div></div>
+      </div>
+      <div class="cp-diet-title">${d.nome}</div>
+      <div class="cp-diet-meta">${d.especie==='cao'?'Cão':'Gato'} · ${d.fase} · Peso: ${peso} kg</div>
+      <div class="cp-calcs">
+        <div class="cp-calc"><div class="cp-calc-label">NEM</div><div class="cp-calc-val">${nem.toFixed(1)}</div><div class="cp-calc-unit">kcal/dia · fator ${fator}</div></div>
+        <div class="cp-calc"><div class="cp-calc-label">EM da dieta</div><div class="cp-calc-val">${em}</div><div class="cp-calc-unit">kcal/kg</div></div>
+        <div class="cp-calc"><div class="cp-calc-label">Consumo total</div><div class="cp-calc-val">${consumoG.toFixed(1)}</div><div class="cp-calc-unit">g/dia · ${refei}x de ${porRefei.toFixed(1)} g</div></div>
+      </div>
+      <div class="cp-section-title">Ingredientes</div>
+      <table class="cp-ingr-table">
+        <thead><tr><th>Ingrediente</th><th style="text-align:right">Total / dia</th><th style="text-align:right">Por refeição</th></tr></thead>
+        <tbody>${ingrRows}</tbody>
+        <tfoot><tr class="cp-total-row"><td>Total</td><td>${consumoG.toFixed(1)} g</td><td>${porRefei.toFixed(1)} g</td></tr></tfoot>
+      </table>
+      ${garantRows ? `<div class="cp-section-title" style="margin-top:4px">Níveis de garantia</div>
+      <table class="cp-garantias-table">
+        <thead><tr><th>Nutriente</th><th>Limite</th><th style="text-align:right">Valor</th><th style="text-align:right">Un.</th></tr></thead>
+        <tbody>${garantRows}</tbody>
+      </table>` : ''}
+      ${d.obs ? `<div class="cp-obs"><strong>Observações:</strong> ${d.obs}</div>` : ''}
+      <div class="cp-obs"><strong>Modo de preparo:</strong> Pese cada ingrediente separadamente. Cozinhe as proteínas e vegetais. Após esfriar, acrescente o suplemento e o óleo. Misture bem e sirva em temperatura ambiente. Ofereça água fresca à vontade.</div>
+      <div class="cp-footer">Formulado e balanceado no Supercrac · NutriPet · ${dataFmt}<br>NEM = ${peso}^0,75 × ${fator} = ${nem.toFixed(1)} kcal · Consumo = ${nem.toFixed(1)} ÷ ${em} = ${consumoG.toFixed(1)} g/dia</div>
+    </div></div>`
+
+  goTo('cardapio', document.querySelectorAll('.nav-item')[2])
+}
+
+// ── INIT ──
+carregarDietas().then(() => { renderLista(); setDataHoje() })
+</script>
+</body>
+</html>
