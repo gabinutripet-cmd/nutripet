@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriPet — Exportar Plano Nutricional</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+:root{
+  --green:#2EBD6B;--green-light:#E6F9EF;--green-mid:#1F9B54;--green-dark:#146638;
+  --purple:#9B59D4;--purple-light:#F3EAFD;--purple-mid:#7B3FB8;
+  --bg:#F4F3EE;--surface:#fff;--border:rgba(0,0,0,0.09);--border-md:rgba(0,0,0,0.16);
+  --text:#111110;--text-2:#52524E;--text-3:#A8A8A2;
+  --red:#C0392B;--red-light:#FDECEA;
+  --radius:10px;--radius-lg:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+.app{display:flex;min-height:100vh;}
+
+/* SIDEBAR CONFIGURAÇÃO */
+.config-panel{width:380px;min-width:380px;background:var(--surface);border-right:1.5px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow-y:auto;position:sticky;top:0;}
+.config-header{padding:24px 24px 20px;border-bottom:1.5px solid var(--border);}
+.config-header h1{font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;}
+.config-header p{font-size:12px;color:var(--text-3);margin-top:4px;}
+.config-body{padding:20px 24px;flex:1;}
+.section{margin-bottom:24px;}
+.section-title{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--text-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border-md);border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--surface);appearance:none;}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(46,189,107,.14);}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:var(--radius);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s;border:1.5px solid var(--border-md);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;width:100%;justify-content:center;}
+.btn-primary{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(46,189,107,.35);margin-top:8px;}
+.btn-primary:hover{background:var(--green-mid);}
+.btn:hover{background:var(--bg);}
+.btn-sm{padding:6px 12px;font-size:12px;width:auto;}
+
+/* SELEÇÃO DE DIETAS */
+.dieta-check{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:all .15s;}
+.dieta-check:hover{border-color:var(--green);}
+.dieta-check.checked{border-color:var(--green);background:var(--green-light);}
+.dieta-check input[type=checkbox]{accent-color:var(--green);width:16px;height:16px;flex-shrink:0;}
+.dieta-check-label{font-size:13px;font-weight:500;}
+.dieta-check-sub{font-size:11px;color:var(--text-3);margin-top:2px;}
+
+/* PREVIEW */
+.preview-area{flex:1;padding:32px;overflow-y:auto;background:var(--bg);}
+.preview-title{font-size:13px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--text-3);gap:10px;font-size:14px;}
+.spinner{width:20px;height:20px;border:2.5px solid var(--border-md);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green-mid);color:#fff;padding:14px 20px;border-radius:var(--radius);font-size:13.5px;z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:slideUp .2s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ═══════════════════════════════════════
+   PDF TEMPLATE
+   ═══════════════════════════════════════ */
+#pdf-template{width:794px;background:#fff;margin:0 auto;}
+
+.pdf-page{width:794px;min-height:1123px;background:#fff;position:relative;overflow:hidden;page-break-after:always;}
+
+/* CAPA */
+.capa{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:1123px;position:relative;text-align:center;padding:60px 80px;}
+.capa-wave-top{position:absolute;top:0;right:0;width:320px;}
+.capa-circles{position:absolute;bottom:80px;left:40px;}
+.capa-logo-icon{font-size:48px;margin-bottom:12px;}
+.capa-marca{font-size:42px;font-weight:800;color:var(--green);letter-spacing:-.02em;font-family:'DM Sans',sans-serif;}
+.capa-sub{font-size:18px;color:var(--text-3);margin-top:6px;letter-spacing:.04em;}
+.capa-divider{width:60px;height:3px;background:var(--purple-light);margin:40px auto;}
+.capa-tipo{font-size:22px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.04em;line-height:1.3;}
+.capa-feito{font-size:14px;color:var(--text-2);margin-top:16px;letter-spacing:.06em;text-transform:uppercase;}
+.capa-petname{font-size:56px;font-weight:800;color:var(--purple);font-style:italic;margin-top:8px;letter-spacing:-.02em;}
+.capa-aviso{position:absolute;bottom:32px;font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;text-align:center;width:100%;}
+
+/* FICHA */
+.ficha-page{padding:48px 56px;}
+.ficha-inner{display:flex;gap:32px;margin-bottom:32px;}
+.ficha-foto{width:220px;flex-shrink:0;}
+.ficha-foto-img{width:220px;height:220px;object-fit:cover;border-radius:16px;border:3px solid var(--green-light);}
+.ficha-foto-placeholder{width:220px;height:220px;border-radius:16px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:80px;border:3px solid var(--green-light);}
+.ficha-dados{flex:1;}
+.ficha-nome{font-size:36px;font-weight:800;color:var(--purple);font-style:italic;margin-bottom:16px;padding-bottom:10px;border-bottom:2px dashed var(--purple-light);}
+.ficha-row{display:flex;align-items:baseline;gap:8px;padding:7px 0;border-bottom:1px dashed rgba(0,0,0,0.07);}
+.ficha-label{font-size:12px;color:var(--text-3);font-style:italic;min-width:60px;}
+.ficha-value{font-size:14px;font-weight:600;color:var(--text);}
+.ficha-desc{background:var(--green-light);border-radius:12px;padding:16px 20px;font-size:13px;color:var(--green-dark);line-height:1.7;margin-top:0;}
+.ficha-desc-full{margin-top:24px;}
+
+/* CARDÁPIO PAGE */
+.cardapio-page{padding:40px 56px;}
+.cp-numero{font-size:52px;font-weight:800;text-transform:uppercase;color:var(--text);letter-spacing:-.02em;line-height:1;}
+.cp-nome-criativo{font-size:18px;font-style:italic;color:var(--purple);margin-top:4px;margin-bottom:24px;}
+.cp-section-label{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.cp-ingredientes-box{background:var(--purple-light);border-radius:12px;padding:20px 24px;margin-bottom:24px;}
+.cp-ingredientes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.cp-ingrediente-item{font-size:13px;color:var(--purple-mid);}
+.cp-porcao-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
+.cp-porcao-lista{list-style:none;}
+.cp-porcao-item{display:flex;align-items:baseline;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);}
+.cp-porcao-item:last-child{border-bottom:none;}
+.cp-porcao-nome{font-size:13px;font-weight:600;color:var(--text);flex:1;}
+.cp-porcao-g{font-size:13px;color:var(--text-2);font-family:'DM Mono',monospace;white-space:nowrap;}
+.cp-garantias-box{background:var(--purple-light);border-radius:12px;padding:16px 20px;}
+.cp-garantias-title{font-size:11px;font-weight:700;text-align:center;color:var(--purple-mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.cp-garantias-table{width:100%;border-collapse:collapse;font-size:11.5px;}
+.cp-garantias-table td{padding:4px 6px;color:var(--purple-dark);}
+.cp-garantias-table td:nth-child(2){text-align:center;color:var(--text-3);}
+.cp-garantias-table td:last-child{text-align:right;font-family:'DM Mono',monospace;font-weight:600;}
+.cp-garantias-table tr:not(:last-child) td{border-bottom:1px solid rgba(155,89,212,.15);}
+.cp-recomendacao{margin-top:20px;padding:16px 20px;background:var(--green-light);border-radius:12px;}
+.cp-rec-title{font-size:14px;font-weight:800;text-transform:uppercase;color:var(--green-dark);letter-spacing:.05em;margin-bottom:8px;}
+.cp-rec-text{font-size:12.5px;color:var(--text-2);line-height:1.7;}
+.cp-rec-text strong{color:var(--text);}
+.cp-rec-aviso{font-size:11.5px;font-weight:700;color:var(--text);text-align:center;margin-top:10px;}
+
+/* ÁGUA */
+.agua-page{padding:40px 56px;}
+.agua-hero{display:flex;align-items:stretch;gap:0;border-radius:20px;overflow:hidden;margin-bottom:32px;}
+.agua-left{background:var(--blue,#2471A3);padding:40px;display:flex;flex-direction:column;justify-content:center;width:240px;}
+.agua-left-title{font-size:32px;font-weight:800;text-transform:uppercase;color:#fff;line-height:1.1;}
+.agua-right{background:var(--purple-light);flex:1;padding:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.agua-rec-label{font-size:13px;font-weight:600;color:var(--purple-mid);text-transform:uppercase;letter-spacing:.06em;}
+.agua-rec-label2{font-size:11px;color:var(--purple-mid);margin-bottom:8px;}
+.agua-valor{font-size:72px;font-weight:800;color:var(--purple-mid);font-family:'DM Mono',monospace;line-height:1;}
+.agua-unit{font-size:20px;color:var(--purple-mid);font-style:italic;}
+.agua-obs-box{background:var(--blue-light,#EAF4FB);border-radius:12px;padding:20px 24px;margin-bottom:24px;}
+.agua-obs-text{font-size:12.5px;color:var(--text-2);line-height:1.8;}
+.agua-obs-section{margin-top:16px;}
+.agua-obs-title{font-size:14px;font-weight:800;text-transform:uppercase;color:var(--text);letter-spacing:.05em;margin-bottom:8px;}
+
+/* PRÓPOLIS / ÔMEGA */
+.supl-page{padding:40px 56px;}
+.supl-block{background:var(--green-light);border-radius:16px;padding:28px 32px;margin-bottom:24px;border-left:5px solid var(--green);}
+.supl-title{font-size:22px;font-weight:800;text-transform:uppercase;color:var(--green-dark);letter-spacing:.04em;margin-bottom:6px;}
+.supl-subtitle{font-size:13px;color:var(--green-mid);margin-bottom:16px;font-style:italic;}
+.supl-body{font-size:13px;color:var(--text-2);line-height:1.8;}
+.supl-destaque{font-size:16px;font-weight:700;color:var(--green-dark);background:#fff;border-radius:10px;padding:12px 16px;margin-top:12px;display:inline-block;}
+.supl-block-purple{background:var(--purple-light);border-left-color:var(--purple);}
+.supl-block-purple .supl-title{color:var(--purple-dark);}
+.supl-block-purple .supl-subtitle{color:var(--purple-mid);}
+.supl-block-purple .supl-body{color:var(--text-2);}
+.supl-block-purple .supl-destaque{color:var(--purple-dark);}
+
+/* ORIENTAÇÕES */
+.orient-page{padding:40px 56px;}
+.orient-title{font-size:36px;font-weight:800;text-transform:uppercase;color:var(--text);letter-spacing:-.01em;margin-bottom:6px;}
+.orient-sub{font-size:14px;color:var(--text-3);font-style:italic;margin-bottom:32px;}
+.orient-block{display:flex;gap:20px;margin-bottom:24px;align-items:flex-start;}
+.orient-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px;}
+.orient-icon-green{background:var(--green-light);}
+.orient-icon-purple{background:var(--purple-light);}
+.orient-block-text{flex:1;}
+.orient-block-title{font-size:14px;font-weight:800;text-transform:uppercase;color:var(--text);letter-spacing:.04em;margin-bottom:6px;}
+.orient-block-body{font-size:12.5px;color:var(--text-2);line-height:1.8;}
+.orient-importante{background:var(--purple-light);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:12px;color:var(--purple-mid);font-style:italic;font-weight:600;}
+.orient-importante-green{background:var(--green-light);color:var(--green-dark);}
+
+/* TEMPEROS */
+.temperos-page{padding:40px 56px;}
+.tempero-block{background:var(--purple-light);border-radius:12px;padding:16px 20px;margin-bottom:14px;}
+.tempero-header{display:flex;align-items:baseline;gap:12px;margin-bottom:8px;}
+.tempero-nome{font-size:18px;font-weight:800;text-transform:uppercase;color:var(--purple);letter-spacing:.03em;}
+.tempero-dose{font-size:13px;color:var(--purple-mid);font-style:italic;}
+.tempero-lista{list-style:none;}
+.tempero-lista li{font-size:12.5px;color:var(--purple-dark);padding:3px 0;display:flex;align-items:baseline;gap:6px;}
+.tempero-lista li::before{content:'•';color:var(--purple);font-weight:700;flex-shrink:0;}
+
+/* RODAPÉ */
+.pdf-footer{display:flex;align-items:center;justify-content:center;gap:12px;padding:16px 56px;background:var(--surface);border-top:1.5px solid var(--border);font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.pdf-footer-brand{font-size:13px;font-weight:800;color:var(--green);}
+
+/* SVG DECORATIVO */
+.wave-svg{display:block;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- PAINEL DE CONFIGURAÇÃO -->
+  <div class="config-panel">
+    <div class="config-header">
+      <h1><i class="ti ti-file-text" style="color:var(--green)"></i> Exportar Plano Nutricional</h1>
+      <p id="config-pet-nome">Carregando...</p>
+    </div>
+    <div class="config-body">
+
+      <div class="section">
+        <div class="section-title">Personalização do pet</div>
+        <div class="field">
+          <label>Descrição personalizada do pet</label>
+          <textarea id="cfg-descricao" placeholder="Ex: Cachorrinha alegre e super companheira. A Lilica não é fã da ração e apresenta alergia alimentar..." rows="4"></textarea>
+        </div>
+        <div class="field">
+          <label>Decisão clínica (opcional)</label>
+          <textarea id="cfg-decisao" placeholder="Ex: Optamos pela alimentação natural (dieta caseira cozida), com cardápios especiais que ajudem na saúde e bem estar..." rows="3"></textarea>
+        </div>
+        <div class="field">
+          <label>Observação final</label>
+          <input type="text" id="cfg-obs-final" placeholder="Ex: A Lilica adora inhame :)">
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Selecionar dietas</div>
+        <div id="cfg-dietas-lista">
+          <div class="loading"><div class="spinner"></div> Carregando...</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Ômega 3</div>
+        <div class="field">
+          <label>Produto recomendado</label>
+          <input type="text" id="cfg-omega-produto" placeholder="Ex: Ograx-3 500 / Vitafor EPA DHA">
+        </div>
+        <div class="field">
+          <label>Posologia</label>
+          <input type="text" id="cfg-omega-dose" placeholder="Ex: Oferecer 1 cápsula 2x por semana">
+        </div>
+        <div class="field">
+          <label>Observação extra</label>
+          <textarea id="cfg-omega-obs" placeholder="Ex: Pode oferecer a cápsula diretamente como petisco..." rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Orientações de preparo</div>
+        <div class="field">
+          <label>Legumes</label>
+          <textarea id="cfg-orient-legumes" rows="3">Usar sempre legumes frescos, lavar muito bem antes do preparo e remover totalmente as cascas para seu Pet conseguir absorver melhor os nutrientes e não correr riscos de intoxicação.</textarea>
+        </div>
+        <div class="field">
+          <label>Importante (legumes)</label>
+          <input type="text" id="cfg-orient-legumes-imp" value="Sempre oferecer os legumes COZIDOS, nunca cru!">
+        </div>
+        <div class="field">
+          <label>Carnes</label>
+          <textarea id="cfg-orient-carnes" rows="3">Comprar em locais de confiança e qualidade. Não temperar durante o preparo, basta apenas um pouco de água para o cozimento do alimento.</textarea>
+        </div>
+        <div class="field">
+          <label>Importante (carnes)</label>
+          <input type="text" id="cfg-orient-carnes-imp" value="Nunca descongelar diretamente no microondas ou fora da geladeira!">
+        </div>
+        <div class="field">
+          <label>Grãos</label>
+          <textarea id="cfg-orient-graos" rows="3">Para melhorar a digestão e a absorção dos nutrientes dos grãos, sempre lavar e, se possível, deixar de molho antes do preparo.</textarea>
+        </div>
+        <div class="field">
+          <label>Importante (grãos)</label>
+          <input type="text" id="cfg-orient-graos-imp" value="Apesar de ser comum para nós, não deve ser temperado!">
+        </div>
+        <div class="field">
+          <label>Óleo e Sal</label>
+          <textarea id="cfg-orient-oleo" rows="4">Estes ingredientes quando prescritos nas dietas, não são utilizados como tempero para preparo dos alimentos. Eles fazem parte da dieta e devem ser adicionados e misturados aos alimentos já prontos, isto é, ao servir para o seu Pet. Assim, todas as características nutricionais vão ser mantidas.</textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Temperos e saúde</div>
+        <div id="cfg-temperos">
+          <div class="field">
+            <label>Manjericão — dose</label>
+            <input type="text" id="cfg-manj-dose" value="2g/dia">
+          </div>
+          <div class="field">
+            <label>Coentro — dose</label>
+            <input type="text" id="cfg-coentro-dose" value="2g/dia">
+          </div>
+          <div class="field">
+            <label>Hortelã — dose</label>
+            <input type="text" id="cfg-hortelã-dose" value="2g/dia">
+          </div>
+          <div class="field">
+            <label>Salsinha — dose</label>
+            <input type="text" id="cfg-salsinha-dose" value="2g/dia">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="gerarPDF()">
+        <i class="ti ti-file-arrow-down"></i> Gerar PDF
+      </button>
+      <button class="btn" style="margin-top:8px" onclick="window.close()">
+        <i class="ti ti-arrow-left"></i> Voltar
+      </button>
+
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-area">
+    <div class="preview-title"><i class="ti ti-eye"></i> Pré-visualização</div>
+    <div id="pdf-template">
+      <div class="loading"><div class="spinner"></div> Carregando dados...</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// ── STATE ──
+let dadosExport = null
+let dietasSelecionadas = new Set()
+
+// ── INIT ──
+const petId = new URLSearchParams(location.search).get('pet')
+if (!petId) { alert('Pet não informado.'); }
+else { carregarDados() }
+
+async function carregarDados() {
+  try {
+    const res = await fetch(`/api/pets/${petId}/exportar`)
+    dadosExport = await res.json()
+    const { pet, consultas } = dadosExport
+
+    document.getElementById('config-pet-nome').textContent = `${pet.nome_pet} · Tutor: ${pet.nome_tutor}`
+    document.title = `NutriPet — Plano de ${pet.nome_pet}`
+
+    // Montar lista de dietas
+    const dietasUnicas = []
+    const idsVistos = new Set()
+    for (const c of consultas) {
+      if (c.dieta && !idsVistos.has(c.dieta_id)) {
+        idsVistos.add(c.dieta_id)
+        dietasUnicas.push({ consulta: c, dieta: c.dieta })
+        dietasSelecionadas.add(c.dieta_id)
+      }
+    }
+
+    const listaEl = document.getElementById('cfg-dietas-lista')
+    if (!dietasUnicas.length) {
+      listaEl.innerHTML = '<p style="font-size:12px;color:var(--text-3)">Nenhuma consulta com dieta associada.</p>'
+    } else {
+      listaEl.innerHTML = dietasUnicas.map(({ consulta: c, dieta: d }) => `
+        <div class="dieta-check checked" id="check-wrap-${d.id}" onclick="toggleDieta('${d.id}')">
+          <input type="checkbox" id="check-${d.id}" checked onchange="event.stopPropagation()">
+          <div>
+            <div class="dieta-check-label">${d.nome}</div>
+            <div class="dieta-check-sub">${c.peso_consulta}kg · ${c.consumo_g ? c.consumo_g.toFixed(0)+'g/dia' : ''} · ${c.refeicoes_dia || 2}x/dia</div>
+          </div>
+        </div>`).join('')
+    }
+
+    renderPreview()
+  } catch(e) {
+    console.error(e)
+    document.getElementById('pdf-template').innerHTML = '<div class="loading">Erro ao carregar dados.</div>'
+  }
+}
+
+function toggleDieta(id) {
+  if (dietasSelecionadas.has(id)) dietasSelecionadas.delete(id)
+  else dietasSelecionadas.add(id)
+  const wrap = document.getElementById(`check-wrap-${id}`)
+  const chk  = document.getElementById(`check-${id}`)
+  wrap.classList.toggle('checked', dietasSelecionadas.has(id))
+  chk.checked = dietasSelecionadas.has(id)
+  renderPreview()
+}
+
+// Reconstruir preview ao mudar qualquer campo
+document.querySelectorAll('input,textarea,select').forEach(el => {
+  el.addEventListener('input', () => setTimeout(renderPreview, 300))
+})
+
+// ── CÁLCULOS ──
+function calcAgua(peso) { return Math.round(peso * 60) }
+function calcPropolis(peso) { return Math.max(1, Math.round(peso / 5 * 3)) }
+
+// ── SVG DECORATIVOS ──
+const waveSVG = `<svg class="wave-svg" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 400 0 L 400 220 Q 280 180 200 120 Q 120 60 0 100 L 0 0 Z" fill="#90EE90" opacity="0.6"/>
+  <path d="M 400 0 L 400 160 Q 300 120 200 80 Q 100 40 0 70 L 0 0 Z" fill="#2EBD6B" opacity="0.3"/>
+</svg>`
+
+const circlesSVG = `<svg viewBox="0 0 180 160" xmlns="http://www.w3.org/2000/svg" width="180">
+  <circle cx="40" cy="120" r="36" fill="#F3EAFD" opacity="0.8"/>
+  <circle cx="90" cy="100" r="48" fill="#F3EAFD" opacity="0.6"/>
+  <circle cx="150" cy="130" r="28" fill="#E6F9EF" opacity="0.7"/>
+</svg>`
+
+// ── RENDER PREVIEW ──
+function renderPreview() {
+  if (!dadosExport) return
+  const { pet, consultas } = dadosExport
+  const peso = pet.peso_atual || 0
+  const refei = 2
+
+  // Dietas selecionadas (em ordem)
+  const dietasAtivas = []
+  const idsVistos = new Set()
+  for (const c of consultas) {
+    if (c.dieta && dietasSelecionadas.has(c.dieta_id) && !idsVistos.has(c.dieta_id)) {
+      idsVistos.add(c.dieta_id)
+      dietasAtivas.push(c)
+    }
+  }
+
+  // Cfg values
+  const cfg = {
+    descricao: v('cfg-descricao'),
+    decisao:   v('cfg-decisao'),
+    obsFinal:  v('cfg-obs-final'),
+    omegaProduto: v('cfg-omega-produto'),
+    omegaDose:    v('cfg-omega-dose'),
+    omegaObs:     v('cfg-omega-obs'),
+    orientLegumes:    v('cfg-orient-legumes'),
+    orientLegumesImp: v('cfg-orient-legumes-imp'),
+    orientCarnes:     v('cfg-orient-carnes'),
+    orientCarnesImp:  v('cfg-orient-carnes-imp'),
+    orientGraos:      v('cfg-orient-graos'),
+    orientGraosImp:   v('cfg-orient-graos-imp'),
+    orientOleo:       v('cfg-orient-oleo'),
+    manjDose:     v('cfg-manj-dose'),
+    coentDose:    v('cfg-coentro-dose'),
+    hortDose:     v('cfg-hortelã-dose'),
+    salsDose:     v('cfg-salsinha-dose'),
+  }
+
+  const nomesPet = pet.nome_pet || 'Pet'
+  const fotoHtml = pet.foto_url
+    ? `<img src="${pet.foto_url}" class="ficha-foto-img" crossorigin="anonymous">`
+    : `<div class="ficha-foto-placeholder">${pet.especie==='gato'?'🐈':'🐕'}</div>`
+
+  const garantiasHtml = (dieta) => {
+    const G = dieta.garantias || {}
+    const rows = [
+      G.pb     && ['Proteína Bruta','mín',(G.pb*0.9).toFixed(2),'g/kg'],
+      G.ee     && ['Extrato Etéreo','mín',(G.ee*0.9).toFixed(2),'g/kg'],
+      G.fb     && ['Fibra Bruta','máx',(G.fb*1.1).toFixed(2),'g/kg'],
+      G.mm     && ['Matéria Mineral','máx',(G.mm*1.1).toFixed(2),'g/kg'],
+      G.ca_max && ['Cálcio','máx',(G.ca_max*1.1).toFixed(2),'mg/kg'],
+      G.ca_min && ['Cálcio','mín',(G.ca_min*0.9).toFixed(2),'mg/kg'],
+      G.p      && ['Fósforo','mín',(G.p*0.9).toFixed(2),'mg/kg'],
+      G.um     && ['Umidade','máx',(G.um*1.1).toFixed(0),'g/kg'],
+      G.em     && ['Energia Metabolizável','',G.em.toFixed(0),'kcal'],
+    ].filter(Boolean)
+    return rows.map(([n,l,val,un])=>`<tr><td>${n}</td><td>(${l})</td><td>${val} ${un}</td></tr>`).join('')
+  }
+
+  const ingrsHtml = (dieta) => {
+    const items = dieta.ingredientes || []
+    return `<div class="cp-ingredientes-grid">${items.map(i=>`<div class="cp-ingrediente-item">${i.n}</div>`).join('')}</div>`
+  }
+
+  const porcaoHtml = (consulta) => {
+    const d = consulta.dieta
+    const consumoKg = consulta.consumo_g ? consulta.consumo_g / 1000 : 0
+    const refeiNum  = consulta.refeicoes_dia || 2
+    const items = (d.ingredientes||[]).map(i => {
+      const gTotal = consumoKg * i.sc / 100 * 1000
+      return `<li class="cp-porcao-item">
+        <span class="cp-porcao-nome">${i.n} Coz.</span>
+        <span class="cp-porcao-g">${gTotal.toFixed(0)}g/dia</span>
+      </li>`
+    }).join('')
+    return `<ul class="cp-porcao-lista">${items}</ul>`
+  }
+
+  const cardapiosHtml = dietasAtivas.map((c, idx) => {
+    const d = c.dieta
+    const consumoG  = c.consumo_g || 0
+    const porRefei  = consumoG / (c.refeicoes_dia || 2)
+    const refeiNum  = c.refeicoes_dia || 2
+    const refeiLabel = refeiNum === 1 ? 'uma' : refeiNum === 2 ? 'duas' : refeiNum === 3 ? 'três' : 'quatro'
+    return `
+    <div class="pdf-page cardapio-page">
+      <div class="cp-numero">Cardápio ${idx+1}</div>
+      <div class="cp-nome-criativo">${d.fase || 'Alimentação Natural'}</div>
+
+      <div class="cp-section-label">🥦 Ingredientes</div>
+      <div class="cp-ingredientes-box">${ingrsHtml(d)}</div>
+
+      <div class="cp-section-label">🍽️ Porção diária</div>
+      <div class="cp-porcao-cols">
+        ${porcaoHtml(c)}
+        <div>
+          ${(d.garantias && Object.keys(d.garantias).length) ? `
+          <div class="cp-garantias-box">
+            <div class="cp-garantias-title">Níveis de Garantia</div>
+            <table class="cp-garantias-table">${garantiasHtml(d)}</table>
+          </div>` : ''}
+        </div>
+      </div>
+
+      <div class="cp-section-label">💬 Recomendação</div>
+      <div class="cp-recomendacao">
+        <div class="cp-rec-title">Recomendação</div>
+        <div class="cp-rec-text">Como o ${nomesPet} faz <strong>${refeiNum} (${refeiLabel})</strong> alimentação${refeiNum>1?'ões':''} ao dia, recomendo <strong>dividir a porção de ${consumoG.toFixed(0)}g/dia em ${refeiNum>1?refeiNum+' refeições':refeiNum+' refeição'} de aproximadamente ${porRefei.toFixed(1)}g/refeição.</strong><br><br>Fornecer a alimentação em horários fixos e caso seu pet não coma, retirar no máximo 30 minutos após fornecido.</div>
+        <div class="cp-rec-aviso">A alteração do plano alimentar pode comprometer a saúde do seu animal.</div>
+      </div>
+
+      ${rodapeHtml()}
+    </div>`
+  }).join('')
+
+  const html = `
+    <!-- CAPA -->
+    <div class="pdf-page capa">
+      <div class="capa-wave-top">${waveSVG}</div>
+      <div class="capa-circles">${circlesSVG}</div>
+      <div class="capa-logo-icon">🍽️</div>
+      <div class="capa-marca">Gabi Mascellani</div>
+      <div class="capa-sub">• nutri pet •</div>
+      <div class="capa-divider"></div>
+      <div class="capa-tipo">Plano Nutricional<br>para Alimentação Natural</div>
+      <div class="capa-feito">Feito especialmente para</div>
+      <div class="capa-petname">${nomesPet}</div>
+      <div class="capa-aviso">O uso deste material é exclusivo para o paciente mencionado no plano nutricional</div>
+    </div>
+
+    <!-- FICHA DO PET -->
+    <div class="pdf-page ficha-page">
+      <div class="ficha-inner">
+        <div class="ficha-foto">${fotoHtml}</div>
+        <div class="ficha-dados">
+          <div class="ficha-nome">${nomesPet}</div>
+          ${pet.idade_anos ? `<div class="ficha-row"><span class="ficha-label">idade:</span><span class="ficha-value">${pet.idade_anos} anos</span></div>` : ''}
+          ${pet.peso_atual ? `<div class="ficha-row"><span class="ficha-label">peso:</span><span class="ficha-value">${pet.peso_atual}kg</span></div>` : ''}
+          ${pet.raca ? `<div class="ficha-row"><span class="ficha-label">raça:</span><span class="ficha-value">${pet.raca}</span></div>` : ''}
+          ${pet.cidade ? `<div class="ficha-row"><span class="ficha-label">cidade:</span><span class="ficha-value">${pet.cidade}${pet.estado?' - '+pet.estado:''}</span></div>` : ''}
+          ${pet.nome_tutor ? `<div class="ficha-row"><span class="ficha-label">tutor${pet.nome_tutor.includes(' e ')?'es':''}:</span><span class="ficha-value">${pet.nome_tutor}</span></div>` : ''}
+        </div>
+      </div>
+      ${cfg.descricao ? `<div class="ficha-desc">${cfg.descricao}</div>` : ''}
+      ${cfg.decisao   ? `<div class="ficha-desc ficha-desc-full" style="background:var(--purple-light);color:var(--purple-dark)">${cfg.decisao}</div>` : ''}
+      ${cfg.obsFinal  ? `<div class="ficha-desc ficha-desc-full" style="background:var(--bg);color:var(--text-2)">${cfg.obsFinal}</div>` : ''}
+      ${rodapeHtml()}
+    </div>
+
+    <!-- CARDÁPIOS -->
+    ${cardapiosHtml}
+
+    <!-- ÁGUA -->
+    <div class="pdf-page agua-page">
+      <div class="agua-hero">
+        <div class="agua-left">
+          <div class="agua-left-title">Ingestão de Água</div>
+        </div>
+        <div class="agua-right">
+          <div class="agua-rec-label">Recomendação diária</div>
+          <div class="agua-rec-label2">mínimo de</div>
+          <div class="agua-valor">${calcAgua(peso)}<span class="agua-unit"> ml</span></div>
+          <div style="font-size:13px;color:var(--purple-mid);margin-top:4px;font-style:italic">/ dia</div>
+        </div>
+      </div>
+      <div class="agua-obs-box">
+        <p class="agua-obs-text">O cálculo é baseado na recomendação de 60ml por kg do animal.</p>
+        <p class="agua-obs-text" style="margin-top:10px">Como sugestão, separe e ofereça uma garrafa com o volume diário ou mais pela manhã. Assim, é possível ter o controle de quanto de água o seu peludo está ingerindo.</p>
+        <p class="agua-obs-text" style="margin-top:10px">É importante manter seu pet sempre hidratado. Em dias mais quentes, coloque pedras de gelo no pote de água.</p>
+      </div>
+      <div class="agua-obs-section">
+        <div class="agua-obs-title">Observação</div>
+        <p class="agua-obs-text">Com a alimentação natural, é normal que seu pet diminua a ingestão de água. Isto acontece por conta que na AN a umidade dos alimentos está presente na dieta, diferente da ração seca que é um alimento completo com a umidade menor.</p>
+        <div style="background:var(--purple-light);border-radius:10px;padding:12px 16px;margin-top:14px;font-size:12px;color:var(--purple-mid);font-style:italic">Se perceber que seu pet está ingerindo pouca água, não hesite em conversar comigo! Podemos procurar outras possibilidades de hidratação.</div>
+      </div>
+      ${rodapeHtml()}
+    </div>
+
+    <!-- PRÓPOLIS + ÔMEGA -->
+    <div class="pdf-page supl-page">
+      <div class="supl-block">
+        <div class="supl-title">🍯 Própolis</div>
+        <div class="supl-subtitle">Nutracêutico natural</div>
+        <div class="supl-body">O própolis, uma substância natural elaborada pelas abelhas, é constituído por componentes bioativos, tais como polifenóis e flavonoides, os quais proporcionam uma variedade de benefícios para os pets. Ele é antibacteriano, anti-inflamatório, cicatrizante e antisséptico oral.</div>
+        <div class="supl-destaque">💧 ${calcPropolis(peso)} gotas de extrato de própolis aquoso — 1x ao dia, diretamente na comida</div>
+      </div>
+
+      ${cfg.omegaProduto || cfg.omegaDose ? `
+      <div class="supl-block supl-block-purple">
+        <div class="supl-title">🐟 Ômega 3</div>
+        <div class="supl-subtitle">Suplementação para saúde cardiovascular e pelagem</div>
+        <div class="supl-body">A suplementação diária de ômega 3 ajuda a manter uma pele saudável, o pelo brilhante e também melhora a saúde cardiovascular e cerebral dos pets.${cfg.omegaObs ? '<br><br>'+cfg.omegaObs : ''}</div>
+        ${cfg.omegaProduto ? `<div class="supl-destaque" style="color:var(--purple-dark)">${cfg.omegaProduto}${cfg.omegaDose ? ' — '+cfg.omegaDose : ''}</div>` : ''}
+      </div>` : ''}
+
+      ${rodapeHtml()}
+    </div>
+
+    <!-- ORIENTAÇÕES DE PREPARO -->
+    <div class="pdf-page orient-page">
+      <div class="orient-title">Orientações de preparo</div>
+      <div class="orient-sub">Como aproveitar melhor os alimentos utilizados na dieta do seu peludo.</div>
+
+      ${cfg.orientLegumes ? `
+      <div class="orient-block">
+        <div class="orient-icon orient-icon-green">🥦</div>
+        <div class="orient-block-text">
+          <div class="orient-block-title">Legumes</div>
+          <div class="orient-block-body">${cfg.orientLegumes}</div>
+          ${cfg.orientLegumesImp ? `<div class="orient-importante orient-importante-green">Importante: ${cfg.orientLegumesImp}</div>` : ''}
+        </div>
+      </div>` : ''}
+
+      ${cfg.orientCarnes ? `
+      <div class="orient-block">
+        <div class="orient-icon orient-icon-purple">🥩</div>
+        <div class="orient-block-text">
+          <div class="orient-block-title">Carnes</div>
+          <div class="orient-block-body">${cfg.orientCarnes}</div>
+          ${cfg.orientCarnesImp ? `<div class="orient-importante">Importante: ${cfg.orientCarnesImp}</div>` : ''}
+        </div>
+      </div>` : ''}
+
+      ${cfg.orientGraos ? `
+      <div class="orient-block">
+        <div class="orient-icon orient-icon-green">🍚</div>
+        <div class="orient-block-text">
+          <div class="orient-block-title">Grãos</div>
+          <div class="orient-block-body">${cfg.orientGraos}</div>
+          ${cfg.orientGraosImp ? `<div class="orient-importante orient-importante-green">Importante: ${cfg.orientGraosImp}</div>` : ''}
+        </div>
+      </div>` : ''}
+
+      ${cfg.orientOleo ? `
+      <div class="orient-block">
+        <div class="orient-icon orient-icon-purple">🫙</div>
+        <div class="orient-block-text">
+          <div class="orient-block-title">Óleo e Sal</div>
+          <div class="orient-block-body">${cfg.orientOleo}</div>
+        </div>
+      </div>` : ''}
+
+      ${rodapeHtml()}
+    </div>
+
+    <!-- TEMPEROS E SAÚDE -->
+    <div class="pdf-page temperos-page">
+      <div class="orient-title">Temperos e saúde 🐾</div>
+      <div class="orient-sub" style="margin-bottom:24px">Ervas que podem ser adicionadas à dieta do seu pet</div>
+
+      <div class="tempero-block">
+        <div class="tempero-header">
+          <div class="tempero-nome">Manjericão</div>
+          <div class="tempero-dose">— ${cfg.manjDose}</div>
+        </div>
+        <ul class="tempero-lista">
+          <li>Propriedades cicatrizantes</li>
+          <li><strong>Promove saúde cardiovascular</strong></li>
+          <li><strong>Ação na pele e no humor</strong></li>
+        </ul>
+      </div>
+
+      <div class="tempero-block">
+        <div class="tempero-header">
+          <div class="tempero-nome">Coentro</div>
+          <div class="tempero-dose">— ${cfg.coentDose}</div>
+        </div>
+        <ul class="tempero-lista">
+          <li><strong>Rico em compostos bioativos</strong></li>
+          <li><strong>Bactericida</strong></li>
+          <li>Fungicida</li>
+          <li>Analgésico</li>
+          <li>Antiprotozoário</li>
+        </ul>
+      </div>
+
+      <div class="tempero-block">
+        <div class="tempero-header">
+          <div class="tempero-nome">Hortelã</div>
+          <div class="tempero-dose">— ${cfg.hortDose}</div>
+        </div>
+        <ul class="tempero-lista">
+          <li>Melhora a respiração</li>
+          <li><strong>Combate o mau hálito</strong></li>
+          <li><strong>Facilita o processo de digestão</strong></li>
+          <li>Acalma dor no estômago</li>
+        </ul>
+      </div>
+
+      <div class="tempero-block">
+        <div class="tempero-header">
+          <div class="tempero-nome">Salsinha</div>
+          <div class="tempero-dose">— ${cfg.salsDose}</div>
+        </div>
+        <ul class="tempero-lista">
+          <li>Melhora coprofagia</li>
+          <li><strong>Fortalece o sistema imunológico</strong></li>
+          <li>Ajuda a evitar descalcificação óssea</li>
+        </ul>
+      </div>
+
+      ${rodapeHtml()}
+    </div>
+  `
+
+  document.getElementById('pdf-template').innerHTML = html
+}
+
+function rodapeHtml() {
+  return `<div class="pdf-footer">
+    <span class="pdf-footer-brand">🍽️ Gabi Mascellani · nutri pet</span>
+    <span>•</span>
+    <span>Gabriela Mascellani</span>
+    <span>•</span>
+    <span>Zootecnista</span>
+    <span>•</span>
+    <span>(11) 9 4925-9818</span>
+    <span>•</span>
+    <span>gabinutripet@gmail.com</span>
+    <span>•</span>
+    <span>CRMV-SP 03959/Z</span>
+  </div>`
+}
+
+function v(id) { return document.getElementById(id)?.value || '' }
+
+// ── GERAR PDF ──
+async function gerarPDF() {
+  if (!dadosExport) return
+  const btn = document.querySelector('.btn-primary')
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#fff"></div> Gerando PDF...'
+  btn.disabled = true
+
+  try {
+    const { jsPDF } = window.jspdf
+    const el = document.getElementById('pdf-template')
+    const pages = el.querySelectorAll('.pdf-page')
+    const pdf = new jsPDF({ orientation:'portrait', unit:'px', format:[794,1123], compress:true })
+
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = await html2canvas(pages[i], {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: 794,
+        height: 1123,
+      })
+      const imgData = canvas.toDataURL('image/jpeg', 0.92)
+      if (i > 0) pdf.addPage([794, 1123], 'portrait')
+      pdf.addImage(imgData, 'JPEG', 0, 0, 794, 1123)
+    }
+
+    const nomePet = dadosExport.pet?.nome_pet || 'Pet'
+    pdf.save(`Plano_Nutricional_${nomePet.replace(/\s+/g,'_')}.pdf`)
+    mostrarToast('PDF gerado!')
+  } catch(e) {
+    console.error(e)
+    mostrarToast('Erro ao gerar PDF. Tente novamente.', true)
+  } finally {
+    btn.innerHTML = '<i class="ti ti-file-arrow-down"></i> Gerar PDF'
+    btn.disabled = false
+  }
+}
+
+function mostrarToast(msg, err=false) {
+  const t = document.createElement('div')
+  t.className = 'toast'
+  t.style.background = err ? '#C0392B' : '#1F9B54'
+  t.innerHTML = `<i class="ti ${err?'ti-x':'ti-check'}"></i>${msg}`
+  document.body.appendChild(t)
+  setTimeout(() => t.remove(), 3500)
+}
+</script>
+</body>
+</html>

@@ -1279,6 +1279,7 @@ async function abrirPerfil(id) {
       <div style="margin-left:auto;display:flex;gap:8px">
         <button class="btn btn-sm" onclick="editarPet('${p.id}')"><i class="ti ti-edit"></i> Editar</button>
         <button class="btn btn-sm" onclick="abrirModalMedidas('${p.id}')"><i class="ti ti-ruler"></i> Peso e medidas</button>
+        <button class="btn btn-sm" onclick="window.open('/exportar.html?pet=${p.id}','_blank')"><i class="ti ti-file-arrow-down"></i> Exportar PDF</button>
         <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="ti ti-calculator"></i> Nova dieta</button>
       </div>
     </div>
