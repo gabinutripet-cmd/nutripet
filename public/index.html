@@ -533,6 +533,8 @@
         </div>
       </div>
 
+      <div id="preview-hint" class="alert" style="display:none;border-left-color:var(--amber);background:var(--amber-light);color:#7a5200"><i class="ti ti-info-circle"></i><span id="preview-hint-text">—</span></div>
+
       <div id="preview-section" style="display:none">
         <div class="card">
           <div class="card-title">Cálculo nutricional</div>
@@ -1753,7 +1755,19 @@ function recalcular() {
   const refei=parseInt(document.getElementById('c-refeicoes').value)||2
   const d=dietas.find(x=>x.id===selectedDietId)
   const em=d?.garantias?.em||0
-  if (!d||!peso||!fator||!em||peso<=0||fator<=0) { document.getElementById('preview-section').style.display='none'; return }
+  const hint=document.getElementById('preview-hint')
+  const hintText=document.getElementById('preview-hint-text')
+  if (!d||!peso||!fator||!em||peso<=0||fator<=0) {
+    document.getElementById('preview-section').style.display='none'
+    let msg=null
+    if (!d) msg='Selecione uma dieta acima para calcular o cardápio.'
+    else if (!em) msg=`A dieta "${d.nome}" não tem a Energia Metabolizável (kcal/kg) cadastrada. Edite essa dieta no Banco de dietas e preencha esse campo para poder gerar o cardápio.`
+    else if (!peso||peso<=0) msg='Informe o peso do animal (kg) para calcular o cardápio.'
+    else if (!fator||fator<=0) msg='Informe o fator nutricional para calcular o cardápio.'
+    if (msg) { hintText.textContent=msg; hint.style.display='flex' } else hint.style.display='none'
+    return
+  }
+  hint.style.display='none'
   const nem=Math.pow(peso,0.75)*fator
   const consumoKg=nem/em, consumoG=consumoKg*1000, porRefei=consumoG/refei
   document.getElementById('p-nem').textContent=nem.toFixed(1)
