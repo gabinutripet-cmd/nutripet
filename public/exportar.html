@@ -6,6 +6,7 @@
 <title>NutriPet — Exportar Plano Nutricional</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root{
   --green:#2EBD6B;--green-light:#E6F9EF;--green-mid:#1F9B54;--green-dark:#146638;
@@ -308,14 +309,43 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
 let dadosExport = null
 let dietasSelecionadas = new Set()
 
-// ── INIT ──
-const petId = new URLSearchParams(location.search).get('pet')
-if (!petId) { alert('Pet não informado.'); }
-else { carregarDados() }
+// ── AUTENTICAÇÃO ──
+let supabaseClient = null
 
-async function carregarDados() {
+async function initAuth() {
+  const petId = new URLSearchParams(location.search).get('pet')
+  if (!petId) { alert('Pet não informado.'); return }
+
+  let cfg
+  try { cfg = await fetch('/api/config').then(r => r.json()) }
+  catch(e) { mostrarErroAuth('Não foi possível conectar ao servidor.'); return }
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) { mostrarErroAuth('Configuração de login ausente no servidor.'); return }
+
+  supabaseClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey)
+  const { data: { session } } = await supabaseClient.auth.getSession()
+  if (!session) { mostrarErroAuth('Você precisa entrar antes de exportar o plano.'); return }
+
+  carregarDados(petId, session.access_token)
+}
+
+function mostrarErroAuth(msg) {
+  document.getElementById('pdf-template').innerHTML = `
+    <div class="loading" style="flex-direction:column;gap:14px">
+      <div>${msg}</div>
+      <a href="/" class="btn btn-primary" style="width:auto">Ir para o login</a>
+    </div>`
+}
+
+async function carregarDados(petId, token) {
   try {
-    const res = await fetch(`/api/pets/${petId}/exportar`)
+    const res = await fetch(`/api/pets/${petId}/exportar`, {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    })
+    if (res.status === 401 || res.status === 403) {
+      const b = await res.json().catch(() => ({}))
+      mostrarErroAuth(b.error || 'Sessão expirada ou acesso não autorizado.')
+      return
+    }
     dadosExport = await res.json()
     const { pet, consultas } = dadosExport
 
@@ -368,6 +398,8 @@ function toggleDieta(id) {
 document.querySelectorAll('input,textarea,select').forEach(el => {
   el.addEventListener('input', () => setTimeout(renderPreview, 300))
 })
+
+initAuth()
 
 // ── CÁLCULOS ──
 function calcAgua(peso) { return Math.round(peso * 60) }
