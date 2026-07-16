@@ -126,6 +126,11 @@
   .lembrete-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:12.5px;line-height:1.5;display:flex;align-items:flex-start;gap:8px;}
   .lembrete-item:last-child{border-bottom:none;}
   .lembrete-item:hover{background:var(--bg);}
+  .paciente-chips{display:flex;flex-wrap:wrap;gap:10px;}
+  .paciente-chip{display:flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:24px;background:var(--bg);border:1.5px solid var(--border);cursor:pointer;font-size:12.5px;font-weight:500;color:var(--text);transition:all .15s;}
+  .paciente-chip:hover{border-color:var(--green);background:var(--green-light);}
+  .paciente-chip-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid;flex-shrink:0;}
+  .paciente-chip-avatar-placeholder{display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--surface);}
   /* ── FILTROS ── */
   .filtros-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;align-items:center;}
   .filtros-label{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-right:2px;}
@@ -392,6 +397,22 @@
     <!-- PAINEL -->
     <div class="page active" id="page-painel">
       <div class="stats-row" id="painel-stats"></div>
+      <div class="card">
+        <div class="card-title">🐾 Em consulta</div>
+        <div id="painel-em-consulta"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Acompanhamento</div>
+        <div id="painel-acompanhamento"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🎂 Aniversariantes do mês</div>
+        <div id="painel-aniversarios"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚠️ Sem previsão de finalização</div>
+        <div id="painel-sem-semana"></div>
+      </div>
       <div class="card">
         <div class="section-header">
           <div class="card-title" style="margin-bottom:0">⏰ Acompanhamentos que precisam de atenção</div>
@@ -1448,6 +1469,19 @@ function mostrarListaPets() {
   document.getElementById('pacientes-perfil-view').style.display='none'
 }
 
+function chipPacienteHtml(p) {
+  const foto = p.foto_url
+    ? `<img src="${p.foto_url}" class="paciente-chip-avatar" style="border-color:${corStatusPaciente(p.status_paciente)}">`
+    : `<div class="paciente-chip-avatar paciente-chip-avatar-placeholder" style="border-color:${corStatusPaciente(p.status_paciente)}">${p.especie==='gato'?'🐈':'🐕'}</div>`
+  return `<div class="paciente-chip" onclick="goTo('pacientes',document.querySelectorAll('.nav-item')[2]);abrirPerfil('${p.id}')">${foto}<span>${p.nome_pet}</span></div>`
+}
+
+function pacientesOrdenados(lista) {
+  return [...lista].sort((a,b) => (a.nome_pet||'').localeCompare(b.nome_pet||'', 'pt-BR', {sensitivity:'base'}))
+}
+
+const MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']
+
 function renderPainel() {
   const statsEl = document.getElementById('painel-stats')
   if (!statsEl) return
@@ -1459,6 +1493,44 @@ function renderPainel() {
       <div class="stat-value" style="color:${corStatusPaciente(val)}">${porStatus[val]}</div>
       <div class="stat-unit">paciente${porStatus[val]===1?'':'s'}</div>
     </div>`).join('')
+
+  const emConsultaEl = document.getElementById('painel-em-consulta')
+  const emConsulta = pacientesOrdenados(pets.filter(p => (p.status_paciente||'em_consulta')==='em_consulta'))
+  emConsultaEl.innerHTML = emConsulta.length
+    ? `<div class="paciente-chips">${emConsulta.map(chipPacienteHtml).join('')}</div>`
+    : '<p style="font-size:12.5px;color:var(--text-3)">Nenhum paciente em consulta no momento.</p>'
+
+  const acompanhamentoEl = document.getElementById('painel-acompanhamento')
+  const acompanhamento = pacientesOrdenados(pets.filter(p => p.status_paciente==='acompanhamento'))
+  acompanhamentoEl.innerHTML = acompanhamento.length
+    ? `<div class="paciente-chips">${acompanhamento.map(chipPacienteHtml).join('')}</div>`
+    : '<p style="font-size:12.5px;color:var(--text-3)">Nenhum paciente em acompanhamento no momento.</p>'
+
+  const aniEl = document.getElementById('painel-aniversarios')
+  const hoje = new Date()
+  const aniversariantes = pets
+    .filter(p => p.aniversario)
+    .map(p => { const d = new Date(p.aniversario+'T12:00'); return { p, dia: d.getDate(), mes: d.getMonth() } })
+    .filter(a => a.mes === hoje.getMonth())
+    .sort((a,b) => a.dia - b.dia)
+  aniEl.innerHTML = aniversariantes.length
+    ? aniversariantes.map(a => {
+        const ehHoje = a.dia === hoje.getDate()
+        return `<div class="hist-item" style="cursor:pointer" onclick="goTo('pacientes',document.querySelectorAll('.nav-item')[2]);abrirPerfil('${a.p.id}')">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:18px">${ehHoje?'🎉':'🎂'}</span>
+            <div style="font-size:13px">${a.p.nome_pet} <span style="color:var(--text-3)">— dia ${a.dia} de ${MESES_PT[a.mes]}</span>${ehHoje?' <strong style="color:var(--green-dark)">(hoje!)</strong>':''}</div>
+          </div>
+        </div>`
+      }).join('')
+    : `<p style="font-size:12.5px;color:var(--text-3)">Nenhum aniversário em ${MESES_PT[hoje.getMonth()]}.</p>`
+
+  const semSemanaEl = document.getElementById('painel-sem-semana')
+  const semSemana = pacientesOrdenados(pets.filter(p => p.status_paciente==='acompanhamento' && !p.semana_finalizacao))
+  semSemanaEl.innerHTML = semSemana.length
+    ? `<p style="font-size:12.5px;color:var(--text-2);margin-bottom:10px">${semSemana.length} paciente${semSemana.length===1?'':'s'} em acompanhamento sem previsão de finalização definida:</p>
+       <div class="paciente-chips">${semSemana.map(chipPacienteHtml).join('')}</div>`
+    : '<p style="font-size:12.5px;color:var(--text-3)">Todos os acompanhamentos têm previsão definida.</p>'
 
   const lembretesEl = document.getElementById('painel-lembretes')
   const lembretes = calcularLembretesAcompanhamento()
