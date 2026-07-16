@@ -1282,7 +1282,7 @@ async function salvarDieta() {
   })
   const body = {nome, especie:document.getElementById('n-especie').value, fase:document.getElementById('n-fase').value, obs:document.getElementById('n-obs').value.trim(), garantias, ingredientes}
   try {
-    if (editingDietId) { const u=await apiFetch(`/dietas/${editingDietId}`,{method:'PUT',body}); dietas=dietas.map(d=>d.id===editingDietId?u:d); toast('Dieta atualizada!') }
+    if (editingDietId) { const u=await apiFetch(`/dietas?id=${editingDietId}`,{method:'PUT',body}); dietas=dietas.map(d=>d.id===editingDietId?u:d); toast('Dieta atualizada!') }
     else { const nova=await apiFetch('/dietas',{method:'POST',body}); dietas.push(nova); toast('Dieta cadastrada!') }
     editingDietId=null; bancoTab('lista',document.querySelector('.seg-btn'))
   } catch(e) { toast('Erro ao salvar.','error') }
@@ -1290,7 +1290,7 @@ async function salvarDieta() {
 
 async function excluirDieta(id) {
   if (!confirm('Excluir esta dieta?')) return
-  try { await apiFetch(`/dietas/${id}`,{method:'DELETE'}); dietas=dietas.filter(d=>d.id!==id); renderLista(); toast('Dieta excluída.') }
+  try { await apiFetch(`/dietas?id=${id}`,{method:'DELETE'}); dietas=dietas.filter(d=>d.id!==id); renderLista(); toast('Dieta excluída.') }
   catch(e) { toast('Erro ao excluir.','error') }
 }
 
@@ -1619,7 +1619,7 @@ async function renderAbaConsultas(petId) {
 async function excluirConsultaHistorico(consultaId, petId) {
   if (!confirm('Excluir este registro do histórico de dietas?')) return
   try {
-    await apiFetch(`/consultas/${consultaId}`, { method:'DELETE' })
+    await apiFetch(`/consultas?id=${consultaId}`, { method:'DELETE' })
     toast('Registro excluído do histórico.')
     renderAbaConsultas(petId)
   } catch(e) { toast('Erro ao excluir registro.', 'error') }
@@ -2324,7 +2324,7 @@ async function salvarAnamnese(irParaPlano) {
   const petIdAtual = anamnesePetId
   try {
     if (wasEditing) {
-      await apiFetch(`/pets/${petIdAtual}/anamneses/${wasEditing}`, { method:'PUT', body })
+      await apiFetch(`/pets/${petIdAtual}/anamneses?anamneseId=${wasEditing}`, { method:'PUT', body })
     } else {
       await apiFetch(`/pets/${petIdAtual}/anamneses`, { method:'POST', body })
     }
