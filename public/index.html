@@ -121,6 +121,11 @@
   .badge-status-acompanhamento{background:var(--amber-light);color:var(--amber);}
   .badge-status-finalizado{background:var(--green-light);color:var(--green-dark);}
   .status-mini-select{border:none;outline:none;font-size:9.5px;font-weight:700;padding:3px 6px;border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;text-align-last:center;}
+  .lembretes-badge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:10px;align-items:center;justify-content:center;padding:0 4px;}
+  .lembretes-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:320px;max-width:88vw;max-height:400px;overflow-y:auto;background:var(--surface);border:1.5px solid var(--border-md);border-radius:var(--radius-lg);box-shadow:0 12px 28px rgba(0,0,0,.16);z-index:200;}
+  .lembrete-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:12.5px;line-height:1.5;display:flex;align-items:flex-start;gap:8px;}
+  .lembrete-item:last-child{border-bottom:none;}
+  .lembrete-item:hover{background:var(--bg);}
   /* ── FILTROS ── */
   .filtros-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;align-items:center;}
   .filtros-label{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-right:2px;}
@@ -352,7 +357,8 @@
   </div>
   <div class="nav">
     <div class="nav-group-label">Menu</div>
-    <div class="nav-item active" onclick="goTo('banco',this)"><i class="ti ti-database"></i> Banco de dietas</div>
+    <div class="nav-item active" onclick="goTo('painel',this)"><i class="ti ti-layout-dashboard"></i> Painel</div>
+    <div class="nav-item" onclick="goTo('banco',this)"><i class="ti ti-database"></i> Banco de dietas</div>
     <div class="nav-item" onclick="goTo('pacientes',this)"><i class="ti ti-paw"></i> Pacientes</div>
     <div class="nav-item" onclick="goTo('anamnese',this)"><i class="ti ti-clipboard-heart"></i> Iniciar consulta</div>
     <div class="nav-item" onclick="goTo('consulta',this)"><i class="ti ti-calculator"></i> Plano nutricional</div>
@@ -372,12 +378,30 @@
       <h1 id="topbar-title">Banco de dietas</h1>
       <p id="topbar-sub">Gerencie as receitas formuladas no Supercrac</p>
     </div>
+    <div style="position:relative">
+      <button class="btn btn-icon" id="btn-lembretes" onclick="toggleLembretesDropdown()" style="position:relative">
+        <i class="ti ti-bell"></i>
+        <span id="lembretes-count" class="lembretes-badge" style="display:none">0</span>
+      </button>
+      <div id="lembretes-dropdown" class="lembretes-dropdown" style="display:none"></div>
+    </div>
     <div id="topbar-actions"></div>
   </div>
   <div class="content">
 
+    <!-- PAINEL -->
+    <div class="page active" id="page-painel">
+      <div class="stats-row" id="painel-stats"></div>
+      <div class="card">
+        <div class="section-header">
+          <div class="card-title" style="margin-bottom:0">⏰ Acompanhamentos que precisam de atenção</div>
+        </div>
+        <div id="painel-lembretes"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+      </div>
+    </div>
+
     <!-- BANCO -->
-    <div class="page active" id="page-banco">
+    <div class="page" id="page-banco">
       <div class="seg">
         <button class="seg-btn active" onclick="bancoTab('lista',this)"><i class="ti ti-list" style="font-size:13px;margin-right:4px"></i> Dietas cadastradas</button>
         <button class="seg-btn" onclick="bancoTab('nova',this)"><i class="ti ti-plus" style="font-size:13px;margin-right:4px"></i> Cadastrar nova dieta</button>
@@ -442,6 +466,7 @@
           </select>
           <button class="btn btn-primary" onclick="abrirNovoPet()"><i class="ti ti-plus"></i> Novo paciente</button>
         </div>
+        <div id="pets-filtros-status" class="filtros-wrap"></div>
         <div id="pets-lista"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
       </div>
 
@@ -476,6 +501,9 @@
             <div class="field"><label>Espécie</label><select id="pt-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select></div>
             <div class="field" style="position:relative"><label>Raça</label><input type="text" id="pt-raca" placeholder="Ex: Golden Retriever" autocomplete="off" oninput="filtrarRacas('pt-raca','pt-raca-sugestoes','pt-especie')" onfocus="filtrarRacas('pt-raca','pt-raca-sugestoes','pt-especie')" onblur="ocultarSugestoes('pt-raca-sugestoes')"><div id="pt-raca-sugestoes" class="autocomplete-list"></div></div>
             <div class="field"><label>Status do paciente</label><select id="pt-status"><option value="em_consulta">Em consulta</option><option value="acompanhamento">Acompanhamento</option><option value="finalizado">Finalizado</option></select></div>
+          </div>
+          <div class="form-grid form-grid-4" style="margin-bottom:14px">
+            <div class="field"><label>Semana prevista p/ finalizar o acompanhamento</label><input type="week" id="pt-semana-final"></div>
           </div>
           <div class="form-grid form-grid-4" style="margin-bottom:14px">
             <div class="field"><label>Sexo</label><select id="pt-sexo"><option value="">Não informado</option><option value="macho">Macho</option><option value="femea">Fêmea</option></select></div>
@@ -805,7 +833,7 @@
     <div class="page" id="page-cardapio">
       <div class="no-print" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
         <button class="btn btn-primary" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir / Salvar PDF</button>
-        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[3])"><i class="ti ti-plus"></i> Nova dieta</button>
+        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[4])"><i class="ti ti-plus"></i> Nova dieta</button>
       </div>
       <div id="cardapio-output"></div>
     </div>
@@ -1009,6 +1037,7 @@ const API = '/api'
 let dietas = [], pets = [], selectedDietId = null, editingDietId = null, editingPetId = null
 let lastCalc = null, ingrCount = 0, petConsultaId = null
 let filtroProteinas = [], filtroEspecie = '', filtroFase = ''
+let filtroStatusPaciente = ''
 
 // ══ AUTENTICAÇÃO ══
 let supabaseClient = null
@@ -1054,7 +1083,7 @@ async function startApp(session) {
   appStarted = true
   try {
     await Promise.all([carregarDietas(), carregarPets()])
-    renderLista(); setDataHoje()
+    renderLista(); setDataHoje(); renderPainel()
   } catch(e) { /* handleAuthError already handled auth failures */ }
 }
 
@@ -1127,7 +1156,7 @@ async function carregarDietas() {
   catch(e) { toast('Erro ao carregar dietas.','error') }
 }
 async function carregarPets() {
-  try { pets = await apiFetch('/pets'); document.getElementById('sb-pets').textContent = pets.length }
+  try { pets = await apiFetch('/pets'); document.getElementById('sb-pets').textContent = pets.length; renderBadgeLembretes() }
   catch(e) { toast('Erro ao carregar pacientes.','error') }
 }
 
@@ -1144,6 +1173,7 @@ function goTo(page, el) {
   document.getElementById('page-' + page).classList.add('active')
   if (el) el.classList.add('active')
   const map = {
+    painel:    ['Painel',            'Visão geral do dia a dia do consultório'],
     banco:     ['Banco de dietas',   'Gerencie as receitas formuladas no Supercrac'],
     pacientes: ['Pacientes',         'Cadastro e histórico dos pets atendidos'],
     anamnese:  ['Iniciar consulta',  'Selecione o paciente e preencha a anamnese'],
@@ -1152,6 +1182,7 @@ function goTo(page, el) {
   }
   document.getElementById('topbar-title').textContent = map[page][0]
   document.getElementById('topbar-sub').textContent   = map[page][1]
+  if (page==='painel')    renderPainel()
   if (page==='banco')     renderLista()
   if (page==='pacientes') { mostrarListaPets(); renderPets() }
   if (page==='anamnese')  resetAnamnese()
@@ -1417,14 +1448,56 @@ function mostrarListaPets() {
   document.getElementById('pacientes-perfil-view').style.display='none'
 }
 
+function renderPainel() {
+  const statsEl = document.getElementById('painel-stats')
+  if (!statsEl) return
+  const porStatus = { em_consulta:0, acompanhamento:0, finalizado:0 }
+  pets.forEach(p => { const s = p.status_paciente || 'em_consulta'; if (porStatus[s]!==undefined) porStatus[s]++ })
+  statsEl.innerHTML = Object.entries(LABEL_STATUS_PACIENTE).map(([val,label]) => `
+    <div class="stat-box">
+      <div class="stat-label">${label}</div>
+      <div class="stat-value" style="color:${corStatusPaciente(val)}">${porStatus[val]}</div>
+      <div class="stat-unit">paciente${porStatus[val]===1?'':'s'}</div>
+    </div>`).join('')
+
+  const lembretesEl = document.getElementById('painel-lembretes')
+  const lembretes = calcularLembretesAcompanhamento()
+  lembretesEl.innerHTML = lembretes.length
+    ? lembretes.map(l => `
+      <div class="hist-item" style="cursor:pointer" onclick="goTo('pacientes',document.querySelectorAll('.nav-item')[2]);abrirPerfil('${l.pet.id}')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="ti ${l.tipo==='atrasado'?'ti-alert-triangle':'ti-bell-ringing'}" style="font-size:18px;color:${l.tipo==='atrasado'?'var(--red)':'var(--amber)'}"></i>
+          <div style="font-size:13px">${l.msg}</div>
+        </div>
+      </div>`).join('')
+    : '<div class="empty" style="padding:24px"><i class="ti ti-check"></i><p>Nenhum acompanhamento pendente por enquanto.</p></div>'
+}
+
+function toggleFiltroStatusPaciente(val) {
+  filtroStatusPaciente = filtroStatusPaciente === val ? '' : val
+  renderPets()
+}
+
 function renderPets() {
   const busca = (document.getElementById('pets-busca').value||'').toLowerCase()
   const esp   = document.getElementById('pets-esp-filtro').value
   document.getElementById('sb-pets').textContent = pets.length
   const el = document.getElementById('pets-lista')
+
+  const filtrosEl = document.getElementById('pets-filtros-status')
+  if (filtrosEl) {
+    filtrosEl.innerHTML = `
+      <span class="filtros-label">Status</span>
+      ${Object.entries(LABEL_STATUS_PACIENTE).map(([val,label]) =>
+        `<span class="filtro-tag ${filtroStatusPaciente===val?'ativo':''}" onclick="toggleFiltroStatusPaciente('${val}')">${label}</span>`).join('')}
+      ${filtroStatusPaciente?`<button class="btn-limpar" onclick="toggleFiltroStatusPaciente('')">Limpar filtro</button>`:''}
+    `
+  }
+
   let filtrados = pets
   if (busca) filtrados = filtrados.filter(p => (p.nome_pet||'').toLowerCase().includes(busca)||(p.nome_tutor||'').toLowerCase().includes(busca))
   if (esp)   filtrados = filtrados.filter(p => p.especie===esp)
+  if (filtroStatusPaciente) filtrados = filtrados.filter(p => (p.status_paciente||'em_consulta')===filtroStatusPaciente)
   filtrados = [...filtrados].sort((a,b) => (a.nome_pet||'').localeCompare(b.nome_pet||'', 'pt-BR', {sensitivity:'base'}))
   if (!filtrados.length) { el.innerHTML='<div class="empty"><i class="ti ti-paw"></i><p>Nenhum paciente encontrado.</p></div>'; return }
   el.innerHTML = filtrados.map(p => `
@@ -1457,6 +1530,7 @@ function abrirNovoPet() {
   ;['pt-especie','pt-sexo','pt-castrado','pt-dentropes','pt-tipdieta','pt-atividade','pt-ambiente','pt-convivencia','pt-porte'].forEach(id=>document.getElementById(id).value='')
   document.getElementById('pt-especie').value='cao'
   document.getElementById('pt-status').value='em_consulta'
+  document.getElementById('pt-semana-final').value=''
   ;['pt-idade','pt-peso','pt-pesoideal'].forEach(id=>document.getElementById(id).value='')
   document.getElementById('pt-aniversario').value=''
   document.getElementById('pt-foto-preview').innerHTML='<div class="foto-placeholder" style="width:64px;height:64px;font-size:26px">🐾</div>'
@@ -1481,6 +1555,7 @@ function editarPet(id) {
   document.getElementById('pt-especie').value=p.especie||'cao'
   document.getElementById('pt-raca').value=p.raca||''
   document.getElementById('pt-status').value=p.status_paciente||'em_consulta'
+  document.getElementById('pt-semana-final').value=p.semana_finalizacao||''
   document.getElementById('pt-sexo').value=p.sexo||''
   document.getElementById('pt-castrado').value=p.castrado===null?'':String(p.castrado)
   document.getElementById('pt-idade').value=p.idade_anos||''
@@ -1512,6 +1587,8 @@ async function salvarPet() {
   const nome_pet=document.getElementById('pt-nome').value.trim()
   if (!nome_tutor||!nome_pet) { alert('Informe nome do tutor e do pet.'); return }
   const boolVal = (id) => { const v=document.getElementById(id).value; return v===''?null:v==='true' }
+  const petAntes = editingPetId ? pets.find(x=>x.id===editingPetId) : null
+  const statusNovo = document.getElementById('pt-status').value||'em_consulta'
   const body = {
     nome_tutor, nome_pet,
     cpf:document.getElementById('pt-cpf').value.trim()||null,
@@ -1522,7 +1599,9 @@ async function salvarPet() {
     pais:document.getElementById('pt-pais').value.trim()||null,
     especie:document.getElementById('pt-especie').value||'cao',
     raca:document.getElementById('pt-raca').value.trim()||null,
-    status_paciente:document.getElementById('pt-status').value||'em_consulta',
+    status_paciente:statusNovo,
+    historico_status:comHistoricoStatus(petAntes, statusNovo),
+    semana_finalizacao:document.getElementById('pt-semana-final').value||null,
     sexo:document.getElementById('pt-sexo').value||null,
     castrado:boolVal('pt-castrado'),
     idade_anos:parseFloat(document.getElementById('pt-idade').value)||null,
@@ -1547,6 +1626,7 @@ async function salvarPet() {
     } else {
       const novo=await apiFetch('/pets',{method:'POST',body}); pets.push(novo); petId=novo.id; toast('Paciente cadastrado!')
     }
+    renderBadgeLembretes()
     if (fotoNovoPetArquivo) {
       try { await enviarFotoPet(petId, fotoNovoPetArquivo) }
       catch(e) { toast('Paciente salvo, mas houve erro ao enviar a foto.', 'error') }
@@ -1738,7 +1818,7 @@ async function renderAbaAnamneses(petId) {
 
 function iniciarAnamnese(petId) {
   selecionarPetAnamnese(petId)
-  goTo('anamnese',document.querySelectorAll('.nav-item')[2])
+  goTo('anamnese',document.querySelectorAll('.nav-item')[3])
   setTimeout(() => irParaAnamnese(), 100)
 }
 
@@ -1768,6 +1848,7 @@ async function abrirPerfil(id) {
         <div class="info-box"><div class="info-box-label">Aniversário</div><div class="info-box-val">${p.aniversario?new Date(p.aniversario+'T12:00').toLocaleDateString('pt-BR'):'—'}</div></div>
         <div class="info-box"><div class="info-box-label">Dieta atual</div><div class="info-box-val">${dietaMap(p.tipo_dieta_atual)}</div></div>
         <div class="info-box"><div class="info-box-label">Porte</div><div class="info-box-val">${LABEL_PORTE[p.porte]||'—'}</div></div>
+        <div class="info-box"><div class="info-box-label">Semana p/ finalizar acompanhamento</div><div class="info-box-val">${formatarSemana(p.semana_finalizacao)}</div></div>
       </div>
     </div>
     <div class="card">
@@ -1780,6 +1861,10 @@ async function abrirPerfil(id) {
         <div class="info-box"><div class="info-box-label">Cidade / Estado / País</div><div class="info-box-val">${[p.cidade,p.estado,p.pais].filter(Boolean).join(' / ')||'—'}</div></div>
       </div>
       ${p.obs_estilo_vida?`<p style="font-size:13px;color:var(--text-2);line-height:1.6;margin-top:14px">${p.obs_estilo_vida}</p>`:''}
+    </div>
+    <div class="card">
+      <div class="card-title">Histórico de status</div>
+      ${htmlHistoricoStatus(p)}
     </div>
     ${p.historico_saude?`<div class="card"><div class="card-title">Histórico de saúde</div><p style="font-size:13px;color:var(--text-2);line-height:1.6">${p.historico_saude}</p></div>`:''}
     ${p.objetivos_tutor?`<div class="card"><div class="card-title">Objetivos do tutor</div><p style="font-size:13px;color:var(--text-2);line-height:1.6">${p.objetivos_tutor}</p></div>`:''}
@@ -1839,7 +1924,7 @@ async function abrirPerfil(id) {
 function iniciarConsultaPet(petId, dietaId, peso) {
   const p=pets.find(x=>x.id===petId); if (!p) return
   petConsultaId=petId
-  goTo('consulta',document.querySelectorAll('.nav-item')[3])
+  goTo('consulta',document.querySelectorAll('.nav-item')[4])
   setTimeout(()=>{
     // preencher pet selecionado
     document.getElementById('c-busca-pet').value=''
@@ -2029,7 +2114,7 @@ async function gerarCardapio() {
       <div class="cp-footer">Formulado e balanceado no Supercrac · NutriPet · ${dataFmt}<br>NEM = ${peso}^0,75 × ${fator} = ${nem.toFixed(1)} kcal · Consumo = ${nem.toFixed(1)} ÷ ${em} = ${consumoG.toFixed(1)} g/dia</div>
     </div></div>`
 
-  goTo('cardapio',document.querySelectorAll('.nav-item')[4])
+  goTo('cardapio',document.querySelectorAll('.nav-item')[5])
 }
 
 // ══ FOTO DE PERFIL ══
@@ -2233,7 +2318,7 @@ function editarAnamnese(anamneseId, petId) {
   const lista = anamnesesCache[petId] || []
   const a = lista.find(x => x.id === anamneseId)
   if (!a) return
-  goTo('anamnese', document.querySelectorAll('.nav-item')[2])
+  goTo('anamnese', document.querySelectorAll('.nav-item')[3])
   setTimeout(() => preencherFormAnamnese(petId, a), 100)
 }
 
@@ -2344,12 +2429,12 @@ async function salvarAnamnese(irParaPlano) {
       iniciarConsultaPet(petIdAtual, null, peso || p?.peso_atual)
     } else if (wasEditing) {
       resetAnamnese()
-      goTo('pacientes', document.querySelectorAll('.nav-item')[1])
+      goTo('pacientes', document.querySelectorAll('.nav-item')[2])
       await abrirPerfil(petIdAtual)
       document.querySelectorAll('.perfil-tab')[2].click()
     } else {
       resetAnamnese()
-      goTo('pacientes', document.querySelectorAll('.nav-item')[1])
+      goTo('pacientes', document.querySelectorAll('.nav-item')[2])
     }
   } catch(e) { toast('Erro ao salvar anamnese.', 'error') }
 }
@@ -2372,6 +2457,83 @@ const LABEL_STATUS_PACIENTE = { em_consulta:'Em consulta', acompanhamento:'Acomp
 const COR_STATUS_PACIENTE = { em_consulta:'var(--blue)', acompanhamento:'var(--amber)', finalizado:'var(--green)' }
 function corStatusPaciente(status) { return COR_STATUS_PACIENTE[status] || 'var(--border-md)' }
 
+// "2026-W15" -> "Semana 15/2026"
+function formatarSemana(semana) {
+  if (!semana) return '—'
+  const m = String(semana).match(/^(\d{4})-W(\d{2})$/)
+  if (!m) return semana
+  return `Semana ${parseInt(m[2],10)}/${m[1]}`
+}
+
+// ── LEMBRETES DE ACOMPANHAMENTO ──
+function semanaAtualISO(date = new Date()) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  const dayNum = d.getUTCDay() || 7
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum)
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7)
+  return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2,'0')}`
+}
+
+function calcularLembretesAcompanhamento() {
+  const semanaAtual = semanaAtualISO()
+  return pets
+    .filter(p => p.semana_finalizacao && p.status_paciente !== 'finalizado')
+    .map(p => {
+      if (p.semana_finalizacao === semanaAtual) return { pet:p, tipo:'ultima_semana', msg:`Essa é a última semana de acompanhamento da ${p.nome_pet}.` }
+      if (p.semana_finalizacao < semanaAtual) return { pet:p, tipo:'atrasado', msg:`O acompanhamento da ${p.nome_pet} já deveria ter sido finalizado (${formatarSemana(p.semana_finalizacao)}).` }
+      return null
+    })
+    .filter(Boolean)
+    .sort((a,b) => a.pet.semana_finalizacao.localeCompare(b.pet.semana_finalizacao))
+}
+
+function renderBadgeLembretes() {
+  const badge = document.getElementById('lembretes-count')
+  if (!badge) return []
+  const lembretes = calcularLembretesAcompanhamento()
+  if (lembretes.length) { badge.textContent = lembretes.length; badge.style.display = 'flex' }
+  else { badge.style.display = 'none' }
+  return lembretes
+}
+
+function toggleLembretesDropdown() {
+  const dd = document.getElementById('lembretes-dropdown')
+  if (dd.style.display === 'block') { dd.style.display = 'none'; return }
+  const lembretes = calcularLembretesAcompanhamento()
+  dd.innerHTML = lembretes.length
+    ? lembretes.map(l => `<div class="lembrete-item" onclick="fecharLembretesDropdown();goTo('pacientes',document.querySelectorAll('.nav-item')[2]);abrirPerfil('${l.pet.id}')"><i class="ti ${l.tipo==='atrasado'?'ti-alert-triangle':'ti-bell-ringing'}" style="color:${l.tipo==='atrasado'?'var(--red)':'var(--amber)'};margin-top:1px;flex-shrink:0"></i><span>${l.msg}</span></div>`).join('')
+    : '<div class="lembrete-item" style="cursor:default;color:var(--text-3)">Nenhum lembrete no momento.</div>'
+  dd.style.display = 'block'
+}
+
+function fecharLembretesDropdown() {
+  const dd = document.getElementById('lembretes-dropdown')
+  if (dd) dd.style.display = 'none'
+}
+
+document.addEventListener('click', (e) => {
+  const dd = document.getElementById('lembretes-dropdown')
+  const btn = document.getElementById('btn-lembretes')
+  if (dd && dd.style.display === 'block' && !dd.contains(e.target) && !btn.contains(e.target)) fecharLembretesDropdown()
+})
+
+function htmlHistoricoStatus(p) {
+  const historico = Array.isArray(p.historico_status) ? p.historico_status : []
+  if (!historico.length) return '<p style="font-size:13px;color:var(--text-3);padding:4px 0">Nenhuma mudança de status registrada ainda.</p>'
+  return [...historico].reverse().map(h => {
+    const dataFmt = h.data ? new Date(h.data).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'
+    const deLabel = h.de ? (LABEL_STATUS_PACIENTE[h.de]||h.de) : 'Cadastro'
+    const paraLabel = LABEL_STATUS_PACIENTE[h.para]||h.para
+    return `<div class="hist-item" style="margin-bottom:8px">
+      <div>
+        <div class="hist-data">${dataFmt}</div>
+        <div style="font-size:13px;margin-top:3px;display:flex;align-items:center;gap:6px">${deLabel} <i class="ti ti-arrow-right" style="font-size:12px;color:var(--text-3)"></i> <span class="badge badge-status-${h.para}">${paraLabel}</span></div>
+      </div>
+    </div>`
+  }).join('')
+}
+
 function selectStatusPacienteHtml(petId, statusAtual) {
   const st = statusAtual || 'em_consulta'
   const opts = Object.entries(LABEL_STATUS_PACIENTE).map(([val,label]) =>
@@ -2379,12 +2541,22 @@ function selectStatusPacienteHtml(petId, statusAtual) {
   return `<select class="status-mini-select badge-status-${st}" onclick="event.stopPropagation()" onchange="event.stopPropagation();mudarStatusPaciente('${petId}',this.value)">${opts}</select>`
 }
 
+// Retorna o histórico de status do pet com uma entrada nova anexada,
+// só quando o status realmente muda (nunca reordena/edita o que já existe).
+function comHistoricoStatus(p, statusNovo) {
+  const historico = Array.isArray(p?.historico_status) ? p.historico_status : []
+  if (!p || p.status_paciente === statusNovo) return historico
+  return [...historico, { de: p.status_paciente || null, para: statusNovo, data: new Date().toISOString() }]
+}
+
 async function mudarStatusPaciente(petId, novoStatus) {
   const p = pets.find(x => x.id === petId)
   if (!p) return
   try {
-    const updated = await apiFetch(`/pets/${petId}`, { method:'PUT', body:{ ...p, status_paciente: novoStatus } })
+    const body = { ...p, status_paciente: novoStatus, historico_status: comHistoricoStatus(p, novoStatus) }
+    const updated = await apiFetch(`/pets/${petId}`, { method:'PUT', body })
     pets = pets.map(x => x.id === petId ? updated : x)
+    renderBadgeLembretes()
     toast('Status atualizado!')
     const perfilView = document.getElementById('pacientes-perfil-view')
     if (perfilView.style.display !== 'none' && perfilView.dataset.petid === petId) abrirPerfil(petId)
