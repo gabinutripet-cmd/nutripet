@@ -1,7 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
-import { requireUser } from '../../../../lib/auth.js'
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
+import { requireUser } from '../lib/auth.js'
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
+)
+
+// Uma única função cobre /api/dietas (lista/cria) e /api/dietas?id=xxx
+// (edita/exclui) via query string — evita depender de rotas dinâmicas
+// aninhadas, que consomem o limite de Serverless Functions do Vercel.
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
@@ -10,24 +17,23 @@ export default async function handler(req, res) {
   if (!(await requireUser(req, res))) return
 
   const { id } = req.query
-  const anamneseIdParam = req.query.anamneseId
-  const anamneseId = Array.isArray(anamneseIdParam) ? anamneseIdParam[0] : anamneseIdParam
 
-  if (!anamneseId) {
+  if (!id) {
     if (req.method === 'GET') {
       const { data, error } = await supabase
-        .from('anamneses')
+        .from('dietas')
         .select('*')
-        .eq('pet_id', id)
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: true })
       if (error) return res.status(500).json({ error: error.message })
       return res.status(200).json(data)
     }
 
     if (req.method === 'POST') {
+      const { nome, especie, fase, obs, garantias, ingredientes } = req.body
+      if (!nome || !especie || !fase) return res.status(400).json({ error: 'Campos obrigatórios: nome, especie, fase' })
       const { data, error } = await supabase
-        .from('anamneses')
-        .insert([{ ...req.body, pet_id: id }])
+        .from('dietas')
+        .insert([{ nome, especie, fase, obs, garantias, ingredientes }])
         .select()
         .single()
       if (error) return res.status(500).json({ error: error.message })
@@ -38,11 +44,11 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'PUT') {
+    const { nome, especie, fase, obs, garantias, ingredientes } = req.body
     const { data, error } = await supabase
-      .from('anamneses')
-      .update(req.body)
-      .eq('id', anamneseId)
-      .eq('pet_id', id)
+      .from('dietas')
+      .update({ nome, especie, fase, obs, garantias, ingredientes })
+      .eq('id', id)
       .select()
       .single()
     if (error) return res.status(500).json({ error: error.message })
@@ -50,7 +56,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'DELETE') {
-    const { error } = await supabase.from('anamneses').delete().eq('id', anamneseId).eq('pet_id', id)
+    const { error } = await supabase.from('dietas').delete().eq('id', id)
     if (error) return res.status(500).json({ error: error.message })
     return res.status(204).end()
   }

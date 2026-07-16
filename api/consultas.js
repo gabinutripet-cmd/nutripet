@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
-import { requireUser } from '../../lib/auth.js'
+import { requireUser } from '../lib/auth.js'
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
 
+// /api/consultas (cria) e /api/consultas?id=xxx (exclui) via query string.
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST,DELETE,OPTIONS')
@@ -9,8 +10,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (!(await requireUser(req, res))) return
 
-  const idParam = req.query.id
-  const id = Array.isArray(idParam) ? idParam[0] : idParam
+  const { id } = req.query
 
   if (!id && req.method === 'POST') {
     const { data, error } = await supabase
