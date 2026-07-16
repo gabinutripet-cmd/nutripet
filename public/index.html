@@ -120,6 +120,7 @@
   .badge-status-em_consulta{background:var(--blue-light);color:var(--blue);}
   .badge-status-acompanhamento{background:var(--amber-light);color:var(--amber);}
   .badge-status-finalizado{background:var(--green-light);color:var(--green-dark);}
+  .status-mini-select{border:none;outline:none;font-size:9.5px;font-weight:700;padding:3px 6px;border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;text-align-last:center;}
   /* ── FILTROS ── */
   .filtros-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;align-items:center;}
   .filtros-label{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-right:2px;}
@@ -1429,7 +1430,10 @@ function renderPets() {
   el.innerHTML = filtrados.map(p => `
     <div class="pet-item" onclick="abrirPerfil('${p.id}')">
       <div style="display:flex;align-items:center;flex:1">
-        ${p.foto_url ? `<img src="${p.foto_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;margin-right:12px;border:2px solid var(--border)">` : `<div class="pet-avatar">${p.especie==='gato'?'🐈':'🐕'}</div>`}
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px;margin-right:12px">
+          ${p.foto_url ? `<img src="${p.foto_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2.5px solid ${corStatusPaciente(p.status_paciente)}">` : `<div class="pet-avatar" style="margin-right:0;border-color:${corStatusPaciente(p.status_paciente)}">${p.especie==='gato'?'🐈':'🐕'}</div>`}
+          <div onclick="event.stopPropagation()">${selectStatusPacienteHtml(p.id, p.status_paciente)}</div>
+        </div>
         <div>
           <div class="pet-name">${p.nome_pet}</div>
           <div class="pet-tutor">Tutor: ${p.nome_tutor}</div>
@@ -1437,7 +1441,6 @@ function renderPets() {
             <span class="badge ${p.especie==='cao'?'badge-dog':'badge-cat'}">${p.especie==='cao'?'Cão':'Gato'}</span>
             ${p.raca?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.raca}</span>`:''}
             ${p.peso_atual?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.peso_atual} kg</span>`:''}
-            ${badgeStatusPaciente(p.status_paciente)}
           </div>
         </div>
       </div>
@@ -1787,8 +1790,8 @@ async function abrirPerfil(id) {
     <div class="perfil-header">
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
         ${p.foto_url
-          ? `<img src="${p.foto_url}" class="foto-avatar" onclick="abrirModalFoto('${p.id}')" title="Clique para ver a foto">`
-          : `<div class="foto-placeholder" onclick="triggerFotoUpload('${p.id}')" title="Clique para adicionar foto">${p.especie==='gato'?'🐈':'🐕'}</div>`
+          ? `<img src="${p.foto_url}" class="foto-avatar" style="border-color:${corStatusPaciente(p.status_paciente)}" onclick="abrirModalFoto('${p.id}')" title="Clique para ver a foto">`
+          : `<div class="foto-placeholder" style="border-color:${corStatusPaciente(p.status_paciente)}" onclick="triggerFotoUpload('${p.id}')" title="Clique para adicionar foto">${p.especie==='gato'?'🐈':'🐕'}</div>`
         }
         <div class="foto-upload-hint">clique para ${p.foto_url?'ver':'adicionar'} a foto</div>
       </div>
@@ -1800,7 +1803,7 @@ async function abrirPerfil(id) {
           ${p.raca?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.raca}</span>`:''}
           ${p.sexo?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.sexo==='macho'?'♂ Macho':'♀ Fêmea'}</span>`:''}
           ${p.castrado!==null?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.castrado?'Castrado':'Não castrado'}</span>`:''}
-          ${badgeStatusPaciente(p.status_paciente)}
+          ${selectStatusPacienteHtml(p.id, p.status_paciente)}
         </div>
       </div>
       <div style="margin-left:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px">
@@ -2365,9 +2368,28 @@ const LABEL_PORTE = { pequeno:'Pequeno (×1,1)', medio:'Médio (×1,0)', grande:
 
 // ── STATUS DO PACIENTE ──
 const LABEL_STATUS_PACIENTE = { em_consulta:'Em consulta', acompanhamento:'Acompanhamento', finalizado:'Finalizado' }
-function badgeStatusPaciente(status) {
-  if (!status || !LABEL_STATUS_PACIENTE[status]) return ''
-  return `<span class="badge badge-status-${status}">${LABEL_STATUS_PACIENTE[status]}</span>`
+
+const COR_STATUS_PACIENTE = { em_consulta:'var(--blue)', acompanhamento:'var(--amber)', finalizado:'var(--green)' }
+function corStatusPaciente(status) { return COR_STATUS_PACIENTE[status] || 'var(--border-md)' }
+
+function selectStatusPacienteHtml(petId, statusAtual) {
+  const st = statusAtual || 'em_consulta'
+  const opts = Object.entries(LABEL_STATUS_PACIENTE).map(([val,label]) =>
+    `<option value="${val}" ${val===st?'selected':''}>${label}</option>`).join('')
+  return `<select class="status-mini-select badge-status-${st}" onclick="event.stopPropagation()" onchange="event.stopPropagation();mudarStatusPaciente('${petId}',this.value)">${opts}</select>`
+}
+
+async function mudarStatusPaciente(petId, novoStatus) {
+  const p = pets.find(x => x.id === petId)
+  if (!p) return
+  try {
+    const updated = await apiFetch(`/pets/${petId}`, { method:'PUT', body:{ ...p, status_paciente: novoStatus } })
+    pets = pets.map(x => x.id === petId ? updated : x)
+    toast('Status atualizado!')
+    const perfilView = document.getElementById('pacientes-perfil-view')
+    if (perfilView.style.display !== 'none' && perfilView.dataset.petid === petId) abrirPerfil(petId)
+    else renderPets()
+  } catch(e) { toast('Erro ao atualizar status.', 'error') }
 }
 
 // Cálculos
