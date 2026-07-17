@@ -1272,6 +1272,7 @@ function renderLista() {
           </div>
           <div class="diet-item-actions">
             <button class="btn btn-sm" onclick="editarDieta('${d.id}')"><i class="ti ti-edit"></i> Editar</button>
+            <button class="btn btn-sm" onclick="duplicarDieta('${d.id}')"><i class="ti ti-copy"></i> Duplicar</button>
             <button class="btn btn-sm btn-danger" onclick="excluirDieta('${d.id}')"><i class="ti ti-trash"></i></button>
           </div>
         </div>`
@@ -1359,6 +1360,22 @@ function editarDieta(id) {
     ;[['pb','g-pb'],['ee','g-ee'],['fb','g-fb'],['mm','g-mm'],['ca_min','g-ca-min'],['ca_max','g-ca-max'],['p','g-p'],['um','g-um'],['em','g-em']].forEach(([k,id])=>{ document.getElementById(id).value=d.garantias[k]||'' })
     document.getElementById('ingr-list').innerHTML=''; ingrCount=0
     d.ingredientes.forEach(i=>addIngr(i.n,i.sc,i.u))
+  },30)
+}
+
+function duplicarDieta(id) {
+  const d=dietas.find(x=>x.id===id); if (!d) return
+  editingDietId=null
+  bancoTab('nova',document.querySelectorAll('.seg-btn')[1])
+  setTimeout(()=>{
+    document.getElementById('n-nome').value=`${d.nome} (cópia)`
+    document.getElementById('n-especie').value=d.especie
+    document.getElementById('n-fase').value=d.fase
+    document.getElementById('n-obs').value=d.obs||''
+    ;[['pb','g-pb'],['ee','g-ee'],['fb','g-fb'],['mm','g-mm'],['ca_min','g-ca-min'],['ca_max','g-ca-max'],['p','g-p'],['um','g-um'],['em','g-em']].forEach(([k,id])=>{ document.getElementById(id).value=d.garantias[k]||'' })
+    document.getElementById('ingr-list').innerHTML=''; ingrCount=0
+    d.ingredientes.forEach(i=>addIngr(i.n,i.sc,i.u))
+    toast('Dieta duplicada — revise e salve como nova.')
   },30)
 }
 function cancelarNova() { editingDietId=null; bancoTab('lista',document.querySelector('.seg-btn')) }
