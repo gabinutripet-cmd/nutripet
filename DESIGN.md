@@ -251,21 +251,6 @@ color: var(--blue);
 }
 ```
 
-### Tabs segmentadas (banco de dietas)
-
-```css
-.seg {
-  background: var(--bg);
-  border-radius: var(--radius);
-  padding: 3px;
-}
-.seg-btn.active {
-  background: var(--surface);
-  color: var(--green);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
-}
-```
-
 ### Modal
 
 ```css

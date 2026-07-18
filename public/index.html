@@ -246,14 +246,6 @@
   .ingr-row input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(46,189,107,.13);}
   .garantias-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
 
-  /* ── TABS SEGMENTADAS ── */
-  .seg{display:flex;background:var(--bg);border-radius:var(--radius);padding:4px;margin-bottom:20px;}
-  .seg-btn{flex:1;padding:9px;font-size:13.5px;font-weight:500;color:var(--text-2);cursor:pointer;border-radius:8px;text-align:center;transition:all .15s;border:none;background:none;font-family:'DM Sans',sans-serif;}
-  .seg-btn i{position:relative;top:0.2em;}
-  .seg-btn.active{background:var(--surface);color:var(--green-dark);box-shadow:0 1px 6px rgba(0,0,0,.10);font-weight:700;}
-  .seg-btn-add{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(46,189,107,.35);}
-  .seg-btn-add.active{background:var(--green-mid);color:#fff;}
-
   /* ── ALERTAS ── */
   .alert{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:var(--radius);font-size:13.5px;margin-bottom:16px;border-left:3px solid var(--green);}
   .alert-info{background:var(--green-light);color:var(--green-dark);}
@@ -498,10 +490,6 @@
 
     <!-- BANCO -->
     <div class="page" id="page-banco">
-      <div class="seg">
-        <button class="seg-btn active" onclick="bancoTab('lista',this)"><i class="fi fi-rr-list" style="font-size:13px;margin-right:4px"></i> Dietas cadastradas</button>
-        <button class="seg-btn seg-btn-add" onclick="bancoTab('nova',this)"><i class="fi fi-rr-plus" style="font-size:13px;margin-right:4px"></i> Cadastrar nova dieta</button>
-      </div>
       <div id="banco-lista-view"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
       <div id="banco-nova-view" style="display:none">
         <div class="card">
@@ -1272,6 +1260,9 @@ function goTo(page, el) {
   }
   document.getElementById('topbar-title').textContent = map[page][0]
   document.getElementById('topbar-sub').textContent   = map[page][1]
+  document.getElementById('topbar-actions').innerHTML = page==='banco'
+    ? '<button class="btn btn-primary" id="btn-nova-dieta" onclick="bancoTab(\'nova\')"><i class="fi fi-rr-plus"></i> Cadastrar nova dieta</button>'
+    : ''
   if (page==='painel')    renderPainel()
   if (page==='banco')     renderLista()
   if (page==='pacientes') { mostrarListaPets(); renderPets() }
@@ -1285,11 +1276,11 @@ function setDataHoje() {
 }
 
 // ══ BANCO ══
-function bancoTab(tab, el) {
-  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'))
-  el.classList.add('active')
+function bancoTab(tab) {
   document.getElementById('banco-lista-view').style.display = tab==='lista' ? 'block' : 'none'
   document.getElementById('banco-nova-view').style.display  = tab==='nova'  ? 'block' : 'none'
+  const btnNova = document.getElementById('btn-nova-dieta')
+  if (btnNova) btnNova.style.display = tab==='lista' ? 'inline-flex' : 'none'
   if (tab==='lista') renderLista()
   if (tab==='nova' && !editingDietId) initNova()
 }
@@ -1407,7 +1398,7 @@ async function salvarDieta() {
   try {
     if (editingDietId) { const u=await apiFetch(`/dietas?id=${editingDietId}`,{method:'PUT',body}); dietas=dietas.map(d=>d.id===editingDietId?u:d); toast('Dieta atualizada!') }
     else { const nova=await apiFetch('/dietas',{method:'POST',body}); dietas.push(nova); toast('Dieta cadastrada!') }
-    editingDietId=null; bancoTab('lista',document.querySelector('.seg-btn'))
+    editingDietId=null; bancoTab('lista')
   } catch(e) { toast('Erro ao salvar.','error') }
 }
 
@@ -1420,7 +1411,7 @@ async function excluirDieta(id) {
 function editarDieta(id) {
   const d=dietas.find(x=>x.id===id); if (!d) return
   editingDietId=id
-  bancoTab('nova',document.querySelectorAll('.seg-btn')[1])
+  bancoTab('nova')
   setTimeout(()=>{
     document.getElementById('n-nome').value=d.nome
     document.getElementById('n-especie').value=d.especie
@@ -1435,7 +1426,7 @@ function editarDieta(id) {
 function duplicarDieta(id) {
   const d=dietas.find(x=>x.id===id); if (!d) return
   editingDietId=null
-  bancoTab('nova',document.querySelectorAll('.seg-btn')[1])
+  bancoTab('nova')
   setTimeout(()=>{
     document.getElementById('n-nome').value=`${d.nome} (cópia)`
     document.getElementById('n-especie').value=d.especie
@@ -1447,7 +1438,7 @@ function duplicarDieta(id) {
     toast('Dieta duplicada — revise e salve como nova.')
   },30)
 }
-function cancelarNova() { editingDietId=null; bancoTab('lista',document.querySelector('.seg-btn')) }
+function cancelarNova() { editingDietId=null; bancoTab('lista') }
 
 // ── CIDADE → ESTADO ──
 const CIDADES_BR = [
