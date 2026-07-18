@@ -133,7 +133,7 @@
   .nav{padding:12px 0;flex:1;}
   .nav-group-label{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;padding:12px 20px 6px;}
   .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13.5px;color:var(--text-2);cursor:pointer;transition:all .15s ease;border-left:3px solid transparent;user-select:none;margin:1px 0;}
-  .nav-item i{font-size:17px;}
+  .nav-item i{font-size:17px;position:relative;top:0.2em;}
   .nav-item:hover{background:var(--bg);color:var(--text);}
   .nav-item.active{color:var(--green-dark);background:var(--green-light);border-left-color:var(--green);font-weight:600;}
   .sidebar-footer{padding:14px 20px;border-top:1.5px solid var(--border);font-size:11px;color:var(--text-3);background:var(--bg);}
@@ -151,6 +151,7 @@
   .btn:hover{background:var(--bg);border-color:rgba(0,0,0,.22);}
   .btn:active{transform:scale(.98);}
   .btn i{font-size:16px;}
+  .btn:not(.btn-icon) i{position:relative;top:0.2em;}
   .btn-primary{background:var(--green);border-color:var(--green);color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(46,189,107,.35);}
   .btn-primary:hover{background:var(--green-mid);border-color:var(--green-mid);box-shadow:0 4px 12px rgba(46,189,107,.45);}
   .btn-danger{background:var(--red-light);border-color:rgba(192,57,43,.2);color:var(--red);}
@@ -248,7 +249,8 @@
   /* ── TABS SEGMENTADAS ── */
   .seg{display:flex;background:var(--bg);border-radius:var(--radius);padding:4px;margin-bottom:20px;}
   .seg-btn{flex:1;padding:9px;font-size:13.5px;font-weight:500;color:var(--text-2);cursor:pointer;border-radius:8px;text-align:center;transition:all .15s;border:none;background:none;font-family:'DM Sans',sans-serif;}
-  .seg-btn.active{background:var(--surface);color:var(--green-dark);box-shadow:0 1px 6px rgba(0,0,0,.10);font-weight:700;}
+  .seg-btn i{position:relative;top:0.2em;}
+  .seg-btn.active{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(46,189,107,.35);font-weight:700;}
 
   /* ── ALERTAS ── */
   .alert{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:var(--radius);font-size:13.5px;margin-bottom:16px;border-left:3px solid var(--green);}
