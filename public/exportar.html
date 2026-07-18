@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NutriPet — Exportar Plano Nutricional</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons@3.3.1/css/bold/rounded.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root{
@@ -185,7 +185,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
   <!-- PAINEL DE CONFIGURAÇÃO -->
   <div class="config-panel">
     <div class="config-header">
-      <h1><i class="ti ti-file-text" style="color:var(--green)"></i> Exportar Plano Nutricional</h1>
+      <h1><i class="fi fi-br-document" style="color:var(--green)"></i> Exportar Plano Nutricional</h1>
       <p id="config-pet-nome">Carregando...</p>
     </div>
     <div class="config-body">
@@ -284,10 +284,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
       </div>
 
       <button class="btn btn-primary" onclick="gerarPDF()">
-        <i class="ti ti-file-arrow-down"></i> Gerar PDF
+        <i class="fi fi-br-file-download"></i> Gerar PDF
       </button>
       <button class="btn" style="margin-top:8px" onclick="window.close()">
-        <i class="ti ti-arrow-left"></i> Voltar
+        <i class="fi fi-br-arrow-left"></i> Voltar
       </button>
 
     </div>
@@ -295,7 +295,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
 
   <!-- PREVIEW -->
   <div class="preview-area">
-    <div class="preview-title"><i class="ti ti-eye"></i> Pré-visualização</div>
+    <div class="preview-title"><i class="fi fi-br-eye"></i> Pré-visualização</div>
     <div id="pdf-template">
       <div class="loading"><div class="spinner"></div> Carregando dados...</div>
     </div>
@@ -777,7 +777,7 @@ async function gerarPDF() {
     console.error(e)
     mostrarToast('Erro ao gerar PDF. Tente novamente.', true)
   } finally {
-    btn.innerHTML = '<i class="ti ti-file-arrow-down"></i> Gerar PDF'
+    btn.innerHTML = '<i class="fi fi-br-file-download"></i> Gerar PDF'
     btn.disabled = false
   }
 }
@@ -786,7 +786,7 @@ function mostrarToast(msg, err=false) {
   const t = document.createElement('div')
   t.className = 'toast'
   t.style.background = err ? '#C0392B' : '#1F9B54'
-  t.innerHTML = `<i class="ti ${err?'ti-x':'ti-check'}"></i>${msg}`
+  t.innerHTML = `<i class="fi ${err?'fi-br-cross':'fi-br-check'}"></i>${msg}`
   document.body.appendChild(t)
   setTimeout(() => t.remove(), 3500)
 }

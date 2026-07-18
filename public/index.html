@@ -6,7 +6,7 @@
 <title>NutriPet — Plataforma de Dietas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons@3.3.1/css/bold/rounded.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
 <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -407,7 +407,7 @@
 <!-- LOGIN -->
 <div id="login-overlay">
   <div class="login-box">
-    <div class="paw" style="width:56px;height:56px;border-radius:16px;margin:0 auto 20px;box-shadow:0 4px 14px rgba(46,189,107,.4);"><i class="ti ti-paw" style="font-size:28px"></i></div>
+    <div class="paw" style="width:56px;height:56px;border-radius:16px;margin:0 auto 20px;box-shadow:0 4px 14px rgba(46,189,107,.4);"><i class="fi fi-br-paw" style="font-size:28px"></i></div>
     <div style="font-size:19px;font-weight:700;letter-spacing:-.02em">NutriPet</div>
     <div style="font-size:12.5px;color:var(--text-3);margin-top:4px;margin-bottom:28px">Gabi Mascellani · nutri.pet</div>
     <button class="btn" style="width:100%;justify-content:center" onclick="entrarComGoogle()">
@@ -428,35 +428,35 @@
 
 <nav class="sidebar">
   <div class="logo">
-    <div class="logo-mark"><div class="paw"><i class="ti ti-paw"></i></div>NutriPet</div>
+    <div class="logo-mark"><div class="paw"><i class="fi fi-br-paw"></i></div>NutriPet</div>
     <div class="logo-sub">Gabi Mascellani · nutri.pet</div>
   </div>
   <div class="nav">
     <div class="nav-group-label">Menu</div>
-    <div class="nav-item active" onclick="goTo('painel',this)"><i class="ti ti-layout-dashboard"></i> Painel</div>
-    <div class="nav-item" onclick="goTo('banco',this)"><i class="ti ti-database"></i> Banco de dietas</div>
-    <div class="nav-item" onclick="goTo('pacientes',this)"><i class="ti ti-paw"></i> Pacientes</div>
-    <div class="nav-item" onclick="goTo('anamnese',this)"><i class="ti ti-clipboard-heart"></i> Iniciar consulta</div>
-    <div class="nav-item" onclick="goTo('consulta',this)"><i class="ti ti-calculator"></i> Plano nutricional</div>
-    <div class="nav-item" onclick="goTo('cardapio',this)"><i class="ti ti-file-text"></i> Cardápio gerado</div>
+    <div class="nav-item active" onclick="goTo('painel',this)"><i class="fi fi-br-dashboard"></i> Painel</div>
+    <div class="nav-item" onclick="goTo('banco',this)"><i class="fi fi-br-database"></i> Banco de dietas</div>
+    <div class="nav-item" onclick="goTo('pacientes',this)"><i class="fi fi-br-paw"></i> Pacientes</div>
+    <div class="nav-item" onclick="goTo('anamnese',this)"><i class="fi fi-br-clipboard-check"></i> Iniciar consulta</div>
+    <div class="nav-item" onclick="goTo('consulta',this)"><i class="fi fi-br-calculator"></i> Plano nutricional</div>
+    <div class="nav-item" onclick="goTo('cardapio',this)"><i class="fi fi-br-document"></i> Cardápio gerado</div>
   </div>
-  <div class="sidebar-footer"><span id="sb-count">0</span> dietas · <span id="sb-pets">0</span> pacientes</div>
+  <div class="sidebar-footer"><span id="sb-count">0</span> dietas · <span id="sb-pets">0</span> pacientes<br><a href="https://www.flaticon.com/uicons" target="_blank" rel="noopener" style="color:var(--text-3);font-size:9.5px;text-decoration:none">Uicons by Flaticon</a></div>
   <div id="sb-user">
     <span id="sb-user-email"></span>
-    <button id="sb-logout" onclick="sair()" title="Sair"><i class="ti ti-logout"></i></button>
+    <button id="sb-logout" onclick="sair()" title="Sair"><i class="fi fi-br-sign-out-alt"></i></button>
   </div>
 </nav>
 
 <div class="main">
   <div class="topbar">
-    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu"><i class="ti ti-menu-2"></i></button>
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu"><i class="fi fi-br-menu-burger"></i></button>
     <div class="topbar-left">
       <h1 id="topbar-title">Banco de dietas</h1>
       <p id="topbar-sub">Gerencie as receitas formuladas no Supercrac</p>
     </div>
     <div style="position:relative">
       <button class="btn btn-icon" id="btn-lembretes" onclick="toggleLembretesDropdown()" style="position:relative">
-        <i class="ti ti-bell"></i>
+        <i class="fi fi-br-bell"></i>
         <span id="lembretes-count" class="lembretes-badge" style="display:none">0</span>
       </button>
       <div id="lembretes-dropdown" class="lembretes-dropdown" style="display:none"></div>
@@ -495,8 +495,8 @@
     <!-- BANCO -->
     <div class="page" id="page-banco">
       <div class="seg">
-        <button class="seg-btn active" onclick="bancoTab('lista',this)"><i class="ti ti-list" style="font-size:13px;margin-right:4px"></i> Dietas cadastradas</button>
-        <button class="seg-btn" onclick="bancoTab('nova',this)"><i class="ti ti-plus" style="font-size:13px;margin-right:4px"></i> Cadastrar nova dieta</button>
+        <button class="seg-btn active" onclick="bancoTab('lista',this)"><i class="fi fi-br-list" style="font-size:13px;margin-right:4px"></i> Dietas cadastradas</button>
+        <button class="seg-btn" onclick="bancoTab('nova',this)"><i class="fi fi-br-plus" style="font-size:13px;margin-right:4px"></i> Cadastrar nova dieta</button>
       </div>
       <div id="banco-lista-view"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
       <div id="banco-nova-view" style="display:none">
@@ -516,12 +516,12 @@
         <div class="card">
           <div class="section-header">
             <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:0"><span class="dot dot-green" style="width:9px;height:9px"></span> Ingredientes — valores SC</div>
-            <button class="btn btn-sm" onclick="addIngr()"><i class="ti ti-plus"></i> Adicionar</button>
+            <button class="btn btn-sm" onclick="addIngr()"><i class="fi fi-br-plus"></i> Adicionar</button>
           </div>
           <div class="ingr-header" style="margin-top:14px"><span>Ingrediente</span><span>Valor SC (%)</span><span>Unidade</span><span></span></div>
           <div id="ingr-list"></div>
           <div id="ingr-soma" style="margin-top:12px;padding:10px 14px;border-radius:var(--radius);font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);color:var(--text-2)">
-            <i class="ti ti-sum" style="font-size:15px"></i> Soma dos valores SC: <span id="ingr-soma-val">0%</span>
+            <i class="fi fi-br-sigma" style="font-size:15px"></i> Soma dos valores SC: <span id="ingr-soma-val">0%</span>
           </div>
         </div>
         <div class="card">
@@ -537,10 +537,10 @@
             <div class="field"><label>Umidade máx (g/kg)</label><input type="number" id="g-um" placeholder="692"></div>
             <div class="field"><label>Energia Metabolizável (kcal/kg)</label><input type="number" id="g-em" placeholder="1465"></div>
           </div>
-          <p style="font-size:11px;color:var(--text-3);margin-top:12px"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>Mínimos × 0,9 · Máximos × 1,1 · EM e Umidade como referência fixa.</p>
+          <p style="font-size:11px;color:var(--text-3);margin-top:12px"><i class="fi fi-br-info" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>Mínimos × 0,9 · Máximos × 1,1 · EM e Umidade como referência fixa.</p>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;padding-bottom:30px">
-          <button class="btn btn-primary" onclick="salvarDieta()"><i class="ti ti-check"></i> Salvar dieta</button>
+          <button class="btn btn-primary" onclick="salvarDieta()"><i class="fi fi-br-check"></i> Salvar dieta</button>
           <button class="btn" onclick="cancelarNova()">Cancelar</button>
         </div>
       </div>
@@ -556,7 +556,7 @@
             <option value="cao">Cão</option>
             <option value="gato">Gato</option>
           </select>
-          <button class="btn btn-primary" onclick="abrirNovoPet()"><i class="ti ti-plus"></i> Novo paciente</button>
+          <button class="btn btn-primary" onclick="abrirNovoPet()"><i class="fi fi-br-plus"></i> Novo paciente</button>
         </div>
         <div id="pets-filtros-status" class="filtros-wrap"></div>
         <div id="pets-lista"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
@@ -583,7 +583,7 @@
           <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
             <div id="pt-foto-preview" onclick="document.getElementById('pt-foto-arquivo').click()" style="cursor:pointer"></div>
             <div>
-              <button type="button" class="btn btn-sm" onclick="document.getElementById('pt-foto-arquivo').click()"><i class="ti ti-camera"></i> Adicionar foto</button>
+              <button type="button" class="btn btn-sm" onclick="document.getElementById('pt-foto-arquivo').click()"><i class="fi fi-br-camera"></i> Adicionar foto</button>
               <div style="font-size:10px;color:var(--text-3);margin-top:4px">Opcional — também dá pra adicionar depois pelo perfil</div>
             </div>
             <input type="file" id="pt-foto-arquivo" accept="image/*" style="display:none" onchange="selecionarFotoNovoPet(event)">
@@ -633,7 +633,7 @@
           </div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;padding-bottom:30px">
-          <button class="btn btn-primary" onclick="salvarPet()"><i class="ti ti-check"></i> Salvar paciente</button>
+          <button class="btn btn-primary" onclick="salvarPet()"><i class="fi fi-br-check"></i> Salvar paciente</button>
           <button class="btn" onclick="fecharFormPet()">Cancelar</button>
         </div>
       </div>
@@ -653,7 +653,7 @@
             <input type="text" id="c-busca-pet" placeholder="Digite nome do pet ou tutor..." oninput="buscarPetConsulta()">
           </div>
           <div style="display:flex;align-items:flex-end;gap:8px">
-            <button class="btn btn-sm" onclick="limparPetConsulta()" style="margin-bottom:1px"><i class="ti ti-x"></i> Limpar</button>
+            <button class="btn btn-sm" onclick="limparPetConsulta()" style="margin-bottom:1px"><i class="fi fi-br-cross"></i> Limpar</button>
           </div>
         </div>
         <div id="c-pets-resultados" style="display:none"></div>
@@ -663,7 +663,7 @@
               <div style="font-size:13px;font-weight:600;color:var(--green-dark)" id="c-pet-sel-nome">—</div>
               <div style="font-size:11px;color:var(--green-mid);margin-top:2px" id="c-pet-sel-info">—</div>
             </div>
-            <button class="btn btn-sm" onclick="limparPetConsulta()"><i class="ti ti-x"></i> Trocar</button>
+            <button class="btn btn-sm" onclick="limparPetConsulta()"><i class="fi fi-br-cross"></i> Trocar</button>
           </div>
         </div>
         <div style="margin-top:12px" id="c-ou-manual">
@@ -710,7 +710,7 @@
         </div>
       </div>
 
-      <div id="preview-hint" class="alert" style="display:none;border-left-color:var(--amber);background:var(--amber-light);color:#7a5200"><i class="ti ti-info-circle"></i><span id="preview-hint-text">—</span></div>
+      <div id="preview-hint" class="alert" style="display:none;border-left-color:var(--amber);background:var(--amber-light);color:#7a5200"><i class="fi fi-br-info"></i><span id="preview-hint-text">—</span></div>
 
       <div id="preview-section" style="display:none">
         <div class="card">
@@ -720,10 +720,10 @@
             <div class="stat-box"><div class="stat-label">Consumo diário</div><div class="stat-value" id="p-consumo">—</div><div class="stat-unit">g / dia</div></div>
             <div class="stat-box"><div class="stat-label">Por refeição</div><div class="stat-value" id="p-refei">—</div><div class="stat-unit">g / refeição</div></div>
           </div>
-          <div class="alert alert-info"><i class="ti ti-check"></i><span id="p-info">—</span></div>
+          <div class="alert alert-info"><i class="fi fi-br-check"></i><span id="p-info">—</span></div>
         </div>
         <div style="display:flex;gap:8px;padding-bottom:30px" class="no-print">
-          <button class="btn btn-primary" onclick="gerarCardapio()"><i class="ti ti-file-text"></i> Gerar cardápio</button>
+          <button class="btn btn-primary" onclick="gerarCardapio()"><i class="fi fi-br-document"></i> Gerar cardápio</button>
         </div>
       </div>
     </div>
@@ -740,7 +740,7 @@
           </div>
           <div class="search-bar" style="margin-bottom:12px">
             <input type="text" id="an-busca-pet" placeholder="Digite nome do pet ou tutor..." oninput="buscarPetAnamnese()">
-            <button class="btn btn-primary" onclick="abrirCadastroRapido()"><i class="ti ti-plus"></i> Novo paciente</button>
+            <button class="btn btn-primary" onclick="abrirCadastroRapido()"><i class="fi fi-br-plus"></i> Novo paciente</button>
           </div>
           <div id="an-pets-resultados"></div>
           <div id="an-pet-selecionado" style="display:none">
@@ -749,10 +749,10 @@
                 <div style="font-size:14px;font-weight:600;color:var(--green-dark)" id="an-pet-nome">—</div>
                 <div style="font-size:12px;color:var(--green-mid);margin-top:2px" id="an-pet-info">—</div>
               </div>
-              <button class="btn btn-sm" onclick="limparPetAnamnese()"><i class="ti ti-x"></i> Trocar</button>
+              <button class="btn btn-sm" onclick="limparPetAnamnese()"><i class="fi fi-br-cross"></i> Trocar</button>
             </div>
             <div style="display:flex;justify-content:flex-end;margin-top:14px">
-              <button class="btn btn-primary" onclick="irParaAnamnese()"><i class="ti ti-arrow-right"></i> Iniciar anamnese</button>
+              <button class="btn btn-primary" onclick="irParaAnamnese()"><i class="fi fi-br-arrow-right"></i> Iniciar anamnese</button>
             </div>
           </div>
         </div>
@@ -779,7 +779,7 @@
               </div>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px">
-              <button class="btn btn-primary" onclick="salvarCadastroRapido()"><i class="ti ti-check"></i> Salvar e continuar</button>
+              <button class="btn btn-primary" onclick="salvarCadastroRapido()"><i class="fi fi-br-check"></i> Salvar e continuar</button>
               <button class="btn" onclick="fecharCadastroRapido()">Cancelar</button>
             </div>
           </div>
@@ -790,7 +790,7 @@
       <div id="an-step-2" style="display:none">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
           <div id="an-step2-pet-info" style="flex:1"></div>
-          <button class="btn btn-sm" onclick="voltarStep1()"><i class="ti ti-arrow-left"></i> Trocar pet</button>
+          <button class="btn btn-sm" onclick="voltarStep1()"><i class="fi fi-br-arrow-left"></i> Trocar pet</button>
         </div>
 
         <!-- DADOS CLÍNICOS -->
@@ -914,8 +914,8 @@
         </div>
 
         <div style="display:flex;flex-wrap:wrap;gap:8px;padding-bottom:30px">
-          <button class="btn btn-primary" onclick="salvarAnamnese(false)"><i class="ti ti-check"></i> Salvar anamnese</button>
-          <button class="btn btn-primary" style="background:var(--purple);border-color:var(--purple)" onclick="salvarAnamnese(true)"><i class="ti ti-arrow-right"></i> Salvar e ir para Plano nutricional</button>
+          <button class="btn btn-primary" onclick="salvarAnamnese(false)"><i class="fi fi-br-check"></i> Salvar anamnese</button>
+          <button class="btn btn-primary" style="background:var(--purple);border-color:var(--purple)" onclick="salvarAnamnese(true)"><i class="fi fi-br-arrow-right"></i> Salvar e ir para Plano nutricional</button>
           <button class="btn" onclick="voltarStep1()">Cancelar</button>
         </div>
       </div>
@@ -924,8 +924,8 @@
     <!-- CARDÁPIO -->
     <div class="page" id="page-cardapio">
       <div class="no-print" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
-        <button class="btn btn-primary" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir / Salvar PDF</button>
-        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[4])"><i class="ti ti-plus"></i> Nova dieta</button>
+        <button class="btn btn-primary" onclick="window.print()"><i class="fi fi-br-print"></i> Imprimir / Salvar PDF</button>
+        <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[4])"><i class="fi fi-br-plus"></i> Nova dieta</button>
       </div>
       <div id="cardapio-output"></div>
     </div>
@@ -1092,7 +1092,7 @@
     </div>
     <div slot="footer" style="display:flex;gap:8px;justify-content:flex-end">
       <button class="btn" onclick="fecharModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="salvarMedida()"><i class="ti ti-check"></i> Salvar registro</button>
+      <button class="btn btn-primary" onclick="salvarMedida()"><i class="fi fi-br-check"></i> Salvar registro</button>
     </div>
 </sl-dialog>
 
@@ -1100,8 +1100,8 @@
 <div id="aside-cardapio" class="aside-overlay" style="display:none" onclick="if(event.target===this)fecharAsideCardapio()">
   <div class="aside-panel">
     <div class="modal-title">
-      <span><i class="ti ti-salad"></i> Quantidades do cardápio</span>
-      <button class="modal-close" onclick="fecharAsideCardapio()"><i class="ti ti-x"></i></button>
+      <span><i class="fi fi-br-salad"></i> Quantidades do cardápio</span>
+      <button class="modal-close" onclick="fecharAsideCardapio()"><i class="fi fi-br-cross"></i></button>
     </div>
     <div id="aside-cardapio-body"></div>
   </div>
@@ -1111,7 +1111,7 @@
 <sl-dialog id="modal-foto" label="Foto do paciente" no-header class="np-dialog np-dialog-photo">
     <img id="modal-foto-img" src="" style="max-width:100%;max-height:75vh;border-radius:var(--radius-lg);display:block;margin:0 auto">
     <div slot="footer" style="display:flex;justify-content:center">
-      <button class="btn btn-sm" onclick="trocarFotoDoModal()"><i class="ti ti-camera"></i> Trocar foto</button>
+      <button class="btn btn-sm" onclick="trocarFotoDoModal()"><i class="fi fi-br-camera"></i> Trocar foto</button>
     </div>
 </sl-dialog>
 
@@ -1209,10 +1209,10 @@ function protBadges(keys) {
 // ── TOAST ──
 function toast(msg, type='success') {
   const variant = type === 'error' ? 'danger' : 'success'
-  const icon = type === 'error' ? 'ti-x' : 'ti-check'
+  const icon = type === 'error' ? 'fi-br-cross' : 'fi-br-check'
   const el = Object.assign(document.createElement('sl-alert'), {
     variant, closable: true, duration: 3000,
-    innerHTML: `<i class="ti ${icon}" slot="icon" style="font-size:18px"></i>${msg}`
+    innerHTML: `<i class="fi ${icon}" slot="icon" style="font-size:18px"></i>${msg}`
   })
   document.body.appendChild(el)
   customElements.whenDefined('sl-alert').then(() => el.toast())
@@ -1305,7 +1305,7 @@ function limparFiltros() { filtroProteinas=[]; filtroEspecie=''; filtroFase=''; 
 function renderLista() {
   document.getElementById('sb-count').textContent = dietas.length
   const el = document.getElementById('banco-lista-view')
-  if (!dietas.length) { el.innerHTML = '<div class="empty"><i class="ti ti-database"></i><p>Nenhuma dieta cadastrada.</p></div>'; return }
+  if (!dietas.length) { el.innerHTML = '<div class="empty"><i class="fi fi-br-database"></i><p>Nenhuma dieta cadastrada.</p></div>'; return }
   const protsDisp = PROTEINAS.filter(p => dietas.some(d => detectarProteinas(d.ingredientes).includes(p.key)))
   const fasesDisp = [...new Set(dietas.map(d => d.fase))]
   const temFiltro = filtroProteinas.length || filtroEspecie || filtroFase
@@ -1322,7 +1322,7 @@ function renderLista() {
     <span class="filtros-count">${filtradas.length} de ${dietas.length}</span>
   </div>`
   const listHtml = filtradas.length===0
-    ? '<div class="empty"><i class="ti ti-filter-off"></i><p>Nenhuma dieta com esses filtros.</p></div>'
+    ? '<div class="empty"><i class="fi fi-br-filter-slash"></i><p>Nenhuma dieta com esses filtros.</p></div>'
     : filtradas.map(d => {
         const prots = detectarProteinas(d.ingredientes)
         return `<div class="diet-item">
@@ -1336,9 +1336,9 @@ function renderLista() {
             </div>
           </div>
           <div class="diet-item-actions">
-            <button class="btn btn-sm" onclick="editarDieta('${d.id}')"><i class="ti ti-edit"></i> Editar</button>
-            <button class="btn btn-sm" onclick="duplicarDieta('${d.id}')"><i class="ti ti-copy"></i> Duplicar</button>
-            <button class="btn btn-sm btn-danger" onclick="excluirDieta('${d.id}')"><i class="ti ti-trash"></i></button>
+            <button class="btn btn-sm" onclick="editarDieta('${d.id}')"><i class="fi fi-br-edit"></i> Editar</button>
+            <button class="btn btn-sm" onclick="duplicarDieta('${d.id}')"><i class="fi fi-br-copy"></i> Duplicar</button>
+            <button class="btn btn-sm btn-danger" onclick="excluirDieta('${d.id}')"><i class="fi fi-br-trash"></i></button>
           </div>
         </div>`
       }).join('')
@@ -1358,7 +1358,7 @@ function addIngr(n='',sc='',u='g') {
   const id = 'ir-'+ingrCount++
   const div = document.createElement('div')
   div.className='ingr-row'; div.id=id
-  div.innerHTML=`<input type="text" placeholder="Nome do ingrediente" value="${n}"><div style="position:relative"><input type="number" class="ingr-sc-input" placeholder="0.0" value="${sc}" min="0" step="0.01" style="padding-right:24px" oninput="atualizarSomaSC()"><span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-3);pointer-events:none">%</span></div><input type="text" placeholder="g" value="${u}"><button class="btn btn-sm btn-danger btn-icon" onclick="removeIngr('${id}')"><i class="ti ti-x"></i></button>`
+  div.innerHTML=`<input type="text" placeholder="Nome do ingrediente" value="${n}"><div style="position:relative"><input type="number" class="ingr-sc-input" placeholder="0.0" value="${sc}" min="0" step="0.01" style="padding-right:24px" oninput="atualizarSomaSC()"><span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-3);pointer-events:none">%</span></div><input type="text" placeholder="g" value="${u}"><button class="btn btn-sm btn-danger btn-icon" onclick="removeIngr('${id}')"><i class="fi fi-br-cross"></i></button>`
   document.getElementById('ingr-list').appendChild(div)
   atualizarSomaSC()
 }
@@ -1382,7 +1382,7 @@ function atualizarSomaSC() {
   const ok = Math.abs(soma-100) < 0.01
   box.style.background = ok ? 'var(--green-light)' : 'var(--amber-light)'
   box.style.color = ok ? 'var(--green-dark)' : 'var(--amber)'
-  box.querySelector('i').className = ok ? 'ti ti-circle-check' : 'ti ti-alert-triangle'
+  box.querySelector('i').className = ok ? 'fi fi-br-check-circle' : 'fi fi-br-triangle-warning'
 }
 
 async function salvarDieta() {
@@ -1620,11 +1620,11 @@ function renderPainel() {
     ? lembretes.map(l => `
       <div class="hist-item" style="cursor:pointer" onclick="goTo('pacientes',document.querySelectorAll('.nav-item')[2]);abrirPerfil('${l.pet.id}')">
         <div style="display:flex;align-items:center;gap:10px">
-          <i class="ti ${l.tipo==='atrasado'?'ti-alert-triangle':'ti-bell-ringing'}" style="font-size:18px;color:${l.tipo==='atrasado'?'var(--red)':'var(--amber)'}"></i>
+          <i class="fi ${l.tipo==='atrasado'?'fi-br-triangle-warning':'fi-br-bell-ring'}" style="font-size:18px;color:${l.tipo==='atrasado'?'var(--red)':'var(--amber)'}"></i>
           <div style="font-size:13px">${l.msg}</div>
         </div>
       </div>`).join('')
-    : '<div class="empty" style="padding:24px"><i class="ti ti-check"></i><p>Nenhum acompanhamento pendente por enquanto.</p></div>'
+    : '<div class="empty" style="padding:24px"><i class="fi fi-br-check"></i><p>Nenhum acompanhamento pendente por enquanto.</p></div>'
 }
 
 function toggleFiltroStatusPaciente(val) {
@@ -1653,7 +1653,7 @@ function renderPets() {
   if (esp)   filtrados = filtrados.filter(p => p.especie===esp)
   if (filtroStatusPaciente) filtrados = filtrados.filter(p => (p.status_paciente||'em_consulta')===filtroStatusPaciente)
   filtrados = [...filtrados].sort((a,b) => (a.nome_pet||'').localeCompare(b.nome_pet||'', 'pt-BR', {sensitivity:'base'}))
-  if (!filtrados.length) { el.innerHTML='<div class="empty"><i class="ti ti-paw"></i><p>Nenhum paciente encontrado.</p></div>'; return }
+  if (!filtrados.length) { el.innerHTML='<div class="empty"><i class="fi fi-br-paw"></i><p>Nenhum paciente encontrado.</p></div>'; return }
   el.innerHTML = filtrados.map(p => `
     <div class="pet-item" onclick="abrirPerfil('${p.id}')">
       <div style="display:flex;align-items:center;flex:1">
@@ -1672,8 +1672,8 @@ function renderPets() {
         </div>
       </div>
       <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
-        <button class="btn btn-sm" onclick="editarPet('${p.id}')"><i class="ti ti-edit"></i> Editar</button>
-        <button class="btn btn-sm btn-danger" onclick="excluirPet('${p.id}')"><i class="ti ti-trash"></i></button>
+        <button class="btn btn-sm" onclick="editarPet('${p.id}')"><i class="fi fi-br-edit"></i> Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="excluirPet('${p.id}')"><i class="fi fi-br-trash"></i></button>
       </div>
     </div>`).join('')
 }
@@ -1829,12 +1829,12 @@ async function renderAbaConsultas(petId) {
   consultasCache[petId] = lista
   const p = pets.find(x => x.id === petId)
   if (!lista.length) {
-    el.innerHTML = `<div class="empty"><i class="ti ti-history"></i><p>Nenhuma consulta registrada ainda.</p></div>
-      <div style="text-align:center;margin-top:16px"><button class="btn btn-primary" onclick="iniciarConsultaPet('${petId}',null,${p?.peso_atual||''})"><i class="ti ti-plus"></i> Nova dieta</button></div>`
+    el.innerHTML = `<div class="empty"><i class="fi fi-br-clock"></i><p>Nenhuma consulta registrada ainda.</p></div>
+      <div style="text-align:center;margin-top:16px"><button class="btn btn-primary" onclick="iniciarConsultaPet('${petId}',null,${p?.peso_atual||''})"><i class="fi fi-br-plus"></i> Nova dieta</button></div>`
     return
   }
   el.innerHTML = `<div class="section-header"><div class="card-title" style="margin-bottom:0">Histórico de dietas</div>
-      <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${petId}',null,${p?.peso_atual||''})"><i class="ti ti-plus"></i> Nova dieta</button>
+      <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${petId}',null,${p?.peso_atual||''})"><i class="fi fi-br-plus"></i> Nova dieta</button>
     </div>` + lista.map(cc => {
       const d = dietas.find(x => x.id === cc.dieta_id)
       const dataFmt = cc.data_consulta ? new Date(cc.data_consulta+'T12:00').toLocaleDateString('pt-BR') : ''
@@ -1845,9 +1845,9 @@ async function renderAbaConsultas(petId) {
           <div class="hist-vals">${cc.peso_consulta}kg · Fator ${cc.fator_nutricional} · ${cc.consumo_g?cc.consumo_g.toFixed(1)+'g/dia':''}</div>
         </div>
         <div style="display:flex;gap:6px">
-          ${d?`<button class="btn btn-sm" onclick="abrirCardapioAside('${cc.id}','${petId}')"><i class="ti ti-list-details"></i> Ver quantidades</button>`:''}
-          ${d?`<button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${petId}','${d.id}',${cc.peso_consulta})"><i class="ti ti-refresh"></i> Nova dieta</button>`:''}
-          <button class="btn btn-sm btn-danger" onclick="excluirConsultaHistorico('${cc.id}','${petId}')"><i class="ti ti-trash"></i></button>
+          ${d?`<button class="btn btn-sm" onclick="abrirCardapioAside('${cc.id}','${petId}')"><i class="fi fi-br-list-check"></i> Ver quantidades</button>`:''}
+          ${d?`<button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${petId}','${d.id}',${cc.peso_consulta})"><i class="fi fi-br-refresh"></i> Nova dieta</button>`:''}
+          <button class="btn btn-sm btn-danger" onclick="excluirConsultaHistorico('${cc.id}','${petId}')"><i class="fi fi-br-trash"></i></button>
         </div>
       </div>`
     }).join('')
@@ -1906,16 +1906,16 @@ async function renderAbaAnamneses(petId) {
   try { lista = await apiFetch(`/pets/${petId}/anamneses`) } catch(e) {}
   anamnesesCache[petId] = lista
   if (!lista.length) {
-    el.innerHTML = `<div class="empty"><i class="ti ti-clipboard-heart"></i><p>Nenhuma anamnese registrada.</p></div>
+    el.innerHTML = `<div class="empty"><i class="fi fi-br-clipboard-check"></i><p>Nenhuma anamnese registrada.</p></div>
       <div style="text-align:center;margin-top:16px">
-        <button class="btn btn-primary" onclick="iniciarAnamnese('${petId}')"><i class="ti ti-plus"></i> Iniciar consulta</button>
+        <button class="btn btn-primary" onclick="iniciarAnamnese('${petId}')"><i class="fi fi-br-plus"></i> Iniciar consulta</button>
       </div>`
     return
   }
   const boolStr = v => v===null||v===undefined?'—':v?'Sim':'Não'
   el.innerHTML = `
     <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
-      <button class="btn btn-primary btn-sm" onclick="iniciarAnamnese('${petId}')"><i class="ti ti-plus"></i> Nova anamnese</button>
+      <button class="btn btn-primary btn-sm" onclick="iniciarAnamnese('${petId}')"><i class="fi fi-br-plus"></i> Nova anamnese</button>
     </div>` +
     lista.map(a => {
       const dataFmt = a.data_consulta ? new Date(a.data_consulta+'T12:00').toLocaleDateString('pt-BR') : '—'
@@ -1956,7 +1956,7 @@ async function renderAbaAnamneses(petId) {
           <div style="font-size:14px;font-weight:600">📄 Anamnese — ${dataFmt}</div>
           <div style="display:flex;align-items:center;gap:8px">
             ${a.peso_consulta?`<span class="badge badge-phase">${a.peso_consulta} kg</span>`:''}
-            <button class="btn btn-sm" onclick="editarAnamnese('${a.id}','${petId}')"><i class="ti ti-edit"></i> Editar</button>
+            <button class="btn btn-sm" onclick="editarAnamnese('${a.id}','${petId}')"><i class="fi fi-br-edit"></i> Editar</button>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -2025,7 +2025,7 @@ async function abrirPerfil(id) {
   `
 
   el.innerHTML = `
-    <button class="btn" style="margin-bottom:16px" onclick="mostrarListaPets();renderPets()"><i class="ti ti-arrow-left"></i> Voltar</button>
+    <button class="btn" style="margin-bottom:16px" onclick="mostrarListaPets();renderPets()"><i class="fi fi-br-arrow-left"></i> Voltar</button>
     <div class="perfil-header">
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
         ${p.foto_url
@@ -2046,10 +2046,10 @@ async function abrirPerfil(id) {
         </div>
       </div>
       <div style="margin-left:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px">
-        <button class="btn btn-sm" onclick="editarPet('${p.id}')"><i class="ti ti-edit"></i> Editar</button>
-        <button class="btn btn-sm" onclick="abrirModalMedidas('${p.id}')"><i class="ti ti-ruler"></i> Peso e medidas</button>
-        <button class="btn btn-sm" onclick="window.open('/exportar.html?pet=${p.id}','_blank')"><i class="ti ti-file-arrow-down"></i> Exportar PDF</button>
-        <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="ti ti-calculator"></i> Nova dieta</button>
+        <button class="btn btn-sm" onclick="editarPet('${p.id}')"><i class="fi fi-br-edit"></i> Editar</button>
+        <button class="btn btn-sm" onclick="abrirModalMedidas('${p.id}')"><i class="fi fi-br-ruler-horizontal"></i> Peso e medidas</button>
+        <button class="btn btn-sm" onclick="window.open('/exportar.html?pet=${p.id}','_blank')"><i class="fi fi-br-file-download"></i> Exportar PDF</button>
+        <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="fi fi-br-calculator"></i> Nova dieta</button>
       </div>
     </div>
 
@@ -2143,7 +2143,7 @@ function renderConsultaDietas() {
   const esp=document.getElementById('c-especie').value
   const filtered=esp?dietas.filter(d=>d.especie===esp):dietas
   const el=document.getElementById('consulta-dietas')
-  if (!filtered.length) { el.innerHTML='<div class="empty"><i class="ti ti-salad"></i><p>Nenhuma dieta encontrada.</p></div>'; return }
+  if (!filtered.length) { el.innerHTML='<div class="empty"><i class="fi fi-br-salad"></i><p>Nenhuma dieta encontrada.</p></div>'; return }
   el.innerHTML=filtered.map(d=>`
     <div class="diet-select-item ${selectedDietId===d.id?'selected':''}" onclick="selecionarDieta('${d.id}')">
       <div class="radio-dot"></div>
@@ -2656,7 +2656,7 @@ function toggleLembretesDropdown() {
   if (dd.style.display === 'block') { dd.style.display = 'none'; return }
   const lembretes = calcularLembretesAcompanhamento()
   dd.innerHTML = lembretes.length
-    ? lembretes.map(l => `<div class="lembrete-item" onclick="fecharLembretesDropdown();goTo('pacientes',document.querySelectorAll('.nav-item')[2]);abrirPerfil('${l.pet.id}')"><i class="ti ${l.tipo==='atrasado'?'ti-alert-triangle':'ti-bell-ringing'}" style="color:${l.tipo==='atrasado'?'var(--red)':'var(--amber)'};margin-top:1px;flex-shrink:0"></i><span>${l.msg}</span></div>`).join('')
+    ? lembretes.map(l => `<div class="lembrete-item" onclick="fecharLembretesDropdown();goTo('pacientes',document.querySelectorAll('.nav-item')[2]);abrirPerfil('${l.pet.id}')"><i class="fi ${l.tipo==='atrasado'?'fi-br-triangle-warning':'fi-br-bell-ring'}" style="color:${l.tipo==='atrasado'?'var(--red)':'var(--amber)'};margin-top:1px;flex-shrink:0"></i><span>${l.msg}</span></div>`).join('')
     : '<div class="lembrete-item" style="cursor:default;color:var(--text-3)">Nenhum lembrete no momento.</div>'
   dd.style.display = 'block'
 }
@@ -2682,7 +2682,7 @@ function htmlHistoricoStatus(p) {
     return `<div class="hist-item" style="margin-bottom:8px">
       <div>
         <div class="hist-data">${dataFmt}</div>
-        <div style="font-size:13px;margin-top:3px;display:flex;align-items:center;gap:6px">${deLabel} <i class="ti ti-arrow-right" style="font-size:12px;color:var(--text-3)"></i> <span class="badge badge-status-${h.para}">${paraLabel}</span></div>
+        <div style="font-size:13px;margin-top:3px;display:flex;align-items:center;gap:6px">${deLabel} <i class="fi fi-br-arrow-right" style="font-size:12px;color:var(--text-3)"></i> <span class="badge badge-status-${h.para}">${paraLabel}</span></div>
       </div>
     </div>`
   }).join('')
@@ -2879,8 +2879,8 @@ async function renderAbaMedias(petId) {
   const porte = p?.porte || 'medio'
 
   if (!medidas.length) {
-    el.innerHTML = `<div class="empty"><i class="ti ti-ruler"></i><p>Nenhum registro de medidas ainda.</p></div>
-      <div style="text-align:center;margin-top:16px"><button class="btn btn-primary" onclick="abrirModalMedidas('${petId}')"><i class="ti ti-plus"></i> Registrar medidas</button></div>`
+    el.innerHTML = `<div class="empty"><i class="fi fi-br-ruler-horizontal"></i><p>Nenhum registro de medidas ainda.</p></div>
+      <div style="text-align:center;margin-top:16px"><button class="btn btn-primary" onclick="abrirModalMedidas('${petId}')"><i class="fi fi-br-plus"></i> Registrar medidas</button></div>`
     return
   }
 
@@ -2917,7 +2917,7 @@ async function renderAbaMedias(petId) {
   el.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div>${legendaIMCC}</div>
-      <button class="btn btn-primary btn-sm" onclick="abrirModalMedidas('${petId}')"><i class="ti ti-plus"></i> Novo registro</button>
+      <button class="btn btn-primary btn-sm" onclick="abrirModalMedidas('${petId}')"><i class="fi fi-br-plus"></i> Novo registro</button>
     </div>
     <div style="overflow-x:auto">
       <table class="med-table">

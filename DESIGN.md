@@ -311,29 +311,39 @@ td { font-family: 'DM Mono'; font-size: 12px; color: var(--text-2);
 
 ## 6. Iconografia
 
-**Biblioteca:** Tabler Icons (webfont) — `ti ti-{name}`  
-**Tamanho padrão:** 16px em botões, 15px em inputs  
+**Biblioteca:** [Uicons](https://www.uicons.com) (Flaticon), estilo **Bold Rounded** — `fi fi-br-{name}`, via CDN (`@flaticon/flaticon-uicons`)
+**Tamanho padrão:** 16px em botões, 15px em inputs
+**Licença:** versão gratuita — exige atribuição visível. O NutriPet cumpre isso
+com um link "Uicons by Flaticon" no rodapé da sidebar (`.sidebar-footer` em
+`index.html`). Não incluir esse crédito no cardápio impresso (`exportar.html`)
+— é um documento entregue ao tutor do pet, não uma superfície do produto.
 **Ícones-chave do NutriPet:**
 
 | Contexto              | Ícone                    |
 |-----------------------|--------------------------|
-| Logo / marca          | `ti-paw`                 |
-| Banco de dietas       | `ti-database`            |
-| Pacientes             | `ti-paw`                 |
-| Iniciar consulta      | `ti-clipboard-heart`     |
-| Plano nutricional     | `ti-calculator`          |
-| Cardápio gerado       | `ti-file-text`           |
-| Editar                | `ti-edit`                |
-| Excluir               | `ti-trash`               |
-| Salvar / confirmar    | `ti-check`               |
-| Adicionar             | `ti-plus`                |
-| Remover linha         | `ti-x`                   |
-| Imprimir              | `ti-printer`             |
-| Medidas corporais     | `ti-ruler`               |
-| Histórico             | `ti-history`             |
-| Info                  | `ti-info-circle`         |
-| Filtro desativado     | `ti-filter-off`          |
-| Spinner de loading    | CSS animation            |
+| Logo / marca          | `fi-br-paw`               |
+| Banco de dietas       | `fi-br-database`          |
+| Pacientes             | `fi-br-paw`               |
+| Iniciar consulta      | `fi-br-clipboard-check`   |
+| Plano nutricional     | `fi-br-calculator`        |
+| Cardápio gerado       | `fi-br-document`          |
+| Editar                | `fi-br-edit`               |
+| Excluir               | `fi-br-trash`              |
+| Salvar / confirmar    | `fi-br-check`              |
+| Adicionar             | `fi-br-plus`               |
+| Remover linha         | `fi-br-cross`              |
+| Imprimir              | `fi-br-print`              |
+| Medidas corporais     | `fi-br-ruler-horizontal`   |
+| Histórico             | `fi-br-clock`              |
+| Info                  | `fi-br-info`                |
+| Filtro desativado     | `fi-br-filter-slash`       |
+| Spinner de loading    | CSS animation              |
+
+Nem todo ícone do Tabler tem equivalente 1:1 no Uicons — quando não existe
+nome exato, usa-se o mais próximo semanticamente disponível no conjunto real
+(confirmado contra o CSS publicado, não por suposição). Ex.: "histórico" não
+tem ícone próprio no Uicons Bold Rounded, então usamos `fi-br-clock`;
+"somatório" usa `fi-br-sigma`; "sair/logout" usa `fi-br-sign-out-alt`.
 
 ---
 
