@@ -400,3 +400,50 @@ O cardápio é o documento entregue ao tutor — deve parecer profissional.
 6. **Loading states sempre.** Spinner verde enquanto carrega — nunca tela em branco.
 7. **Responsividade de formulário.** `form-grid-2` em desktop; campos individuais em mobile.
 8. **Print-first para o cardápio.** O cardápio precisa ser impresso ou salvo como PDF — teste o layout impresso.
+
+---
+
+## 11. Componentes web (Shoelace)
+
+O NutriPet usa a biblioteca [Shoelace](https://shoelace.style) (v2.20.1, via
+CDN jsdelivr, autoloader) para componentes que se beneficiam de comportamento
+nativo robusto (foco preso, teclado, acessibilidade) que seria caro
+reimplementar à mão — sem exigir build step, bundler ou reescrita do app
+(o NutriPet continua vanilla JS/HTML).
+
+### Onde é usado hoje
+
+- **Toast** (`toast(msg, type)` em `index.html`): usa `<sl-alert>` + `.toast()`
+  no lugar de uma div manual. Mesma assinatura de função, mesmo posicionamento
+  (bottom-right), mesmas cores (verde/vermelho).
+- **Modais**: `#modal-medidas` e `#modal-foto` usam `<sl-dialog>` no lugar de
+  `.modal-overlay`/`.modal`. Ganho: fechar com ESC, foco preso dentro do
+  modal, fechar ao clicar fora — tudo nativo do componente.
+
+### Fora de escopo (por enquanto)
+
+Botões, cards, badges, abas (`.perfil-tab`), campos de formulário e tabelas
+continuam com a implementação atual (classes CSS próprias, seção 5). Migrar
+esses componentes para Shoelace é trabalho futuro, opcional e incremental —
+não fazer de uma vez só num app sem testes automatizados.
+
+### Como o tema é aplicado
+
+Shoelace usa uma escala de cor de 50 a 950 por tom semântico
+(`--sl-color-primary-*`, `--sl-color-success-*`, `--sl-color-danger-*`,
+`--sl-color-neutral-*`). O NutriPet só define ~5 tons por família de cor
+(seção 2), então o bridge de tema (no `<style>` de `index.html`, logo após o
+bloco `:root`) reaproveita os tokens existentes (`--green`, `--green-mid`,
+`--red` etc.) nos degraus que os componentes usados de fato tocam (fundo
+claro, borda, cor sólida, hover) e deixa os degraus não usados caírem no
+valor padrão do Shoelace. Tipografia (`--sl-font-sans`) e raio de borda
+(`--sl-border-radius-medium/large`) também são mapeados para `DM Sans` e
+`--radius`/`--radius-lg`.
+
+**Ao adicionar um novo componente Shoelace no futuro** (dropdown, tooltip,
+tabs, etc.), siga o mesmo padrão: não recrie cores manualmente por
+componente — confira se o bridge de tema já cobre o componente (geralmente
+cobre, se ele usa `primary`/`neutral`/`success`/`danger`); se precisar de um
+ajuste visual fino que as variáveis não cobrem, use `::part()` no CSS global
+existente (veja `sl-dialog.np-dialog::part(panel)` como exemplo), nunca
+estilos inline por instância.

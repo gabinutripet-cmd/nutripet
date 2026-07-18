@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css" />
+<script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace-autoloader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
@@ -36,8 +38,77 @@
     --radius:10px;
     --radius-lg:16px;
     --shadow:0 1px 4px rgba(0,0,0,0.08),0 2px 8px rgba(0,0,0,0.04);
+
+    /* Shoelace theme bridge — mapeia os tokens acima para as variáveis que os
+       componentes sl-* de fato consomem (fundo claro, borda, cor sólida,
+       hover). Degraus não usados caem no padrão do Shoelace. */
+    --sl-color-primary-50: var(--green-light);
+    --sl-color-primary-100: var(--green-light);
+    --sl-color-primary-200: var(--green-border);
+    --sl-color-primary-300: var(--green-border);
+    --sl-color-primary-400: var(--green);
+    --sl-color-primary-500: var(--green);
+    --sl-color-primary-600: var(--green-mid);
+    --sl-color-primary-700: var(--green-dark);
+    --sl-color-primary-800: var(--green-dark);
+    --sl-color-primary-900: var(--green-dark);
+    --sl-color-primary-950: var(--green-dark);
+
+    --sl-color-success-50: var(--green-light);
+    --sl-color-success-100: var(--green-light);
+    --sl-color-success-200: var(--green-border);
+    --sl-color-success-300: var(--green-border);
+    --sl-color-success-400: var(--green);
+    --sl-color-success-500: var(--green);
+    --sl-color-success-600: var(--green-mid);
+    --sl-color-success-700: var(--green-dark);
+    --sl-color-success-800: var(--green-dark);
+    --sl-color-success-900: var(--green-dark);
+    --sl-color-success-950: var(--green-dark);
+
+    --sl-color-danger-50: var(--red-light);
+    --sl-color-danger-100: var(--red-light);
+    --sl-color-danger-200: var(--red-light);
+    --sl-color-danger-300: #F7C1C1;
+    --sl-color-danger-400: var(--red);
+    --sl-color-danger-500: var(--red);
+    --sl-color-danger-600: var(--red);
+    --sl-color-danger-700: var(--red);
+    --sl-color-danger-800: var(--red);
+    --sl-color-danger-900: var(--red);
+    --sl-color-danger-950: var(--red);
+
+    --sl-color-neutral-0: var(--surface);
+    --sl-color-neutral-50: var(--bg);
+    --sl-color-neutral-100: var(--bg);
+    --sl-color-neutral-200: var(--border-md);
+    --sl-color-neutral-300: var(--border-md);
+    --sl-color-neutral-400: var(--text-3);
+    --sl-color-neutral-500: var(--text-3);
+    --sl-color-neutral-600: var(--text-2);
+    --sl-color-neutral-700: var(--text-2);
+    --sl-color-neutral-800: var(--text);
+    --sl-color-neutral-900: var(--text);
+    --sl-color-neutral-950: var(--text);
+
+    --sl-font-sans: 'DM Sans', sans-serif;
+    --sl-border-radius-small: 8px;
+    --sl-border-radius-medium: var(--radius);
+    --sl-border-radius-large: var(--radius-lg);
+    --sl-border-radius-x-large: var(--radius-lg);
+
+    --sl-z-index-dialog: 1200;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
+
+  /* ── SHOELACE — ajustes finos ── */
+  .sl-toast-stack{ top:auto; bottom:28px; right:28px; left:auto; }
+  sl-dialog.np-dialog::part(panel){ width:580px; max-width:95vw; border-radius:var(--radius-lg); }
+  sl-dialog.np-dialog::part(body){ padding:24px 32px; }
+  sl-dialog.np-dialog::part(header){ padding:20px 32px 16px; }
+  sl-dialog.np-dialog::part(footer){ padding:16px 32px 24px; }
+  sl-dialog.np-dialog-photo::part(panel){ width:auto; max-width:90vw; }
+  sl-dialog.np-dialog-photo::part(body){ padding:16px; text-align:center; }
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;}
 
   /* ── LOGIN ── */
@@ -969,12 +1040,7 @@
 </datalist>
 
 <!-- MODAL MEDIDAS -->
-<div id="modal-medidas" class="modal-overlay" style="display:none" onclick="if(event.target===this)fecharModal()">
-  <div class="modal">
-    <div class="modal-title">
-      <span>📏 Atualizar Peso e Medidas Corporais</span>
-      <button class="modal-close" onclick="fecharModal()"><i class="ti ti-x"></i></button>
-    </div>
+<sl-dialog id="modal-medidas" label="📏 Atualizar Peso e Medidas Corporais" class="np-dialog">
     <div class="card" style="margin-bottom:14px">
       <div class="card-title">Identificação do registro</div>
       <div class="form-grid form-grid-2">
@@ -1024,12 +1090,11 @@
         </div>
       </div>
     </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
+    <div slot="footer" style="display:flex;gap:8px;justify-content:flex-end">
       <button class="btn" onclick="fecharModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="salvarMedida()"><i class="ti ti-check"></i> Salvar registro</button>
     </div>
-  </div>
-</div>
+</sl-dialog>
 
 <!-- ASIDE CARDÁPIO DO HISTÓRICO -->
 <div id="aside-cardapio" class="aside-overlay" style="display:none" onclick="if(event.target===this)fecharAsideCardapio()">
@@ -1043,15 +1108,12 @@
 </div>
 
 <!-- MODAL FOTO DO PACIENTE -->
-<div id="modal-foto" class="modal-overlay" style="display:none" onclick="if(event.target===this)fecharModalFoto()">
-  <div class="modal" style="width:auto;max-width:90vw;padding:16px;text-align:center">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
-      <button class="modal-close" onclick="fecharModalFoto()"><i class="ti ti-x"></i></button>
-    </div>
+<sl-dialog id="modal-foto" label="Foto do paciente" no-header class="np-dialog np-dialog-photo">
     <img id="modal-foto-img" src="" style="max-width:100%;max-height:75vh;border-radius:var(--radius-lg);display:block;margin:0 auto">
-    <button class="btn btn-sm" style="margin-top:16px" onclick="trocarFotoDoModal()"><i class="ti ti-camera"></i> Trocar foto</button>
-  </div>
-</div>
+    <div slot="footer" style="display:flex;justify-content:center">
+      <button class="btn btn-sm" onclick="trocarFotoDoModal()"><i class="ti ti-camera"></i> Trocar foto</button>
+    </div>
+</sl-dialog>
 
 <script>
 const API = '/api'
@@ -1146,11 +1208,14 @@ function protBadges(keys) {
 
 // ── TOAST ──
 function toast(msg, type='success') {
-  const el = document.createElement('div')
-  el.className = `toast ${type}`
-  el.innerHTML = `<i class="ti ${type==='success'?'ti-check':'ti-x'}"></i>${msg}`
+  const variant = type === 'error' ? 'danger' : 'success'
+  const icon = type === 'error' ? 'ti-x' : 'ti-check'
+  const el = Object.assign(document.createElement('sl-alert'), {
+    variant, closable: true, duration: 3000,
+    innerHTML: `<i class="ti ${icon}" slot="icon" style="font-size:18px"></i>${msg}`
+  })
   document.body.appendChild(el)
-  setTimeout(() => el.remove(), 3000)
+  customElements.whenDefined('sl-alert').then(() => el.toast())
 }
 
 // ── API ──
@@ -2216,11 +2281,11 @@ function abrirModalFoto(petId) {
   if (!p || !p.foto_url) return
   modalFotoPetId = petId
   document.getElementById('modal-foto-img').src = p.foto_url
-  document.getElementById('modal-foto').style.display = 'flex'
+  document.getElementById('modal-foto').show()
 }
 
 function fecharModalFoto() {
-  document.getElementById('modal-foto').style.display = 'none'
+  document.getElementById('modal-foto').hide()
   modalFotoPetId = null
 }
 
@@ -2705,11 +2770,11 @@ function abrirModalMedidas(petId) {
   // limpar campos medidas
   ;['m-semana','m-ac','m-cc','m-ctx','m-cab','m-ccx','m-cmp'].forEach(id => document.getElementById(id).value = '')
   document.getElementById('m-preview').style.display = 'none'
-  document.getElementById('modal-medidas').style.display = 'flex'
+  document.getElementById('modal-medidas').show()
 }
 
 function fecharModal() {
-  document.getElementById('modal-medidas').style.display = 'none'
+  document.getElementById('modal-medidas').hide()
   modalPetId = null
 }
 
