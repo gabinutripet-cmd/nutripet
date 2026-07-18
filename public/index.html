@@ -250,7 +250,9 @@
   .seg{display:flex;background:var(--bg);border-radius:var(--radius);padding:4px;margin-bottom:20px;}
   .seg-btn{flex:1;padding:9px;font-size:13.5px;font-weight:500;color:var(--text-2);cursor:pointer;border-radius:8px;text-align:center;transition:all .15s;border:none;background:none;font-family:'DM Sans',sans-serif;}
   .seg-btn i{position:relative;top:0.2em;}
-  .seg-btn.active{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(46,189,107,.35);font-weight:700;}
+  .seg-btn.active{background:var(--surface);color:var(--green-dark);box-shadow:0 1px 6px rgba(0,0,0,.10);font-weight:700;}
+  .seg-btn-add{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(46,189,107,.35);}
+  .seg-btn-add.active{background:var(--green-mid);color:#fff;}
 
   /* ── ALERTAS ── */
   .alert{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:var(--radius);font-size:13.5px;margin-bottom:16px;border-left:3px solid var(--green);}
@@ -498,7 +500,7 @@
     <div class="page" id="page-banco">
       <div class="seg">
         <button class="seg-btn active" onclick="bancoTab('lista',this)"><i class="fi fi-rr-list" style="font-size:13px;margin-right:4px"></i> Dietas cadastradas</button>
-        <button class="seg-btn" onclick="bancoTab('nova',this)"><i class="fi fi-rr-plus" style="font-size:13px;margin-right:4px"></i> Cadastrar nova dieta</button>
+        <button class="seg-btn seg-btn-add" onclick="bancoTab('nova',this)"><i class="fi fi-rr-plus" style="font-size:13px;margin-right:4px"></i> Cadastrar nova dieta</button>
       </div>
       <div id="banco-lista-view"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
       <div id="banco-nova-view" style="display:none">
