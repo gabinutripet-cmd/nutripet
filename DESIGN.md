@@ -42,8 +42,8 @@ Alegre, confiante, profissional — como a identidade do Instagram @gabi_nutripe
 
 | Token        | Hex       | Uso                              |
 |--------------|-----------|----------------------------------|
-| `--bg`       | `#F7F6F2` | Fundo da página (off-white quente) |
-| `--surface`  | `#FFFFFF` | Cards, sidebar, topbar           |
+| `--bg`       | `#F4F3EE` | Fundo de superfícies "afundadas" dentro de um card (stat box, badges neutras, hover, cabeçalho de tabela) — não é mais o fundo da página |
+| `--surface`  | `#FFFFFF` | Fundo da página, cards, sidebar, topbar, login |
 | `--border`   | `rgba(0,0,0,0.08)` | Bordas padrão              |
 | `--border-md`| `rgba(0,0,0,0.14)` | Bordas com mais ênfase     |
 | `--text`     | `#1A1A18` | Texto principal                  |
@@ -135,7 +135,13 @@ border: 1px solid var(--border);
 border-radius: var(--radius-lg); /* 14px */
 padding: 20px;
 margin-bottom: 14px;
+box-shadow: var(--shadow);
 ```
+
+Mesma regra vale para `.diet-item`, `.diet-select-item`, `.pet-item` e
+`.perfil-header` — qualquer superfície branca "flutuando" sobre a página
+(também branca) leva `box-shadow: var(--shadow)` para se separar visualmente,
+já que a página deixou de ter cor de fundo própria.
 
 Card title (label de seção interna):
 ```css
@@ -403,9 +409,9 @@ O cardápio é o documento entregue ao tutor — deve parecer profissional.
 ## 10. Regras de design
 
 1. **Verde para ações, roxo para variáveis.** O verde guia o fluxo principal. O roxo sinaliza o que é ajustável por consulta.
-2. **Fundo off-white quente.** `#F7F6F2` — não branco puro. Mais acolhedor.
+2. **Fundo branco.** A página (`body`, sidebar, topbar, cards) usa `--surface` (`#FFFFFF`). `--bg` (`#F4F3EE`) fica reservado para superfícies "afundadas" dentro de um card — stat box, badge neutra, hover, cabeçalho de tabela.
 3. **DM Mono para números.** Todo valor calculado, nutricional ou de medida usa monospace.
-4. **Sem sombras decorativas.** Apenas `--shadow` funcional onde há elevação real.
+4. **Sombra leve para separar do fundo branco.** Como a página não tem mais contraste de cor, todo card/superfície flutuante (`.card`, `.diet-item`, `.pet-item`, `.perfil-header`, `.topbar`) leva `box-shadow: var(--shadow)` — a mesma sombra leve em todo lugar, nunca uma sombra decorativa/inventada por componente.
 5. **Badges colorirem por significado.** Espécie, fase, proteína e condição corporal têm cores fixas e semânticas.
 6. **Loading states sempre.** Spinner verde enquanto carrega — nunca tela em branco.
 7. **Responsividade de formulário.** `form-grid-2` em desktop; campos individuais em mobile.
