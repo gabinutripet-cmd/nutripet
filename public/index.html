@@ -1100,6 +1100,15 @@
     </div>
 </sl-dialog>
 
+<!-- MODAL VISUALIZAR DIETA -->
+<sl-dialog id="modal-ver-dieta" label="Detalhes da dieta" class="np-dialog">
+    <div id="ver-dieta-body"></div>
+    <div slot="footer" style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="document.getElementById('modal-ver-dieta').hide()">Fechar</button>
+      <button class="btn btn-primary" id="ver-dieta-editar-btn"><i class="fi fi-rr-edit"></i> Editar</button>
+    </div>
+</sl-dialog>
+
 <script>
 const API = '/api'
 let dietas = [], pets = [], selectedDietId = null, editingDietId = null, editingPetId = null
@@ -1326,6 +1335,7 @@ function renderLista() {
             </div>
           </div>
           <div class="diet-item-actions">
+            <button class="btn btn-sm" onclick="visualizarDieta('${d.id}')"><i class="fi fi-rr-eye"></i> Visualizar</button>
             <button class="btn btn-sm" onclick="editarDieta('${d.id}')"><i class="fi fi-rr-edit"></i> Editar</button>
             <button class="btn btn-sm" onclick="duplicarDieta('${d.id}')"><i class="fi fi-rr-copy"></i> Duplicar</button>
             <button class="btn btn-sm btn-danger" onclick="excluirDieta('${d.id}')"><i class="fi fi-rr-trash"></i></button>
@@ -1394,6 +1404,39 @@ async function salvarDieta() {
     else { const nova=await apiFetch('/dietas',{method:'POST',body}); dietas.push(nova); toast('Dieta cadastrada!') }
     editingDietId=null; bancoTab('lista')
   } catch(e) { toast('Erro ao salvar.','error') }
+}
+
+function visualizarDieta(id) {
+  const d = dietas.find(x => x.id === id); if (!d) return
+  const GARANTIAS_LABELS = [
+    ['pb','Proteína Bruta mín','g/kg'], ['ee','Extrato Etéreo mín','g/kg'], ['fb','Fibra Bruta máx','g/kg'],
+    ['mm','Matéria Mineral máx','g/kg'], ['ca_min','Cálcio mín','mg/kg'], ['ca_max','Cálcio máx','mg/kg'],
+    ['p','Fósforo mín','mg/kg'], ['um','Umidade máx','g/kg'], ['em','Energia Metabolizável','kcal/kg'],
+  ]
+  const ingrRows = d.ingredientes.map(i => `<tr><td>${i.n}</td><td>${i.sc}%</td><td>${i.u}</td></tr>`).join('')
+  const garantiasHtml = GARANTIAS_LABELS.filter(([k]) => d.garantias?.[k] != null).map(([k,label,un]) => `
+    <div class="stat-box">
+      <div class="stat-label">${label}</div>
+      <div class="stat-value" style="font-size:18px">${d.garantias[k]}</div>
+      <div class="stat-unit">${un}</div>
+    </div>`).join('')
+  document.getElementById('ver-dieta-body').innerHTML = `
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+      <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
+      <span class="badge badge-phase">${d.fase}</span>
+      ${d.objetivo?`<span class="badge badge-phase">${d.objetivo}</span>`:''}
+      ${protBadges(detectarProteinas(d.ingredientes))}
+    </div>
+    ${d.obs?`<div class="alert alert-info"><i class="fi fi-rr-info"></i> ${d.obs}</div>`:''}
+    <div class="card-title" style="margin-bottom:10px">Ingredientes — valores SC</div>
+    <div style="overflow-x:auto;margin-bottom:20px"><table class="cp-ingr-table">
+      <thead><tr><th>Ingrediente</th><th>Valor SC</th><th>Unidade</th></tr></thead>
+      <tbody>${ingrRows}</tbody>
+    </table></div>
+    ${garantiasHtml ? `<div class="card-title" style="margin-bottom:10px">Níveis de garantia</div>
+    <div class="stats-row">${garantiasHtml}</div>` : ''}`
+  document.getElementById('ver-dieta-editar-btn').onclick = () => { document.getElementById('modal-ver-dieta').hide(); editarDieta(id) }
+  document.getElementById('modal-ver-dieta').show()
 }
 
 async function excluirDieta(id) {
