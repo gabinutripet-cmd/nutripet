@@ -808,7 +808,7 @@
           <div class="form-grid" style="gap:14px">
             <div class="field"><label>Por que considera o pet no peso atual? (abaixo / ideal / acima)</label><textarea id="an-por-que-peso" placeholder="Descreva a percepção do tutor sobre o peso do pet..."></textarea></div>
             <div class="field"><label>Quantidade diária da alimentação atual e considerações</label><textarea id="an-qtd-diaria" placeholder="Quantidades, marcas, horários, divisão de refeições..."></textarea></div>
-            <div class="field"><label>Notou diferença no apetite / atividade / micção após castração?</label><textarea id="an-diff-castracao" placeholder="Descreva alterações observadas após a castração (se aplicável)..."></textarea></div>
+            <div class="field"><label>Como estão o xixi e o coco do pet?</label><textarea id="an-xixi-coco" placeholder="Frequência, cor, consistência, cheiro, dificuldades..."></textarea></div>
           </div>
         </div>
 
@@ -1976,7 +1976,7 @@ async function renderAbaAnamneses(petId) {
         ['Fator NEM', a.fator_nem],
         ['Por que peso atual', a.por_que_peso_atual],
         ['Quantidade diária', a.quantidade_diaria],
-        ['Diferença pós-castração', a.diferenca_apos_castracao],
+        ['Xixi e coco', a.xixi_coco],
         ['Petiscos — quais', a.petiscos_quais],
         ['Petiscos — frequência', a.petiscos_frequencia],
         ['Alimentos que gostou', a.alimentos_gostou],
@@ -2526,7 +2526,7 @@ function irParaAnamnese() {
     document.getElementById('an-dieta-pretendida').value = map[p.tipo_dieta_atual] || ''
   }
   // Limpar campos livres
-  ;['an-por-que-peso','an-qtd-diaria','an-diff-castracao','an-petiscos-quais','an-petiscos-freq',
+  ;['an-por-que-peso','an-qtd-diaria','an-xixi-coco','an-petiscos-quais','an-petiscos-freq',
     'an-gostou','an-nao-gostou','an-passou-mal','an-alimentos-tutor','an-frutas','an-legumes',
     'an-arroz','an-alimentos-desejados','an-alimentos-indesejados','an-expectativa','an-orcamento',
     'an-obs-dieta','an-obs-consultoria','an-obs-momento','an-obs-conclusao','an-mudar-racao'
@@ -2566,7 +2566,7 @@ function preencherFormAnamnese(petId, a) {
   document.getElementById('an-fator-nem').value = a.fator_nem || ''
   document.getElementById('an-por-que-peso').value = a.por_que_peso_atual || ''
   document.getElementById('an-qtd-diaria').value = a.quantidade_diaria || ''
-  document.getElementById('an-diff-castracao').value = a.diferenca_apos_castracao || ''
+  document.getElementById('an-xixi-coco').value = a.xixi_coco || ''
   document.getElementById('an-petiscos-quais').value = a.petiscos_quais || ''
   document.getElementById('an-petiscos-freq').value = a.petiscos_frequencia || ''
   document.getElementById('an-gostou').value = a.alimentos_gostou || ''
@@ -2616,7 +2616,7 @@ async function salvarAnamnese(irParaPlano) {
     fator_nem:         document.getElementById('an-fator-nem').value || null,
     por_que_peso_atual:document.getElementById('an-por-que-peso').value.trim() || null,
     quantidade_diaria: document.getElementById('an-qtd-diaria').value.trim() || null,
-    diferenca_apos_castracao: document.getElementById('an-diff-castracao').value.trim() || null,
+    xixi_coco:         document.getElementById('an-xixi-coco').value.trim() || null,
     petiscos_quais:    document.getElementById('an-petiscos-quais').value.trim() || null,
     petiscos_frequencia: document.getElementById('an-petiscos-freq').value.trim() || null,
     alimentos_gostou:  document.getElementById('an-gostou').value.trim() || null,
