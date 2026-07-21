@@ -1109,6 +1109,18 @@
     </div>
 </sl-dialog>
 
+<!-- MODAL FINALIZAR PACIENTE (LEMBRETE DE UPSELL) -->
+<sl-dialog id="modal-upsell" label="Finalizar acompanhamento" class="np-dialog">
+    <p style="font-size:14px;color:var(--text-2);margin:0 0 14px">Confirme a finalização. Vamos lembrar você de entrar em contato com o tutor pra uma nova consulta na data abaixo.</p>
+    <div class="field"><label>Data do lembrete de retorno</label>
+      <input type="date" id="upsell-data-lembrete">
+    </div>
+    <div slot="footer" style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="cancelarModalUpsell()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarModalUpsell()"><i class="fi fi-rr-check"></i> Confirmar</button>
+    </div>
+</sl-dialog>
+
 <script>
 const API = '/api'
 let dietas = [], pets = [], selectedDietId = null, editingDietId = null, editingPetId = null
@@ -1651,13 +1663,17 @@ function renderPainel() {
   const lembretesEl = document.getElementById('painel-lembretes')
   const lembretes = calcularLembretesAcompanhamento()
   lembretesEl.innerHTML = lembretes.length
-    ? lembretes.map(l => `
+    ? lembretes.map(l => {
+        const icon = l.tipo==='atrasado' ? 'fi-rr-triangle-warning' : l.tipo==='upsell' ? 'fi-rr-refresh' : 'fi-rr-bell-ring'
+        const cor  = l.tipo==='atrasado' ? 'var(--red)' : l.tipo==='upsell' ? 'var(--green-dark)' : 'var(--amber)'
+        return `
       <div class="hist-item" style="cursor:pointer" onclick="goTo('pacientes',document.querySelectorAll('.nav-item')[2]);abrirPerfil('${l.pet.id}')">
         <div style="display:flex;align-items:center;gap:10px">
-          <i class="fi ${l.tipo==='atrasado'?'fi-rr-triangle-warning':'fi-rr-bell-ring'}" style="font-size:18px;color:${l.tipo==='atrasado'?'var(--red)':'var(--amber)'}"></i>
+          <i class="fi ${icon}" style="font-size:18px;color:${cor}"></i>
           <div style="font-size:13px">${l.msg}</div>
         </div>
-      </div>`).join('')
+      </div>`
+      }).join('')
     : '<div class="empty" style="padding:24px"><i class="fi fi-rr-check"></i><p>Nenhum acompanhamento pendente por enquanto.</p></div>'
 }
 
@@ -1789,6 +1805,7 @@ async function salvarPet() {
     raca:document.getElementById('pt-raca').value.trim()||null,
     status_paciente:statusNovo,
     historico_status:comHistoricoStatus(petAntes, statusNovo),
+    lembrete_upsell_data: statusNovo === 'finalizado' ? (petAntes?.lembrete_upsell_data ?? null) : null,
     semana_finalizacao:document.getElementById('pt-semana-final').value||null,
     sexo:document.getElementById('pt-sexo').value||null,
     castrado:boolVal('pt-castrado'),
@@ -2694,7 +2711,8 @@ function semanaAtualISO(date = new Date()) {
 
 function calcularLembretesAcompanhamento() {
   const semanaAtual = semanaAtualISO()
-  return pets
+  const hoje = new Date().toISOString().split('T')[0]
+  const semanaLembretes = pets
     .filter(p => p.semana_finalizacao && p.status_paciente !== 'finalizado')
     .map(p => {
       if (p.semana_finalizacao === semanaAtual) return { pet:p, tipo:'ultima_semana', msg:`Essa é a última semana de acompanhamento da ${p.nome_pet}.` }
@@ -2702,7 +2720,11 @@ function calcularLembretesAcompanhamento() {
       return null
     })
     .filter(Boolean)
-    .sort((a,b) => a.pet.semana_finalizacao.localeCompare(b.pet.semana_finalizacao))
+  const upsellLembretes = pets
+    .filter(p => p.status_paciente === 'finalizado' && p.lembrete_upsell_data && p.lembrete_upsell_data <= hoje)
+    .map(p => ({ pet:p, tipo:'upsell', msg:`Hora de reconectar com o tutor da ${p.nome_pet} pra uma nova consulta.` }))
+  return [...semanaLembretes, ...upsellLembretes]
+    .sort((a,b) => (a.pet.semana_finalizacao||a.pet.lembrete_upsell_data||'').localeCompare(b.pet.semana_finalizacao||b.pet.lembrete_upsell_data||''))
 }
 
 function renderBadgeLembretes() {
@@ -2719,7 +2741,11 @@ function toggleLembretesDropdown() {
   if (dd.style.display === 'block') { dd.style.display = 'none'; return }
   const lembretes = calcularLembretesAcompanhamento()
   dd.innerHTML = lembretes.length
-    ? lembretes.map(l => `<div class="lembrete-item" onclick="fecharLembretesDropdown();goTo('pacientes',document.querySelectorAll('.nav-item')[2]);abrirPerfil('${l.pet.id}')"><i class="fi ${l.tipo==='atrasado'?'fi-rr-triangle-warning':'fi-rr-bell-ring'}" style="color:${l.tipo==='atrasado'?'var(--red)':'var(--amber)'};margin-top:1px;flex-shrink:0"></i><span>${l.msg}</span></div>`).join('')
+    ? lembretes.map(l => {
+        const icon = l.tipo==='atrasado' ? 'fi-rr-triangle-warning' : l.tipo==='upsell' ? 'fi-rr-refresh' : 'fi-rr-bell-ring'
+        const cor  = l.tipo==='atrasado' ? 'var(--red)' : l.tipo==='upsell' ? 'var(--green-dark)' : 'var(--amber)'
+        return `<div class="lembrete-item" onclick="fecharLembretesDropdown();goTo('pacientes',document.querySelectorAll('.nav-item')[2]);abrirPerfil('${l.pet.id}')"><i class="fi ${icon}" style="color:${cor};margin-top:1px;flex-shrink:0"></i><span>${l.msg}</span></div>`
+      }).join('')
     : '<div class="lembrete-item" style="cursor:default;color:var(--text-3)">Nenhum lembrete no momento.</div>'
   dd.style.display = 'block'
 }
@@ -2755,7 +2781,7 @@ function selectStatusPacienteHtml(petId, statusAtual) {
   const st = statusAtual || 'em_consulta'
   const opts = Object.entries(LABEL_STATUS_PACIENTE).map(([val,label]) =>
     `<option value="${val}" ${val===st?'selected':''}>${label}</option>`).join('')
-  return `<select class="status-mini-select badge-status-${st}" onclick="event.stopPropagation()" onchange="event.stopPropagation();mudarStatusPaciente('${petId}',this.value)">${opts}</select>`
+  return `<select class="status-mini-select badge-status-${st}" onclick="event.stopPropagation()" onchange="event.stopPropagation();onStatusPacienteChange('${petId}',this.value,this)">${opts}</select>`
 }
 
 // Retorna o histórico de status do pet com uma entrada nova anexada,
@@ -2766,11 +2792,51 @@ function comHistoricoStatus(p, statusNovo) {
   return [...historico, { de: p.status_paciente || null, para: statusNovo, data: new Date().toISOString() }]
 }
 
-async function mudarStatusPaciente(petId, novoStatus) {
+// ── LEMBRETE DE UPSELL AO FINALIZAR ──
+let upsellPendingPetId = null, upsellPendingSelectEl = null
+
+function onStatusPacienteChange(petId, novoStatus, selectEl) {
+  const p = pets.find(x => x.id === petId)
+  if (!p) return
+  if (novoStatus === 'finalizado' && p.status_paciente !== 'finalizado') {
+    abrirModalUpsell(petId, selectEl)
+    return
+  }
+  mudarStatusPaciente(petId, novoStatus)
+}
+
+function abrirModalUpsell(petId, selectEl) {
+  upsellPendingPetId = petId
+  upsellPendingSelectEl = selectEl
+  const d = new Date(); d.setMonth(d.getMonth() + 12)
+  document.getElementById('upsell-data-lembrete').value = d.toISOString().split('T')[0]
+  document.getElementById('modal-upsell').show()
+}
+
+function cancelarModalUpsell() {
+  if (upsellPendingSelectEl) upsellPendingSelectEl.value = pets.find(x=>x.id===upsellPendingPetId)?.status_paciente || 'em_consulta'
+  upsellPendingPetId = null
+  upsellPendingSelectEl = null
+  document.getElementById('modal-upsell').hide()
+}
+
+function confirmarModalUpsell() {
+  const petId = upsellPendingPetId
+  const data = document.getElementById('upsell-data-lembrete').value || null
+  document.getElementById('modal-upsell').hide()
+  upsellPendingPetId = null
+  upsellPendingSelectEl = null
+  mudarStatusPaciente(petId, 'finalizado', data)
+}
+
+document.getElementById('modal-upsell').addEventListener('sl-request-close', cancelarModalUpsell)
+
+async function mudarStatusPaciente(petId, novoStatus, dataLembreteUpsell) {
   const p = pets.find(x => x.id === petId)
   if (!p) return
   try {
-    const body = { ...p, status_paciente: novoStatus, historico_status: comHistoricoStatus(p, novoStatus) }
+    const lembreteUpsell = novoStatus === 'finalizado' ? (dataLembreteUpsell ?? null) : null
+    const body = { ...p, status_paciente: novoStatus, historico_status: comHistoricoStatus(p, novoStatus), lembrete_upsell_data: lembreteUpsell }
     const updated = await apiFetch(`/pets/${petId}`, { method:'PUT', body })
     pets = pets.map(x => x.id === petId ? updated : x)
     renderBadgeLembretes()
