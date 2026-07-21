@@ -671,13 +671,6 @@
 
       <div class="card">
         <div class="card-title">Selecionar dieta</div>
-        <div class="form-grid form-grid-2" style="margin-bottom:14px">
-          <div class="field"><label>Filtrar por espécie</label>
-            <select id="c-especie" onchange="filtrarConsulta()">
-              <option value="">Todas</option><option value="cao">Cão</option><option value="gato">Gato</option>
-            </select>
-          </div>
-        </div>
         <div id="consulta-dietas"></div>
       </div>
 
@@ -1114,6 +1107,7 @@ let dietas = [], pets = [], selectedDietId = null, editingDietId = null, editing
 let lastCalc = null, ingrCount = 0, petConsultaId = null
 let filtroProteinas = [], filtroEspecie = '', filtroFase = ''
 let filtroStatusPaciente = ''
+let filtroConsultaProteinas = [], filtroConsultaEspecie = '', filtroConsultaFase = ''
 
 // ══ AUTENTICAÇÃO ══
 let supabaseClient = null
@@ -2086,7 +2080,7 @@ function iniciarConsultaPet(petId, dietaId, peso) {
     document.getElementById('c-tutor').value=p.nome_tutor
     document.getElementById('c-pet').value=p.nome_pet
     if (peso) document.getElementById('c-peso').value=peso
-    document.getElementById('c-especie').value=p.especie||''
+    filtroConsultaEspecie=p.especie||''
     filtrarConsulta()
     if (dietaId) { setTimeout(()=>{ selecionarDieta(dietaId) },100) }
     recalcular()
@@ -2122,7 +2116,7 @@ function selecionarPetConsulta(id) {
   document.getElementById('c-tutor').value=p.nome_tutor
   document.getElementById('c-pet').value=p.nome_pet
   if (p.peso_atual) document.getElementById('c-peso').value=p.peso_atual
-  if (p.especie) { document.getElementById('c-especie').value=p.especie; filtrarConsulta() }
+  if (p.especie) { filtroConsultaEspecie=p.especie; filtrarConsulta() }
   recalcular()
 }
 
@@ -2135,12 +2129,39 @@ function limparPetConsulta() {
 }
 
 // ── CONSULTA ──
+function dietaPassaFiltroConsulta(d) {
+  const prots = detectarProteinas(d.ingredientes)
+  if (filtroConsultaProteinas.length && !filtroConsultaProteinas.some(p => prots.includes(p))) return false
+  if (filtroConsultaEspecie && d.especie !== filtroConsultaEspecie) return false
+  if (filtroConsultaFase && d.fase !== filtroConsultaFase) return false
+  return true
+}
+function toggleFCP(key) { filtroConsultaProteinas = filtroConsultaProteinas.includes(key) ? filtroConsultaProteinas.filter(k=>k!==key) : [...filtroConsultaProteinas,key]; filtrarConsulta() }
+function toggleFCE(val) { filtroConsultaEspecie = filtroConsultaEspecie===val?'':val; filtrarConsulta() }
+function toggleFCF(val) { filtroConsultaFase = filtroConsultaFase===val?'':val; filtrarConsulta() }
+function limparFiltrosConsulta() { filtroConsultaProteinas=[]; filtroConsultaEspecie=''; filtroConsultaFase=''; filtrarConsulta() }
+
 function renderConsultaDietas() {
-  const esp=document.getElementById('c-especie').value
-  const filtered=esp?dietas.filter(d=>d.especie===esp):dietas
   const el=document.getElementById('consulta-dietas')
-  if (!filtered.length) { el.innerHTML='<div class="empty"><i class="fi fi-rr-salad"></i><p>Nenhuma dieta encontrada.</p></div>'; return }
-  el.innerHTML=filtered.map(d=>`
+  if (!dietas.length) { el.innerHTML='<div class="empty"><i class="fi fi-rr-salad"></i><p>Nenhuma dieta cadastrada.</p></div>'; return }
+  const protsDisp = PROTEINAS.filter(p => dietas.some(d => detectarProteinas(d.ingredientes).includes(p.key)))
+  const fasesDisp = [...new Set(dietas.map(d => d.fase))]
+  const temFiltro = filtroConsultaProteinas.length || filtroConsultaEspecie || filtroConsultaFase
+  const filtered = dietas.filter(dietaPassaFiltroConsulta)
+  const filtrosHtml = `<div class="filtros-wrap">
+    <span class="filtros-label">Proteína</span>
+    ${protsDisp.map(p=>`<span class="filtro-tag ${filtroConsultaProteinas.includes(p.key)?'ativo':''}" onclick="toggleFCP('${p.key}')">${p.label}</span>`).join('')}
+    <div class="filtros-sep"></div>
+    <span class="filtro-tag ${filtroConsultaEspecie==='cao'?'ativo':''}" onclick="toggleFCE('cao')">🐕 Cão</span>
+    <span class="filtro-tag ${filtroConsultaEspecie==='gato'?'ativo':''}" onclick="toggleFCE('gato')">🐈 Gato</span>
+    <div class="filtros-sep"></div>
+    ${fasesDisp.map(f=>`<span class="filtro-tag ${filtroConsultaFase===f?'ativo':''}" onclick="toggleFCF('${f}')">${f}</span>`).join('')}
+    ${temFiltro?`<button class="btn-limpar" onclick="limparFiltrosConsulta()">Limpar filtros</button>`:''}
+    <span class="filtros-count">${filtered.length} de ${dietas.length}</span>
+  </div>`
+  const listHtml = filtered.length===0
+    ? '<div class="empty"><i class="fi fi-rr-filter-slash"></i><p>Nenhuma dieta com esses filtros.</p></div>'
+    : filtered.map(d=>`
     <div class="diet-select-item ${selectedDietId===d.id?'selected':''}" onclick="selecionarDieta('${d.id}')">
       <div class="radio-dot"></div>
       <div style="flex:1">
@@ -2152,6 +2173,7 @@ function renderConsultaDietas() {
         </div>
       </div>
     </div>`).join('')
+  el.innerHTML = filtrosHtml + listHtml
 }
 
 function filtrarConsulta() { selectedDietId=null; document.getElementById('c-em-display').textContent='— selecione a dieta'; renderConsultaDietas(); recalcular() }
