@@ -29,11 +29,11 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { nome, especie, fase, obs, garantias, ingredientes } = req.body
+      const { nome, especie, fase, objetivo, obs, garantias, ingredientes } = req.body
       if (!nome || !especie || !fase) return res.status(400).json({ error: 'Campos obrigatórios: nome, especie, fase' })
       const { data, error } = await supabase
         .from('dietas')
-        .insert([{ nome, especie, fase, obs, garantias, ingredientes }])
+        .insert([{ nome, especie, fase, objetivo, obs, garantias, ingredientes }])
         .select()
         .single()
       if (error) return res.status(500).json({ error: error.message })
@@ -44,10 +44,10 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'PUT') {
-    const { nome, especie, fase, obs, garantias, ingredientes } = req.body
+    const { nome, especie, fase, objetivo, obs, garantias, ingredientes } = req.body
     const { data, error } = await supabase
       .from('dietas')
-      .update({ nome, especie, fase, obs, garantias, ingredientes })
+      .update({ nome, especie, fase, objetivo, obs, garantias, ingredientes })
       .eq('id', id)
       .select()
       .single()

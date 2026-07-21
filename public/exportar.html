@@ -504,7 +504,7 @@ function renderPreview() {
     return `
     <div class="pdf-page cardapio-page">
       <div class="cp-numero">Cardápio ${idx+1}</div>
-      <div class="cp-nome-criativo">${d.fase || 'Alimentação Natural'}</div>
+      <div class="cp-nome-criativo">${[d.fase, d.objetivo].filter(Boolean).join(' · ') || 'Alimentação Natural'}</div>
 
       <div class="cp-section-label">🥦 Ingredientes</div>
       <div class="cp-ingredientes-box">${ingrsHtml(d)}</div>

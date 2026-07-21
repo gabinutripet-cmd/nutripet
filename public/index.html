@@ -499,10 +499,9 @@
             <div class="field"><label>Nome da dieta</label><input type="text" id="n-nome" placeholder="Ex: Frango Grain Free — Manutenção"></div>
             <div class="field"><label>Espécie</label><select id="n-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select></div>
           </div>
-          <div class="form-grid form-grid-2">
-            <div class="field"><label>Fase / Objetivo</label>
-              <select id="n-fase"><option>Manutenção</option><option>Filhote</option><option>Gestação / Lactação</option><option>Idoso</option><option>Perda de peso</option><option>Renal</option><option>Outro</option></select>
-            </div>
+          <div class="form-grid form-grid-3">
+            <div class="field"><label>Fase</label><input type="text" id="n-fase" placeholder="Ex: Adulto, Filhote, Idoso"></div>
+            <div class="field"><label>Objetivo</label><input type="text" id="n-objetivo" placeholder="Ex: Manutenção, Emagrecimento, Renal"></div>
             <div class="field"><label>Observações</label><input type="text" id="n-obs" placeholder="Indicações, restrições..."></div>
           </div>
         </div>
@@ -1321,6 +1320,7 @@ function renderLista() {
             <div class="diet-item-meta">
               <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
               <span class="badge badge-phase">${d.fase}</span>
+              ${d.objetivo?`<span class="badge badge-phase">${d.objetivo}</span>`:''}
               ${protBadges(prots)}
               <span class="badge" style="background:var(--bg);color:var(--text-2)">${d.ingredientes.length} ingredientes</span>
             </div>
@@ -1338,9 +1338,8 @@ function renderLista() {
 function initNova() {
   editingDietId = null; ingrCount = 0
   document.getElementById('ingr-list').innerHTML = ''
-  ;['n-nome','n-obs','g-pb','g-ee','g-fb','g-mm','g-ca-min','g-ca-max','g-p','g-um','g-em'].forEach(id => document.getElementById(id).value = '')
+  ;['n-nome','n-fase','n-objetivo','n-obs','g-pb','g-ee','g-fb','g-mm','g-ca-min','g-ca-max','g-p','g-um','g-em'].forEach(id => document.getElementById(id).value = '')
   document.getElementById('n-especie').value = 'cao'
-  document.getElementById('n-fase').value = 'Manutenção'
   for (let i=0; i<10; i++) addIngr()
 }
 
@@ -1389,7 +1388,7 @@ async function salvarDieta() {
   ;[['pb','g-pb'],['ee','g-ee'],['fb','g-fb'],['mm','g-mm'],['ca_min','g-ca-min'],['ca_max','g-ca-max'],['p','g-p'],['um','g-um'],['em','g-em']].forEach(([k,id]) => {
     const v = parseFloat(document.getElementById(id).value); if (!isNaN(v)) garantias[k]=v
   })
-  const body = {nome, especie:document.getElementById('n-especie').value, fase:document.getElementById('n-fase').value, obs:document.getElementById('n-obs').value.trim(), garantias, ingredientes}
+  const body = {nome, especie:document.getElementById('n-especie').value, fase:document.getElementById('n-fase').value.trim(), objetivo:document.getElementById('n-objetivo').value.trim(), obs:document.getElementById('n-obs').value.trim(), garantias, ingredientes}
   try {
     if (editingDietId) { const u=await apiFetch(`/dietas?id=${editingDietId}`,{method:'PUT',body}); dietas=dietas.map(d=>d.id===editingDietId?u:d); toast('Dieta atualizada!') }
     else { const nova=await apiFetch('/dietas',{method:'POST',body}); dietas.push(nova); toast('Dieta cadastrada!') }
@@ -1411,6 +1410,7 @@ function editarDieta(id) {
     document.getElementById('n-nome').value=d.nome
     document.getElementById('n-especie').value=d.especie
     document.getElementById('n-fase').value=d.fase
+    document.getElementById('n-objetivo').value=d.objetivo||''
     document.getElementById('n-obs').value=d.obs||''
     ;[['pb','g-pb'],['ee','g-ee'],['fb','g-fb'],['mm','g-mm'],['ca_min','g-ca-min'],['ca_max','g-ca-max'],['p','g-p'],['um','g-um'],['em','g-em']].forEach(([k,id])=>{ document.getElementById(id).value=d.garantias[k]||'' })
     document.getElementById('ingr-list').innerHTML=''; ingrCount=0
@@ -1426,6 +1426,7 @@ function duplicarDieta(id) {
     document.getElementById('n-nome').value=`${d.nome} (cópia)`
     document.getElementById('n-especie').value=d.especie
     document.getElementById('n-fase').value=d.fase
+    document.getElementById('n-objetivo').value=d.objetivo||''
     document.getElementById('n-obs').value=d.obs||''
     ;[['pb','g-pb'],['ee','g-ee'],['fb','g-fb'],['mm','g-mm'],['ca_min','g-ca-min'],['ca_max','g-ca-max'],['p','g-p'],['um','g-um'],['em','g-em']].forEach(([k,id])=>{ document.getElementById(id).value=d.garantias[k]||'' })
     document.getElementById('ingr-list').innerHTML=''; ingrCount=0
@@ -2169,6 +2170,7 @@ function renderConsultaDietas() {
         <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
           <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
           <span class="badge badge-phase">${d.fase}</span>
+          ${d.objetivo?`<span class="badge badge-phase">${d.objetivo}</span>`:''}
           ${protBadges(detectarProteinas(d.ingredientes))}
         </div>
       </div>
@@ -2259,7 +2261,7 @@ async function gerarCardapio() {
         <div><div class="cp-pet-name">${pet}</div><div class="cp-pet-sub">Tutor: ${tutor}</div><div class="cp-pet-sub">${dataFmt}</div></div>
       </div>
       <div class="cp-diet-title">${d.nome}</div>
-      <div class="cp-diet-meta">${d.especie==='cao'?'Cão':'Gato'} · ${d.fase} · Peso: ${peso} kg</div>
+      <div class="cp-diet-meta">${d.especie==='cao'?'Cão':'Gato'} · ${d.fase}${d.objetivo?' · '+d.objetivo:''} · Peso: ${peso} kg</div>
       <div class="cp-calcs">
         <div class="cp-calc"><div class="cp-calc-label">NEM</div><div class="cp-calc-val">${nem.toFixed(1)}</div><div class="cp-calc-unit">kcal/dia · fator ${fator}</div></div>
         <div class="cp-calc"><div class="cp-calc-label">EM da dieta</div><div class="cp-calc-val">${em}</div><div class="cp-calc-unit">kcal/kg</div></div>
