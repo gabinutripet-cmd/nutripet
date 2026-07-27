@@ -1418,20 +1418,24 @@ async function salvarDieta() {
   } catch(e) { toast('Erro ao salvar.','error') }
 }
 
-function visualizarDieta(id) {
-  const d = dietas.find(x => x.id === id); if (!d) return
-  const GARANTIAS_LABELS = [
-    ['pb','Proteína Bruta mín','g/kg'], ['ee','Extrato Etéreo mín','g/kg'], ['fb','Fibra Bruta máx','g/kg'],
-    ['mm','Matéria Mineral máx','g/kg'], ['ca_min','Cálcio mín','mg/kg'], ['ca_max','Cálcio máx','mg/kg'],
-    ['p','Fósforo mín','mg/kg'], ['um','Umidade máx','g/kg'], ['em','Energia Metabolizável','kcal/kg'],
-  ]
-  const ingrRows = d.ingredientes.map(i => `<tr><td>${i.n}</td><td>${i.sc}%</td><td>${i.u}</td></tr>`).join('')
-  const garantiasHtml = GARANTIAS_LABELS.filter(([k]) => d.garantias?.[k] != null).map(([k,label,un]) => `
+const GARANTIAS_LABELS = [
+  ['pb','Proteína Bruta mín','g/kg'], ['ee','Extrato Etéreo mín','g/kg'], ['fb','Fibra Bruta máx','g/kg'],
+  ['mm','Matéria Mineral máx','g/kg'], ['ca_min','Cálcio mín','mg/kg'], ['ca_max','Cálcio máx','mg/kg'],
+  ['p','Fósforo mín','mg/kg'], ['um','Umidade máx','g/kg'], ['em','Energia Metabolizável','kcal/kg'],
+]
+function garantiasHtmlDe(d) {
+  return GARANTIAS_LABELS.filter(([k]) => d.garantias?.[k] != null).map(([k,label,un]) => `
     <div class="stat-box">
       <div class="stat-label">${label}</div>
       <div class="stat-value" style="font-size:18px">${d.garantias[k]}</div>
       <div class="stat-unit">${un}</div>
     </div>`).join('')
+}
+
+function visualizarDieta(id) {
+  const d = dietas.find(x => x.id === id); if (!d) return
+  const ingrRows = d.ingredientes.map(i => `<tr><td>${i.n}</td><td>${i.sc}%</td><td>${i.u}</td></tr>`).join('')
+  const garantiasHtml = garantiasHtmlDe(d)
   document.getElementById('ver-dieta-body').innerHTML = `
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
       <span class="badge ${d.especie==='cao'?'badge-dog':'badge-cat'}">${d.especie==='cao'?'🐕 Cão':'🐈 Gato'}</span>
@@ -1953,16 +1957,19 @@ function abrirCardapioAside(consultaId, petId) {
     const g7dias = gDia * 7
     return `<tr><td>${i.n}</td><td>${gDia.toFixed(1)} ${i.u}</td><td>${gRefei.toFixed(1)} ${i.u}</td><td class="bold-val">${g7dias.toFixed(1)} ${i.u}</td></tr>`
   }).join('')
+  const garantiasHtml = garantiasHtmlDe(d)
   body.innerHTML = `
     <div style="margin-bottom:16px">
       <div style="font-size:14px;font-weight:600">${d.nome}</div>
       <div style="font-size:12px;color:var(--text-2);margin-top:2px">${dataFmt} · ${cc.peso_consulta}kg · Fator ${cc.fator_nutricional} · ${refei}x ao dia</div>
     </div>
-    <div style="overflow-x:auto"><table class="cp-ingr-table">
+    <div style="overflow-x:auto;margin-bottom:20px"><table class="cp-ingr-table">
       <thead><tr><th>Ingrediente</th><th style="text-align:right">Total/dia</th><th style="text-align:right">Por refeição</th><th style="text-align:right">Para 7 dias</th></tr></thead>
       <tbody>${rows}</tbody>
       <tfoot><tr class="cp-total-row"><td>Total</td><td>${(cc.consumo_g||0).toFixed(1)} g</td><td>${(cc.por_refeicao||0).toFixed(1)} g</td><td>${((cc.consumo_g||0)*7).toFixed(1)} g</td></tr></tfoot>
-    </table></div>`
+    </table></div>
+    ${garantiasHtml ? `<div class="card-title" style="margin-bottom:10px">Níveis de garantia</div>
+    <div class="stats-row">${garantiasHtml}</div>` : ''}`
   document.getElementById('aside-cardapio').style.display = 'flex'
 }
 
