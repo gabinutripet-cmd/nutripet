@@ -553,7 +553,7 @@ function renderPreview() {
         <div class="ficha-foto">${fotoHtml}</div>
         <div class="ficha-dados">
           <div class="ficha-nome">${nomesPet}</div>
-          ${pet.idade_anos ? `<div class="ficha-row"><span class="ficha-label">idade:</span><span class="ficha-value">${pet.idade_anos} anos</span></div>` : ''}
+          ${pet.idade_anos ? `<div class="ficha-row"><span class="ficha-label">idade:</span><span class="ficha-value">${pet.idade_anos} ${pet.idade_unidade==='meses'?(pet.idade_anos==1?'mês':'meses'):(pet.idade_anos==1?'ano':'anos')}</span></div>` : ''}
           ${pet.peso_atual ? `<div class="ficha-row"><span class="ficha-label">peso:</span><span class="ficha-value">${pet.peso_atual}kg</span></div>` : ''}
           ${pet.raca ? `<div class="ficha-row"><span class="ficha-label">raça:</span><span class="ficha-value">${pet.raca}</span></div>` : ''}
           ${pet.cidade ? `<div class="ficha-row"><span class="ficha-label">cidade:</span><span class="ficha-value">${pet.cidade}${pet.estado?' - '+pet.estado:''}</span></div>` : ''}

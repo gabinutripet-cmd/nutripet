@@ -500,8 +500,8 @@
             <div class="field"><label>Espécie</label><select id="n-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select></div>
           </div>
           <div class="form-grid form-grid-3">
-            <div class="field"><label>Fase</label><input type="text" id="n-fase" placeholder="Ex: Adulto, Filhote, Idoso"></div>
-            <div class="field"><label>Objetivo</label><input type="text" id="n-objetivo" placeholder="Ex: Manutenção, Emagrecimento, Renal"></div>
+            <div class="field" style="position:relative"><label>Fase</label><input type="text" id="n-fase" placeholder="Ex: Adulto, Filhote, Idoso" autocomplete="off" oninput="filtrarValoresDieta('n-fase','n-fase-sugestoes','fase')" onfocus="filtrarValoresDieta('n-fase','n-fase-sugestoes','fase')" onblur="ocultarSugestoes('n-fase-sugestoes')"><div id="n-fase-sugestoes" class="autocomplete-list"></div></div>
+            <div class="field" style="position:relative"><label>Objetivo</label><input type="text" id="n-objetivo" placeholder="Ex: Manutenção, Emagrecimento, Renal" autocomplete="off" oninput="filtrarValoresDieta('n-objetivo','n-objetivo-sugestoes','objetivo')" onfocus="filtrarValoresDieta('n-objetivo','n-objetivo-sugestoes','objetivo')" onblur="ocultarSugestoes('n-objetivo-sugestoes')"><div id="n-objetivo-sugestoes" class="autocomplete-list"></div></div>
             <div class="field"><label>Observações</label><input type="text" id="n-obs" placeholder="Indicações, restrições..."></div>
           </div>
         </div>
@@ -592,7 +592,7 @@
           <div class="form-grid form-grid-4" style="margin-bottom:14px">
             <div class="field"><label>Sexo</label><select id="pt-sexo"><option value="">Não informado</option><option value="macho">Macho</option><option value="femea">Fêmea</option></select></div>
             <div class="field"><label>Castrado</label><select id="pt-castrado"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></div>
-            <div class="field"><label>Idade (anos)</label><input type="number" id="pt-idade" min="0" step="0.1" placeholder="Ex: 3"></div>
+            <div class="field"><label>Idade</label><div style="display:flex;gap:6px"><input type="number" id="pt-idade" min="0" step="0.1" placeholder="Ex: 3" style="flex:1;min-width:0"><select id="pt-idade-unidade" style="width:84px"><option value="anos">Anos</option><option value="meses">Meses</option></select></div></div>
             <div class="field"><label>Aniversário</label><input type="date" id="pt-aniversario"></div>
           </div>
           <div class="form-grid form-grid-3">
@@ -1590,6 +1590,26 @@ function ocultarSugestoes(sugestoesId) {
   setTimeout(() => { const el = document.getElementById(sugestoesId); if (el) el.style.display = 'none' }, 150)
 }
 
+function formatarIdade(valor, unidade) {
+  if (!valor) return '—'
+  const meses = unidade === 'meses'
+  const singular = valor == 1
+  return `${valor} ${meses ? (singular?'mês':'meses') : (singular?'ano':'anos')}`
+}
+
+function filtrarValoresDieta(inputId, sugestoesId, campo) {
+  const input = document.getElementById(inputId)
+  const sugestoesEl = document.getElementById(sugestoesId)
+  const todos = [...new Set(dietas.map(d => (d[campo]||'').trim()).filter(Boolean))].sort()
+  const q = input.value.trim().toLowerCase()
+  const matches = q ? todos.filter(v => v.toLowerCase().includes(q)).slice(0, 8) : todos.slice(0, 8)
+  if (!matches.length) { sugestoesEl.style.display = 'none'; return }
+  sugestoesEl.innerHTML = matches.map(v =>
+    `<div class="autocomplete-item" onmousedown="selecionarSugestao('${inputId}','${sugestoesId}','${v.replace(/'/g,"\\'")}')">${v}</div>`
+  ).join('')
+  sugestoesEl.style.display = 'block'
+}
+
 // ══ PACIENTES ══
 function mostrarListaPets() {
   document.getElementById('pacientes-lista-view').style.display='block'
@@ -1736,6 +1756,7 @@ function abrirNovoPet() {
   document.getElementById('pt-status').value='em_consulta'
   document.getElementById('pt-semana-final').value=''
   ;['pt-idade','pt-peso','pt-pesoideal'].forEach(id=>document.getElementById(id).value='')
+  document.getElementById('pt-idade-unidade').value='anos'
   document.getElementById('pt-aniversario').value=''
   document.getElementById('pt-foto-preview').innerHTML='<div class="foto-placeholder" style="width:64px;height:64px;font-size:26px">🐾</div>'
   document.getElementById('pt-foto-arquivo').value=''
@@ -1763,6 +1784,7 @@ function editarPet(id) {
   document.getElementById('pt-sexo').value=p.sexo||''
   document.getElementById('pt-castrado').value=p.castrado===null?'':String(p.castrado)
   document.getElementById('pt-idade').value=p.idade_anos||''
+  document.getElementById('pt-idade-unidade').value=p.idade_unidade||'anos'
   document.getElementById('pt-aniversario').value=p.aniversario||''
   document.getElementById('pt-peso').value=p.peso_atual||''
   document.getElementById('pt-pesoideal').value=p.peso_ideal||''
@@ -1810,6 +1832,7 @@ async function salvarPet() {
     sexo:document.getElementById('pt-sexo').value||null,
     castrado:boolVal('pt-castrado'),
     idade_anos:parseFloat(document.getElementById('pt-idade').value)||null,
+    idade_unidade:document.getElementById('pt-idade-unidade').value||'anos',
     aniversario:document.getElementById('pt-aniversario').value||null,
     peso_atual:parseFloat(document.getElementById('pt-peso').value)||null,
     peso_ideal:parseFloat(document.getElementById('pt-pesoideal').value)||null,
@@ -2041,6 +2064,7 @@ async function abrirPerfil(id) {
   const dietaMap = v => ({racao:'Ração',natural:'Alimentação natural',mista:'Mista'}[v]||v||'—')
   const atividadeMap = v => ({baixo:'Baixo',moderado:'Moderado',alto:'Alto'}[v]||v||'—')
   const ambienteMap = v => ({apartamento:'Apartamento',casa:'Casa',quintal:'Casa com quintal',rural:'Área rural'}[v]||v||'—')
+  const idadeFmt = formatarIdade(p.idade_anos, p.idade_unidade)
 
   const dadosHtml = `
     <div class="card">
@@ -2049,7 +2073,7 @@ async function abrirPerfil(id) {
         <div class="info-box"><div class="info-box-label">Peso atual</div><div class="info-box-val">${p.peso_atual?p.peso_atual+' kg':'—'}</div></div>
         <div class="info-box"><div class="info-box-label">Peso ideal</div><div class="info-box-val">${p.peso_ideal?p.peso_ideal+' kg':'—'}</div></div>
         <div class="info-box"><div class="info-box-label">Dentro do peso ideal</div><div class="info-box-val">${bool(p.dentro_peso_ideal)}</div></div>
-        <div class="info-box"><div class="info-box-label">Idade</div><div class="info-box-val">${p.idade_anos?p.idade_anos+' anos':'—'}</div></div>
+        <div class="info-box"><div class="info-box-label">Idade</div><div class="info-box-val">${idadeFmt}</div></div>
         <div class="info-box"><div class="info-box-label">Aniversário</div><div class="info-box-val">${p.aniversario?new Date(p.aniversario+'T12:00').toLocaleDateString('pt-BR'):'—'}</div></div>
         <div class="info-box"><div class="info-box-label">Dieta atual</div><div class="info-box-val">${dietaMap(p.tipo_dieta_atual)}</div></div>
         <div class="info-box"><div class="info-box-label">Porte</div><div class="info-box-val">${LABEL_PORTE[p.porte]||'—'}</div></div>
