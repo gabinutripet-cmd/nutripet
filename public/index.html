@@ -175,6 +175,7 @@
   .autocomplete-item{padding:9px 13px;font-size:13.5px;cursor:pointer;}
   .autocomplete-item:hover{background:var(--green-light);}
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(46,189,107,.15);}
+  .field-hint{font-size:11px;color:var(--text-3);margin-top:5px;min-height:14px;}
   .field textarea{resize:vertical;min-height:84px;}
   .field-var label{color:var(--purple-mid);}
   .field-var input,.field-var select{border-color:var(--purple-border);background:var(--purple-light);color:var(--purple-mid);font-weight:500;}
@@ -1036,7 +1037,7 @@
     <div class="card" style="margin-bottom:14px">
       <div class="card-title">Peso</div>
       <div class="form-grid form-grid-2">
-        <div class="field field-var"><label>Peso atual (kg)</label><input type="number" id="m-peso" step="0.01" min="0" placeholder="Ex: 12.5" oninput="calcularPreview()"></div>
+        <div class="field field-var"><label>Peso atual (kg)</label><input type="number" id="m-peso" step="0.01" min="0" placeholder="Ex: 12.5" oninput="calcularPreview()"><div class="field-hint" id="m-peso-hint"></div></div>
         <div class="field" style="background:var(--bg);border-radius:var(--radius);padding:10px 12px;border:1px solid var(--border)">
           <label style="color:var(--text-3)">Porte do animal</label>
           <div id="m-porte-display" style="font-size:13px;font-weight:500;color:var(--text-2);margin-top:6px">— definido no cadastro</div>
@@ -1047,12 +1048,12 @@
     <div class="card" style="margin-bottom:14px">
       <div class="card-title">Medidas corporais (cm)</div>
       <div class="form-grid form-grid-3">
-        <div class="field"><label>AC — Altura corporal</label><input type="number" id="m-ac" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"></div>
-        <div class="field"><label>CC — Comprimento corporal</label><input type="number" id="m-cc" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"></div>
-        <div class="field"><label>CTX — Circ. torácica</label><input type="number" id="m-ctx" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"></div>
-        <div class="field"><label>CAB — Circ. abdominal</label><input type="number" id="m-cab" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"></div>
-        <div class="field"><label>CCX — Circ. coxa</label><input type="number" id="m-ccx" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"></div>
-        <div class="field"><label>CMP — Comp. membro pélvico</label><input type="number" id="m-cmp" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"></div>
+        <div class="field"><label>AC — Altura corporal</label><input type="number" id="m-ac" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"><div class="field-hint" id="m-ac-hint"></div></div>
+        <div class="field"><label>CC — Comprimento corporal</label><input type="number" id="m-cc" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"><div class="field-hint" id="m-cc-hint"></div></div>
+        <div class="field"><label>CTX — Circ. torácica</label><input type="number" id="m-ctx" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"><div class="field-hint" id="m-ctx-hint"></div></div>
+        <div class="field"><label>CAB — Circ. abdominal</label><input type="number" id="m-cab" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"><div class="field-hint" id="m-cab-hint"></div></div>
+        <div class="field"><label>CCX — Circ. coxa</label><input type="number" id="m-ccx" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"><div class="field-hint" id="m-ccx-hint"></div></div>
+        <div class="field"><label>CMP — Comp. membro pélvico</label><input type="number" id="m-cmp" step="0.1" min="0" placeholder="cm" oninput="calcularPreview()"><div class="field-hint" id="m-cmp-hint"></div></div>
       </div>
     </div>
     <!-- PREVIEW CÁLCULOS -->
@@ -2918,7 +2919,7 @@ function badgeCond(cond, tipo) {
 }
 
 // Abertura do modal
-function abrirModalMedidas(petId) {
+async function abrirModalMedidas(petId) {
   modalPetId = petId
   const p = pets.find(x => x.id === petId)
   // preencher porte display
@@ -2930,7 +2931,23 @@ function abrirModalMedidas(petId) {
   // limpar campos medidas
   ;['m-semana','m-ac','m-cc','m-ctx','m-cab','m-ccx','m-cmp'].forEach(id => document.getElementById(id).value = '')
   document.getElementById('m-preview').style.display = 'none'
+  ;['m-peso-hint','m-ac-hint','m-cc-hint','m-ctx-hint','m-cab-hint','m-ccx-hint','m-cmp-hint'].forEach(id => document.getElementById(id).textContent = '')
   document.getElementById('modal-medidas').show()
+
+  let medidas = medidasCache[petId]
+  if (!medidas) { try { medidas = await apiFetch(`/pets/${petId}/medidas`); medidasCache[petId] = medidas } catch(e) { medidas = [] } }
+  if (modalPetId !== petId) return
+  const ultima = medidas && medidas.length ? medidas[medidas.length - 1] : null
+  const preencherHint = (id, valor) => {
+    document.getElementById(id).textContent = valor != null ? `Último registro: ${valor} cm` : 'Sem registro anterior'
+  }
+  document.getElementById('m-peso-hint').textContent = p?.peso_atual ? `Último registro: ${p.peso_atual} kg` : 'Sem registro anterior'
+  preencherHint('m-ac-hint', ultima?.ac)
+  preencherHint('m-cc-hint', ultima?.cc)
+  preencherHint('m-ctx-hint', ultima?.ctx)
+  preencherHint('m-cab-hint', ultima?.cab)
+  preencherHint('m-ccx-hint', ultima?.ccx)
+  preencherHint('m-cmp-hint', ultima?.cmp)
 }
 
 function fecharModal() {
