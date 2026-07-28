@@ -690,13 +690,13 @@
         <div id="consulta-dietas"></div>
       </div>
 
-      <div class="card">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:16px"><span class="dot dot-purple" style="width:9px;height:9px"></span> Variáveis da consulta</div>
-        <div class="legend"><div style="display:flex;align-items:center;gap:5px"><span class="dot dot-purple"></span> Ajustáveis a cada consulta</div></div>
+      <div class="card" style="background:var(--purple-light);border-color:var(--purple-border);box-shadow:var(--shadow-purple)">
+        <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:16px;color:var(--purple-dark)"><span class="dot dot-purple" style="width:9px;height:9px"></span> Variáveis da consulta</div>
+        <div class="legend"><div style="display:flex;align-items:center;gap:5px;color:var(--purple-dark)"><span class="dot dot-purple"></span> Ajustáveis a cada consulta</div></div>
         <div class="form-grid form-grid-3">
           <div class="field field-var"><label>Peso do animal (kg)</label><input type="number" id="c-peso" step="0.1" min="0.1" placeholder="Ex: 3.4" oninput="recalcular()"></div>
           <div class="field field-var"><label>Fator nutricional</label><input type="number" id="c-fator" step="1" min="1" placeholder="Ex: 130" oninput="recalcular()"></div>
-          <div class="field" style="background:var(--bg);border-radius:var(--radius);padding:10px 12px;border:1px solid var(--border)">
+          <div class="field" style="background:var(--surface);border-radius:var(--radius);padding:10px 12px;border:1px solid var(--purple-border)">
             <label style="color:var(--text-3)">Energia Metab. da dieta (kcal/kg)</label>
             <div id="c-em-display" style="font-size:15px;font-weight:600;color:var(--text-2);margin-top:6px;font-family:'DM Mono',monospace">— selecione a dieta</div>
             <div style="font-size:10px;color:var(--text-3);margin-top:2px">valor fixo do cadastro</div>
@@ -715,12 +715,12 @@
       <div id="preview-hint" class="alert" style="display:none;border-left-color:var(--amber);background:var(--amber-light);color:#7a5200"><i class="fi fi-rr-info"></i><span id="preview-hint-text">—</span></div>
 
       <div id="preview-section" style="display:none">
-        <div class="card">
-          <div class="card-title">Cálculo nutricional</div>
+        <div class="card" style="background:var(--purple-light);border-color:var(--purple-border);box-shadow:var(--shadow-purple)">
+          <div class="card-title" style="color:var(--purple-dark)">Cálculo nutricional</div>
           <div class="stats-row">
-            <div class="stat-box"><div class="stat-label">NEM</div><div class="stat-value" id="p-nem">—</div><div class="stat-unit">kcal / dia</div><div style="font-size:10px;color:var(--text-3);margin-top:4px">Peso^0,75 × Fator</div></div>
-            <div class="stat-box"><div class="stat-label">Consumo diário</div><div class="stat-value" id="p-consumo">—</div><div class="stat-unit">g / dia</div></div>
-            <div class="stat-box"><div class="stat-label">Por refeição</div><div class="stat-value" id="p-refei">—</div><div class="stat-unit">g / refeição</div></div>
+            <div class="stat-box" style="background:var(--surface);border:1px solid var(--purple-border)"><div class="stat-label">NEM</div><div class="stat-value" id="p-nem" style="color:var(--purple-dark)">—</div><div class="stat-unit">kcal / dia</div><div style="font-size:10px;color:var(--text-3);margin-top:4px">Peso^0,75 × Fator</div></div>
+            <div class="stat-box" style="background:var(--surface);border:1px solid var(--purple-border)"><div class="stat-label">Consumo diário</div><div class="stat-value" id="p-consumo" style="color:var(--purple-dark)">—</div><div class="stat-unit">g / dia</div></div>
+            <div class="stat-box" style="background:var(--surface);border:1px solid var(--purple-border)"><div class="stat-label">Por refeição</div><div class="stat-value" id="p-refei" style="color:var(--purple-dark)">—</div><div class="stat-unit">g / refeição</div></div>
           </div>
           <div class="alert alert-info"><i class="fi fi-rr-check"></i><span id="p-info">—</span></div>
         </div>
