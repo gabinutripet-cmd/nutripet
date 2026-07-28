@@ -479,7 +479,7 @@
         <div id="painel-aniversarios"></div>
       </div>
       <div class="card">
-        <div class="card-title">⚠️ Sem previsão de finalização</div>
+        <div class="card-title">⚠️ Sem semana de acompanhamento iniciada</div>
         <div id="painel-sem-semana"></div>
       </div>
       <div class="card">
@@ -586,9 +586,6 @@
             <div class="field"><label>Espécie</label><select id="pt-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select></div>
             <div class="field" style="position:relative"><label>Raça</label><input type="text" id="pt-raca" placeholder="Ex: Golden Retriever" autocomplete="off" oninput="filtrarRacas('pt-raca','pt-raca-sugestoes','pt-especie')" onfocus="filtrarRacas('pt-raca','pt-raca-sugestoes','pt-especie')" onblur="ocultarSugestoes('pt-raca-sugestoes')"><div id="pt-raca-sugestoes" class="autocomplete-list"></div></div>
             <div class="field"><label>Status do paciente</label><select id="pt-status"><option value="em_consulta">Em consulta</option><option value="acompanhamento">Acompanhamento</option><option value="finalizado">Finalizado</option></select></div>
-          </div>
-          <div class="form-grid form-grid-4" style="margin-bottom:14px">
-            <div class="field"><label>Semana prevista p/ finalizar o acompanhamento</label><input type="week" id="pt-semana-final"></div>
           </div>
           <div class="form-grid form-grid-4" style="margin-bottom:14px">
             <div class="field"><label>Sexo</label><select id="pt-sexo"><option value="">Não informado</option><option value="macho">Macho</option><option value="femea">Fêmea</option></select></div>
@@ -1679,11 +1676,11 @@ function renderPainel() {
     : `<p style="font-size:12.5px;color:var(--text-3)">Nenhum aniversário em ${MESES_PT[hoje.getMonth()]}.</p>`
 
   const semSemanaEl = document.getElementById('painel-sem-semana')
-  const semSemana = pacientesOrdenados(pets.filter(p => p.status_paciente==='acompanhamento' && !p.semana_finalizacao))
+  const semSemana = pacientesOrdenados(pets.filter(p => p.status_paciente==='acompanhamento' && !p.acompanhamento_inicio))
   semSemanaEl.innerHTML = semSemana.length
-    ? `<p style="font-size:12.5px;color:var(--text-2);margin-bottom:10px">${semSemana.length} paciente${semSemana.length===1?'':'s'} em acompanhamento sem previsão de finalização definida:</p>
+    ? `<p style="font-size:12.5px;color:var(--text-2);margin-bottom:10px">${semSemana.length} paciente${semSemana.length===1?'':'s'} em acompanhamento sem a 1ª semana iniciada:</p>
        <div class="paciente-chips">${semSemana.map(chipPacienteHtml).join('')}</div>`
-    : '<p style="font-size:12.5px;color:var(--text-3)">Todos os acompanhamentos têm previsão definida.</p>'
+    : '<p style="font-size:12.5px;color:var(--text-3)">Todos os acompanhamentos têm a semana iniciada.</p>'
 
   const lembretesEl = document.getElementById('painel-lembretes')
   const lembretes = calcularLembretesAcompanhamento()
@@ -1743,6 +1740,7 @@ function renderPets() {
             <span class="badge ${p.especie==='cao'?'badge-dog':'badge-cat'}">${p.especie==='cao'?'Cão':'Gato'}</span>
             ${p.raca?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.raca}</span>`:''}
             ${p.peso_atual?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.peso_atual} kg</span>`:''}
+            ${htmlBadgeSemana(p)}
           </div>
         </div>
       </div>
@@ -1759,7 +1757,6 @@ function abrirNovoPet() {
   ;['pt-especie','pt-sexo','pt-castrado','pt-dentropes','pt-tipdieta','pt-atividade','pt-ambiente','pt-convivencia','pt-porte'].forEach(id=>document.getElementById(id).value='')
   document.getElementById('pt-especie').value='cao'
   document.getElementById('pt-status').value='em_consulta'
-  document.getElementById('pt-semana-final').value=''
   ;['pt-idade','pt-peso','pt-pesoideal'].forEach(id=>document.getElementById(id).value='')
   document.getElementById('pt-idade-unidade').value='anos'
   document.getElementById('pt-aniversario').value=''
@@ -1785,7 +1782,6 @@ function editarPet(id) {
   document.getElementById('pt-especie').value=p.especie||'cao'
   document.getElementById('pt-raca').value=p.raca||''
   document.getElementById('pt-status').value=p.status_paciente||'em_consulta'
-  document.getElementById('pt-semana-final').value=p.semana_finalizacao||''
   document.getElementById('pt-sexo').value=p.sexo||''
   document.getElementById('pt-castrado').value=p.castrado===null?'':String(p.castrado)
   document.getElementById('pt-idade').value=p.idade_anos||''
@@ -1833,7 +1829,6 @@ async function salvarPet() {
     status_paciente:statusNovo,
     historico_status:comHistoricoStatus(petAntes, statusNovo),
     lembrete_upsell_data: statusNovo === 'finalizado' ? (petAntes?.lembrete_upsell_data ?? null) : null,
-    semana_finalizacao:document.getElementById('pt-semana-final').value||null,
     sexo:document.getElementById('pt-sexo').value||null,
     castrado:boolVal('pt-castrado'),
     idade_anos:parseFloat(document.getElementById('pt-idade').value)||null,
@@ -2085,7 +2080,6 @@ async function abrirPerfil(id) {
         <div class="info-box"><div class="info-box-label">Aniversário</div><div class="info-box-val">${p.aniversario?new Date(p.aniversario+'T12:00').toLocaleDateString('pt-BR'):'—'}</div></div>
         <div class="info-box"><div class="info-box-label">Dieta atual</div><div class="info-box-val">${dietaMap(p.tipo_dieta_atual)}</div></div>
         <div class="info-box"><div class="info-box-label">Porte</div><div class="info-box-val">${LABEL_PORTE[p.porte]||'—'}</div></div>
-        <div class="info-box"><div class="info-box-label">Semana p/ finalizar acompanhamento</div><div class="info-box-val">${formatarSemana(p.semana_finalizacao)}</div></div>
       </div>
     </div>
     <div class="card">
@@ -2126,9 +2120,11 @@ async function abrirPerfil(id) {
           ${p.sexo?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.sexo==='macho'?'♂ Macho':'♀ Fêmea'}</span>`:''}
           ${p.castrado!==null?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.castrado?'Castrado':'Não castrado'}</span>`:''}
           ${selectStatusPacienteHtml(p.id, p.status_paciente)}
+          ${htmlBadgeSemana(p)}
         </div>
       </div>
       <div style="margin-left:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px">
+        ${p.status_paciente!=='acompanhamento'?`<button class="btn btn-sm" onclick="iniciarAcompanhamento('${p.id}')"><i class="fi fi-rr-flag"></i> Iniciar 1ª semana de acompanhamento</button>`:''}
         <button class="btn btn-sm" onclick="editarPet('${p.id}')"><i class="fi fi-rr-edit"></i> Editar</button>
         <button class="btn btn-sm" onclick="abrirModalMedidas('${p.id}')"><i class="fi fi-rr-ruler-horizontal"></i> Peso e medidas</button>
         <button class="btn btn-sm" onclick="window.open('/exportar.html?pet=${p.id}','_blank')"><i class="fi fi-rr-file-download"></i> Exportar PDF</button>
@@ -2723,32 +2719,56 @@ const LABEL_STATUS_PACIENTE = { em_consulta:'Em consulta', acompanhamento:'Acomp
 const COR_STATUS_PACIENTE = { em_consulta:'var(--blue)', acompanhamento:'var(--amber)', finalizado:'var(--green)' }
 function corStatusPaciente(status) { return COR_STATUS_PACIENTE[status] || 'var(--border-md)' }
 
-// "2026-W15" -> "Semana 15/2026"
-function formatarSemana(semana) {
-  if (!semana) return '—'
-  const m = String(semana).match(/^(\d{4})-W(\d{2})$/)
-  if (!m) return semana
-  return `Semana ${parseInt(m[2],10)}/${m[1]}`
+// ── ACOMPANHAMENTO SEMANAL (1 a 4 semanas + semanas extras) ──
+// Semana 1 começa no dia do clique em "Iniciar 1ª semana"; avança +1 a cada
+// segunda-feira seguinte. Acima de 4 vira "semanas extras", que só acaba
+// quando o status do paciente for alterado para "finalizado".
+function calcularSemanaAcompanhamento(inicioISO) {
+  if (!inicioISO) return null
+  const inicio = new Date(inicioISO + 'T00:00:00')
+  const hoje = new Date(new Date().toISOString().split('T')[0] + 'T00:00:00')
+  let segundas = 0
+  const cursor = new Date(inicio)
+  cursor.setDate(cursor.getDate() + 1)
+  while (cursor <= hoje) {
+    if (cursor.getDay() === 1) segundas++
+    cursor.setDate(cursor.getDate() + 1)
+  }
+  const semana = 1 + segundas
+  return semana > 4 ? { extra:true, extras: semana - 4 } : { extra:false, semana }
+}
+
+function htmlBadgeSemana(p) {
+  if (p.status_paciente !== 'acompanhamento') return ''
+  const info = calcularSemanaAcompanhamento(p.acompanhamento_inicio)
+  if (!info) return `<span class="badge" style="background:var(--amber-light);color:var(--amber)">Sem semana iniciada</span>`
+  return info.extra
+    ? `<span class="badge" style="background:var(--red-light);color:var(--red)">Semanas extras (+${info.extras})</span>`
+    : `<span class="badge" style="background:var(--green-light);color:var(--green-dark)">Semana ${info.semana}/4</span>`
+}
+
+async function iniciarAcompanhamento(petId) {
+  const p = pets.find(x => x.id === petId); if (!p) return
+  try {
+    const body = { ...p, status_paciente:'acompanhamento', historico_status:comHistoricoStatus(p,'acompanhamento'), acompanhamento_inicio: new Date().toISOString().split('T')[0] }
+    const updated = await apiFetch(`/pets/${petId}`, { method:'PUT', body })
+    pets = pets.map(x => x.id === petId ? updated : x)
+    renderBadgeLembretes()
+    toast('Acompanhamento iniciado — semana 1!')
+    if (document.getElementById('pacientes-perfil-view')?.dataset.petid === petId) abrirPerfil(petId)
+    if (document.getElementById('pacientes-lista-view')?.style.display !== 'none') renderPets()
+  } catch(e) { toast('Erro ao iniciar acompanhamento.', 'error') }
 }
 
 // ── LEMBRETES DE ACOMPANHAMENTO ──
-function semanaAtualISO(date = new Date()) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-  const dayNum = d.getUTCDay() || 7
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum)
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
-  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7)
-  return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2,'0')}`
-}
-
 function calcularLembretesAcompanhamento() {
-  const semanaAtual = semanaAtualISO()
   const hoje = new Date().toISOString().split('T')[0]
   const semanaLembretes = pets
-    .filter(p => p.semana_finalizacao && p.status_paciente !== 'finalizado')
+    .filter(p => p.status_paciente === 'acompanhamento' && p.acompanhamento_inicio)
     .map(p => {
-      if (p.semana_finalizacao === semanaAtual) return { pet:p, tipo:'ultima_semana', msg:`Essa é a última semana de acompanhamento da ${p.nome_pet}.` }
-      if (p.semana_finalizacao < semanaAtual) return { pet:p, tipo:'atrasado', msg:`O acompanhamento da ${p.nome_pet} já deveria ter sido finalizado (${formatarSemana(p.semana_finalizacao)}).` }
+      const info = calcularSemanaAcompanhamento(p.acompanhamento_inicio)
+      if (info?.extra) return { pet:p, tipo:'atrasado', msg:`O acompanhamento da ${p.nome_pet} está em semanas extras (+${info.extras}) — considere finalizar.` }
+      if (info?.semana === 4) return { pet:p, tipo:'ultima_semana', msg:`Essa é a última semana (4/4) de acompanhamento da ${p.nome_pet}.` }
       return null
     })
     .filter(Boolean)
@@ -2756,7 +2776,7 @@ function calcularLembretesAcompanhamento() {
     .filter(p => p.status_paciente === 'finalizado' && p.lembrete_upsell_data && p.lembrete_upsell_data <= hoje)
     .map(p => ({ pet:p, tipo:'upsell', msg:`Hora de reconectar com o tutor da ${p.nome_pet} pra uma nova consulta.` }))
   return [...semanaLembretes, ...upsellLembretes]
-    .sort((a,b) => (a.pet.semana_finalizacao||a.pet.lembrete_upsell_data||'').localeCompare(b.pet.semana_finalizacao||b.pet.lembrete_upsell_data||''))
+    .sort((a,b) => (a.pet.acompanhamento_inicio||a.pet.lembrete_upsell_data||'').localeCompare(b.pet.acompanhamento_inicio||b.pet.lembrete_upsell_data||''))
 }
 
 function renderBadgeLembretes() {
