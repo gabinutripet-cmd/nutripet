@@ -1107,6 +1107,35 @@
     </div>
 </sl-dialog>
 
+<!-- MODAL ALTERAR SEMANA DE ACOMPANHAMENTO -->
+<sl-dialog id="modal-editar-semana" label="Alterar semana de acompanhamento" class="np-dialog">
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">Semana atual</div>
+      <div id="es-semana-atual" style="font-size:14px;color:var(--text-2)">—</div>
+    </div>
+    <div class="form-grid form-grid-2">
+      <div class="field">
+        <label>Nova semana</label>
+        <select id="es-semana" onchange="toggleEsExtrasField()">
+          <option value="1">Semana 1</option>
+          <option value="2">Semana 2</option>
+          <option value="3">Semana 3</option>
+          <option value="4">Semana 4</option>
+          <option value="extra">Semanas extras</option>
+        </select>
+      </div>
+      <div class="field" id="es-extras-field" style="display:none">
+        <label>Quantidade de semanas extras</label>
+        <input type="number" id="es-extras" min="1" step="1" value="1">
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--text-3);margin-top:10px"><i class="fi fi-rr-info" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>A contagem automática continua a partir da semana escolhida — ela avança normalmente a cada segunda-feira.</p>
+    <div slot="footer" style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="document.getElementById('modal-editar-semana').hide()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarEditarSemana()"><i class="fi fi-rr-check"></i> Confirmar alteração</button>
+    </div>
+</sl-dialog>
+
 <!-- MODAL FINALIZAR PACIENTE (LEMBRETE DE UPSELL) -->
 <sl-dialog id="modal-upsell" label="Finalizar acompanhamento" class="np-dialog">
     <p style="font-size:14px;color:var(--text-2);margin:0 0 14px">Confirme a finalização. Vamos lembrar você de entrar em contato com o tutor pra uma nova consulta na data abaixo.</p>
@@ -2121,6 +2150,7 @@ async function abrirPerfil(id) {
           ${p.castrado!==null?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.castrado?'Castrado':'Não castrado'}</span>`:''}
           ${selectStatusPacienteHtml(p.id, p.status_paciente)}
           ${htmlBadgeSemana(p)}
+          ${p.status_paciente==='acompanhamento'?`<button class="btn btn-sm btn-icon" onclick="abrirModalEditarSemana('${p.id}')" title="Alterar semana de acompanhamento"><i class="fi fi-rr-edit"></i></button>`:''}
         </div>
       </div>
       <div style="margin-left:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px">
@@ -2758,6 +2788,57 @@ async function iniciarAcompanhamento(petId) {
     if (document.getElementById('pacientes-perfil-view')?.dataset.petid === petId) abrirPerfil(petId)
     if (document.getElementById('pacientes-lista-view')?.style.display !== 'none') renderPets()
   } catch(e) { toast('Erro ao iniciar acompanhamento.', 'error') }
+}
+
+// Dado o número de semana desejado (1-4, ou >4 para semanas extras), calcula
+// a data de início que faz a contagem ao vivo bater com essa semana hoje —
+// e a partir daí ela continua avançando normalmente a cada segunda-feira.
+function calcularInicioParaSemana(semanaAlvo) {
+  const mondaysNeeded = Math.max(0, semanaAlvo - 1)
+  const hoje = new Date(new Date().toISOString().split('T')[0] + 'T00:00:00')
+  let cursor = new Date(hoje)
+  let mondaysFound = 0
+  while (mondaysFound < mondaysNeeded) {
+    if (cursor.getDay() === 1) mondaysFound++
+    cursor.setDate(cursor.getDate() - 1)
+  }
+  return cursor.toISOString().split('T')[0]
+}
+
+let editarSemanaPetId = null
+
+function toggleEsExtrasField() {
+  document.getElementById('es-extras-field').style.display = document.getElementById('es-semana').value === 'extra' ? 'block' : 'none'
+}
+
+function abrirModalEditarSemana(petId) {
+  const p = pets.find(x => x.id === petId); if (!p) return
+  editarSemanaPetId = petId
+  const info = calcularSemanaAcompanhamento(p.acompanhamento_inicio)
+  document.getElementById('es-semana-atual').textContent = info
+    ? (info.extra ? `Semanas extras (+${info.extras})` : `Semana ${info.semana}/4`)
+    : 'Sem semana iniciada'
+  document.getElementById('es-semana').value = info?.extra ? 'extra' : String(info?.semana || 1)
+  document.getElementById('es-extras').value = info?.extra ? info.extras : 1
+  toggleEsExtrasField()
+  document.getElementById('modal-editar-semana').show()
+}
+
+async function confirmarEditarSemana() {
+  const petId = editarSemanaPetId
+  const p = pets.find(x => x.id === petId); if (!p) return
+  const sel = document.getElementById('es-semana').value
+  const semanaAlvo = sel === 'extra' ? 4 + Math.max(1, parseInt(document.getElementById('es-extras').value, 10) || 1) : parseInt(sel, 10)
+  const novoInicio = calcularInicioParaSemana(semanaAlvo)
+  try {
+    const body = { ...p, acompanhamento_inicio: novoInicio }
+    const updated = await apiFetch(`/pets/${petId}`, { method:'PUT', body })
+    pets = pets.map(x => x.id === petId ? updated : x)
+    renderBadgeLembretes()
+    document.getElementById('modal-editar-semana').hide()
+    toast('Semana atualizada!')
+    if (document.getElementById('pacientes-perfil-view')?.dataset.petid === petId) abrirPerfil(petId)
+  } catch(e) { toast('Erro ao atualizar semana.', 'error') }
 }
 
 // ── LEMBRETES DE ACOMPANHAMENTO ──
