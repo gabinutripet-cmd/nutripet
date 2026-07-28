@@ -465,13 +465,12 @@
 
     <!-- PAINEL -->
     <div class="page active" id="page-painel">
-      <div class="stats-row" id="painel-stats"></div>
       <div class="card">
-        <div class="card-title">🐾 Em consulta</div>
+        <div class="card-title" style="display:flex;align-items:center;gap:8px">🐾 Em consulta <span class="badge" id="painel-em-consulta-count" style="background:var(--blue-light);color:var(--blue)"></span></div>
         <div id="painel-em-consulta"></div>
       </div>
       <div class="card">
-        <div class="card-title">📋 Acompanhamento</div>
+        <div class="card-title" style="display:flex;align-items:center;gap:8px">📋 Acompanhamento <span class="badge" id="painel-acompanhamento-count" style="background:var(--amber-light);color:var(--amber)"></span></div>
         <div id="painel-acompanhamento"></div>
       </div>
       <div class="card">
@@ -1658,25 +1657,19 @@ function pacientesOrdenados(lista) {
 const MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']
 
 function renderPainel() {
-  const statsEl = document.getElementById('painel-stats')
-  if (!statsEl) return
-  const porStatus = { em_consulta:0, acompanhamento:0, finalizado:0 }
-  pets.forEach(p => { const s = p.status_paciente || 'em_consulta'; if (porStatus[s]!==undefined) porStatus[s]++ })
-  statsEl.innerHTML = Object.entries(LABEL_STATUS_PACIENTE).map(([val,label]) => `
-    <div class="stat-box">
-      <div class="stat-label">${label}</div>
-      <div class="stat-value" style="color:${corStatusPaciente(val)}">${porStatus[val]}</div>
-      <div class="stat-unit">paciente${porStatus[val]===1?'':'s'}</div>
-    </div>`).join('')
+  const emConsultaCountEl = document.getElementById('painel-em-consulta-count')
+  if (!emConsultaCountEl) return
 
   const emConsultaEl = document.getElementById('painel-em-consulta')
   const emConsulta = pacientesOrdenados(pets.filter(p => (p.status_paciente||'em_consulta')==='em_consulta'))
+  emConsultaCountEl.textContent = emConsulta.length
   emConsultaEl.innerHTML = emConsulta.length
     ? `<div class="paciente-chips">${emConsulta.map(chipPacienteHtml).join('')}</div>`
     : '<p style="font-size:12.5px;color:var(--text-3)">Nenhum paciente em consulta no momento.</p>'
 
   const acompanhamentoEl = document.getElementById('painel-acompanhamento')
   const acompanhamento = pacientesOrdenados(pets.filter(p => p.status_paciente==='acompanhamento'))
+  document.getElementById('painel-acompanhamento-count').textContent = acompanhamento.length
   if (!acompanhamento.length) {
     acompanhamentoEl.innerHTML = '<p style="font-size:12.5px;color:var(--text-3)">Nenhum paciente em acompanhamento no momento.</p>'
   } else {
