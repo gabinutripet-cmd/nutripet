@@ -1681,9 +1681,26 @@ function renderPainel() {
 
   const acompanhamentoEl = document.getElementById('painel-acompanhamento')
   const acompanhamento = pacientesOrdenados(pets.filter(p => p.status_paciente==='acompanhamento'))
-  acompanhamentoEl.innerHTML = acompanhamento.length
-    ? `<div class="paciente-chips">${acompanhamento.map(chipPacienteHtml).join('')}</div>`
-    : '<p style="font-size:12.5px;color:var(--text-3)">Nenhum paciente em acompanhamento no momento.</p>'
+  if (!acompanhamento.length) {
+    acompanhamentoEl.innerHTML = '<p style="font-size:12.5px;color:var(--text-3)">Nenhum paciente em acompanhamento no momento.</p>'
+  } else {
+    const grupos = { 1:[], 2:[], 3:[], 4:[], extra:[], sem:[] }
+    acompanhamento.forEach(p => {
+      const info = calcularSemanaAcompanhamento(p.acompanhamento_inicio)
+      if (!info) grupos.sem.push(p)
+      else if (info.extra) grupos.extra.push(p)
+      else grupos[info.semana].push(p)
+    })
+    const secoes = [[1,'Semana 1'],[2,'Semana 2'],[3,'Semana 3'],[4,'Semana 4'],['extra','Semanas extras'],['sem','Sem semana iniciada']]
+    acompanhamentoEl.innerHTML = secoes.filter(([k]) => grupos[k].length).map(([k,label]) => `
+      <div style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:12.5px;font-weight:700;color:var(--text-2)">${label}</span>
+          <span class="badge" style="background:var(--bg);color:var(--text-2)">${grupos[k].length}</span>
+        </div>
+        <div class="paciente-chips">${grupos[k].map(chipPacienteHtml).join('')}</div>
+      </div>`).join('')
+  }
 
   const aniEl = document.getElementById('painel-aniversarios')
   const hoje = new Date()
