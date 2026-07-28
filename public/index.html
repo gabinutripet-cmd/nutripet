@@ -164,6 +164,17 @@
 
   /* ── CARDS ── */
   .card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:22px;margin-bottom:16px;box-shadow:var(--shadow);}
+  .painel-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start;}
+  .painel-main .card,.painel-side .card{margin-bottom:0;}
+  .painel-main{display:flex;flex-direction:column;gap:16px;}
+  .painel-side{display:flex;flex-direction:column;gap:16px;}
+  @media (max-width:900px){.painel-grid{grid-template-columns:1fr;}}
+  .semana-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+  .semana-card{background:var(--bg);border-radius:var(--radius);padding:12px;}
+  .semana-card-extra{background:var(--purple-light);}
+  .semana-card-header{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+  .semana-card .paciente-chips{display:flex;flex-direction:column;gap:6px;}
+  .semana-card .paciente-chip{background:var(--surface);}
   .card-title{font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:16px;}
 
   /* ── FORMULÁRIOS ── */
@@ -467,23 +478,29 @@
 
     <!-- PAINEL -->
     <div class="page active" id="page-painel">
-      <div class="card">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px">🐾 Em consulta <span class="badge" id="painel-em-consulta-count" style="background:var(--blue-light);color:var(--blue)"></span></div>
-        <div id="painel-em-consulta"></div>
-      </div>
-      <div class="card">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px">📋 Acompanhamento <span class="badge" id="painel-acompanhamento-count" style="background:var(--amber-light);color:var(--amber)"></span></div>
-        <div id="painel-acompanhamento"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">🎂 Aniversariantes do mês</div>
-        <div id="painel-aniversarios"></div>
-      </div>
-      <div class="card">
-        <div class="section-header">
-          <div class="card-title" style="margin-bottom:0">⏰ Acompanhamentos que precisam de atenção</div>
+      <div class="painel-grid">
+        <div class="painel-main">
+          <div class="card" style="border-left:4px solid var(--blue)">
+            <div class="card-title" style="display:flex;align-items:center;gap:8px">🐾 Em consulta <span class="badge" id="painel-em-consulta-count" style="background:var(--blue-light);color:var(--blue)"></span></div>
+            <div id="painel-em-consulta"></div>
+          </div>
+          <div class="card" style="border-left:4px solid var(--amber)">
+            <div class="card-title" style="display:flex;align-items:center;gap:8px">📋 Acompanhamento <span class="badge" id="painel-acompanhamento-count" style="background:var(--amber-light);color:var(--amber)"></span></div>
+            <div id="painel-acompanhamento"></div>
+          </div>
         </div>
-        <div id="painel-lembretes"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+        <div class="painel-side">
+          <div class="card">
+            <div class="card-title">🎂 Aniversariantes do mês</div>
+            <div id="painel-aniversarios"></div>
+          </div>
+          <div class="card">
+            <div class="section-header">
+              <div class="card-title" style="margin-bottom:0">⏰ Acompanhamentos que precisam de atenção</div>
+            </div>
+            <div id="painel-lembretes"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1732,14 +1749,14 @@ function renderPainel() {
       else grupos[info.semana].push(p)
     })
     const secoes = [[1,'Semana 1'],[2,'Semana 2'],[3,'Semana 3'],[4,'Semana 4'],['extra','Semanas extras'],['sem','Sem semana iniciada']]
-    acompanhamentoEl.innerHTML = secoes.filter(([k]) => grupos[k].length).map(([k,label]) => `
-      <div style="margin-bottom:14px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <span style="font-size:12.5px;font-weight:700;color:var(--text-2)">${label}</span>
+    acompanhamentoEl.innerHTML = `<div class="semana-grid">` + secoes.filter(([k]) => grupos[k].length).map(([k,label]) => `
+      <div class="semana-card${k==='extra'?' semana-card-extra':''}">
+        <div class="semana-card-header">
+          <span>${label}</span>
           <span class="badge" style="background:var(--bg);color:var(--text-2)">${grupos[k].length}</span>
         </div>
         <div class="paciente-chips">${grupos[k].map(chipPacienteHtml).join('')}</div>
-      </div>`).join('')
+      </div>`).join('') + `</div>`
   }
 
   const aniEl = document.getElementById('painel-aniversarios')
