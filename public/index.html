@@ -479,10 +479,6 @@
         <div id="painel-aniversarios"></div>
       </div>
       <div class="card">
-        <div class="card-title">⚠️ Sem semana de acompanhamento iniciada</div>
-        <div id="painel-sem-semana"></div>
-      </div>
-      <div class="card">
         <div class="section-header">
           <div class="card-title" style="margin-bottom:0">⏰ Acompanhamentos que precisam de atenção</div>
         </div>
@@ -1720,13 +1716,6 @@ function renderPainel() {
         </div>`
       }).join('')
     : `<p style="font-size:12.5px;color:var(--text-3)">Nenhum aniversário em ${MESES_PT[hoje.getMonth()]}.</p>`
-
-  const semSemanaEl = document.getElementById('painel-sem-semana')
-  const semSemana = pacientesOrdenados(pets.filter(p => p.status_paciente==='acompanhamento' && !p.acompanhamento_inicio))
-  semSemanaEl.innerHTML = semSemana.length
-    ? `<p style="font-size:12.5px;color:var(--text-2);margin-bottom:10px">${semSemana.length} paciente${semSemana.length===1?'':'s'} em acompanhamento sem a 1ª semana iniciada:</p>
-       <div class="paciente-chips">${semSemana.map(chipPacienteHtml).join('')}</div>`
-    : '<p style="font-size:12.5px;color:var(--text-3)">Todos os acompanhamentos têm a semana iniciada.</p>'
 
   const lembretesEl = document.getElementById('painel-lembretes')
   const lembretes = calcularLembretesAcompanhamento()
