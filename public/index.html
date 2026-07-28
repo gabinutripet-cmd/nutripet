@@ -2149,8 +2149,7 @@ async function abrirPerfil(id) {
           ${p.sexo?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.sexo==='macho'?'♂ Macho':'♀ Fêmea'}</span>`:''}
           ${p.castrado!==null?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.castrado?'Castrado':'Não castrado'}</span>`:''}
           ${selectStatusPacienteHtml(p.id, p.status_paciente)}
-          ${htmlBadgeSemana(p)}
-          ${p.status_paciente==='acompanhamento'?`<button class="btn btn-sm btn-icon" onclick="abrirModalEditarSemana('${p.id}')" title="Alterar semana de acompanhamento"><i class="fi fi-rr-edit"></i></button>`:''}
+          ${htmlBadgeSemana(p, true)}
         </div>
       </div>
       <div style="margin-left:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px">
@@ -2768,13 +2767,15 @@ function calcularSemanaAcompanhamento(inicioISO) {
   return semana > 4 ? { extra:true, extras: semana - 4 } : { extra:false, semana }
 }
 
-function htmlBadgeSemana(p) {
+function htmlBadgeSemana(p, clicavel) {
   if (p.status_paciente !== 'acompanhamento') return ''
   const info = calcularSemanaAcompanhamento(p.acompanhamento_inicio)
-  if (!info) return `<span class="badge" style="background:var(--amber-light);color:var(--amber)">Sem semana iniciada</span>`
-  return info.extra
-    ? `<span class="badge" style="background:var(--red-light);color:var(--red)">Semanas extras (+${info.extras})</span>`
-    : `<span class="badge" style="background:var(--green-light);color:var(--green-dark)">Semana ${info.semana}/4</span>`
+  let texto, bg, cor
+  if (!info) { texto = 'Sem semana iniciada'; bg = 'var(--amber-light)'; cor = 'var(--amber)' }
+  else if (info.extra) { texto = `Semanas extras (+${info.extras})`; bg = 'var(--red-light)'; cor = 'var(--red)' }
+  else { texto = `Semana ${info.semana}/4`; bg = 'var(--green-light)'; cor = 'var(--green-dark)' }
+  if (!clicavel) return `<span class="badge" style="background:${bg};color:${cor}">${texto}</span>`
+  return `<button type="button" class="status-mini-select" style="background:${bg};color:${cor}" onclick="event.stopPropagation();abrirModalEditarSemana('${p.id}')">${texto} ▾</button>`
 }
 
 async function iniciarAcompanhamento(petId) {
