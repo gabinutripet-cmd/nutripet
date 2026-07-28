@@ -1823,10 +1823,10 @@ function renderPets() {
   filtrados = [...filtrados].sort((a,b) => (a.nome_pet||'').localeCompare(b.nome_pet||'', 'pt-BR', {sensitivity:'base'}))
   if (!filtrados.length) { el.innerHTML='<div class="empty"><i class="fi fi-rr-paw"></i><p>Nenhum paciente encontrado.</p></div>'; return }
   el.innerHTML = filtrados.map(p => `
-    <div class="pet-item" onclick="abrirPerfil('${p.id}')">
+    <div class="pet-item" style="border-left:4px solid ${p.especie==='cao'?'var(--green)':'var(--purple)'}" onclick="abrirPerfil('${p.id}')">
       <div style="display:flex;align-items:center;flex:1">
         <div style="display:flex;flex-direction:column;align-items:center;gap:5px;margin-right:12px">
-          ${p.foto_url ? `<img src="${p.foto_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2.5px solid ${corStatusPaciente(p.status_paciente)}">` : `<div class="pet-avatar" style="margin-right:0;border-color:${corStatusPaciente(p.status_paciente)}">${p.especie==='gato'?'🐈':'🐕'}</div>`}
+          ${p.foto_url ? `<img src="${p.foto_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2.5px solid ${corStatusPaciente(p.status_paciente)}">` : `<div class="pet-avatar" style="margin-right:0;border-color:${corStatusPaciente(p.status_paciente)};background:${p.especie==='cao'?'var(--green-light)':'var(--purple-light)'}">${p.especie==='gato'?'🐈':'🐕'}</div>`}
           <div onclick="event.stopPropagation()">${selectStatusPacienteHtml(p.id, p.status_paciente)}</div>
         </div>
         <div>
@@ -1836,6 +1836,8 @@ function renderPets() {
             <span class="badge ${p.especie==='cao'?'badge-dog':'badge-cat'}">${p.especie==='cao'?'Cão':'Gato'}</span>
             ${p.raca?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.raca}</span>`:''}
             ${p.peso_atual?`<span class="badge" style="background:var(--bg);color:var(--text-2)">${p.peso_atual} kg</span>`:''}
+            ${p.dentro_peso_ideal===true?`<span class="badge" style="background:var(--green-light);color:var(--green-dark)">Peso ideal</span>`:''}
+            ${p.dentro_peso_ideal===false?`<span class="badge" style="background:var(--amber-light);color:var(--amber)">Fora do peso ideal</span>`:''}
             ${htmlBadgeSemana(p)}
           </div>
         </div>
@@ -2201,11 +2203,11 @@ async function abrirPerfil(id) {
 
   el.innerHTML = `
     <button class="btn" style="margin-bottom:16px" onclick="mostrarListaPets();renderPets()"><i class="fi fi-rr-arrow-left"></i> Voltar</button>
-    <div class="perfil-header">
+    <div class="perfil-header" style="border-left:4px solid ${p.especie==='cao'?'var(--green)':'var(--purple)'}">
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
         ${p.foto_url
           ? `<img src="${p.foto_url}" class="foto-avatar" style="border-color:${corStatusPaciente(p.status_paciente)}" onclick="abrirModalFoto('${p.id}')" title="Clique para ver a foto">`
-          : `<div class="foto-placeholder" style="border-color:${corStatusPaciente(p.status_paciente)}" onclick="triggerFotoUpload('${p.id}')" title="Clique para adicionar foto">${p.especie==='gato'?'🐈':'🐕'}</div>`
+          : `<div class="foto-placeholder" style="border-color:${corStatusPaciente(p.status_paciente)};background:${p.especie==='cao'?'var(--green-light)':'var(--purple-light)'}" onclick="triggerFotoUpload('${p.id}')" title="Clique para adicionar foto">${p.especie==='gato'?'🐈':'🐕'}</div>`
         }
         <div class="foto-upload-hint">clique para ${p.foto_url?'ver':'adicionar'} a foto</div>
       </div>
