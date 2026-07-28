@@ -230,11 +230,12 @@
   .btn-limpar:hover{color:var(--text);}
 
   /* ── DIET ITEMS ── */
-  .diet-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;transition:all .18s ease;margin-bottom:10px;box-shadow:var(--shadow);}
+  .diet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+  .diet-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;display:flex;flex-direction:column;align-items:stretch;transition:all .18s ease;box-shadow:var(--shadow);cursor:pointer;}
   .diet-item:hover{border-color:var(--green-border);box-shadow:0 4px 16px rgba(0,0,0,.07);transform:translateY(-1px);}
   .diet-item-name{font-size:14.5px;font-weight:600;}
   .diet-item-meta{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;}
-  .diet-item-actions{display:flex;gap:6px;}
+  .diet-item-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;}
 
   /* ── DIET SELECT ── */
   .diet-select-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s;margin-bottom:10px;box-shadow:var(--shadow);}
@@ -1379,9 +1380,9 @@ function renderLista() {
   </div>`
   const listHtml = filtradas.length===0
     ? '<div class="empty"><i class="fi fi-rr-filter-slash"></i><p>Nenhuma dieta com esses filtros.</p></div>'
-    : filtradas.map(d => {
+    : `<div class="diet-grid">` + filtradas.map(d => {
         const prots = detectarProteinas(d.ingredientes)
-        return `<div class="diet-item">
+        return `<div class="diet-item" style="border-left:4px solid ${d.especie==='cao'?'var(--green)':'var(--purple)'}" onclick="visualizarDieta('${d.id}')">
           <div style="flex:1">
             <div class="diet-item-name">${d.nome}</div>
             <div class="diet-item-meta">
@@ -1392,14 +1393,14 @@ function renderLista() {
               <span class="badge" style="background:var(--bg);color:var(--text-2)">${d.ingredientes.length} ingredientes</span>
             </div>
           </div>
-          <div class="diet-item-actions">
+          <div class="diet-item-actions" onclick="event.stopPropagation()">
             <button class="btn btn-sm" onclick="visualizarDieta('${d.id}')"><i class="fi fi-rr-eye"></i> Visualizar</button>
             <button class="btn btn-sm" onclick="editarDieta('${d.id}')"><i class="fi fi-rr-edit"></i> Editar</button>
             <button class="btn btn-sm" onclick="duplicarDieta('${d.id}')"><i class="fi fi-rr-copy"></i> Duplicar</button>
             <button class="btn btn-sm btn-danger" onclick="excluirDieta('${d.id}')"><i class="fi fi-rr-trash"></i></button>
           </div>
         </div>`
-      }).join('')
+      }).join('') + `</div>`
   el.innerHTML = filtrosHtml + listHtml
 }
 
