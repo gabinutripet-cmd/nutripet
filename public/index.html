@@ -38,8 +38,8 @@
     --red-light:#FDECEA;
     --radius:12px;
     --radius-lg:16px;
-    --shadow:0 2px 10px rgba(46,189,107,0.10);
-    --shadow-purple:0 2px 10px rgba(155,89,212,0.14);
+    --shadow:0 3px 14px rgba(46,189,107,0.14);
+    --shadow-purple:0 3px 14px rgba(155,89,212,0.18);
 
     /* Shoelace theme bridge — mapeia os tokens acima para as variáveis que os
        componentes sl-* de fato consomem (fundo claro, borda, cor sólida,
@@ -155,8 +155,8 @@
   .btn:active{transform:scale(.98);}
   .btn i{font-size:16px;}
   .btn:not(.btn-icon) i{position:relative;top:0.2em;}
-  .btn-primary{background:var(--green);border-color:var(--green);color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(46,189,107,.35);}
-  .btn-primary:hover{background:var(--green-mid);border-color:var(--green-mid);box-shadow:0 4px 12px rgba(46,189,107,.45);}
+  .btn-primary{background:var(--green);border-color:var(--green);color:#fff;font-weight:600;box-shadow:0 3px 12px rgba(46,189,107,.45);}
+  .btn-primary:hover{background:var(--green-mid);border-color:var(--green-mid);box-shadow:0 5px 18px rgba(46,189,107,.55);}
   .btn-danger{background:var(--red-light);border-color:rgba(192,57,43,.2);color:var(--red);}
   .btn-danger:hover{background:#FDDBD8;}
   .btn-sm{padding:6px 12px;font-size:12.5px;}
@@ -248,7 +248,7 @@
   .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
   .stat-box{background:var(--bg);border-radius:var(--radius-lg);padding:16px 18px;border:1.5px solid var(--border);}
   .stat-label{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;}
-  .stat-value{font-size:26px;font-weight:700;color:var(--text);margin-top:4px;font-family:'DM Mono',monospace;letter-spacing:-.02em;}
+  .stat-value{font-size:30px;font-weight:700;color:var(--text);margin-top:4px;font-family:'DM Mono',monospace;letter-spacing:-.02em;}
   .stat-unit{font-size:11px;color:var(--text-3);margin-top:2px;}
 
   /* ── INGREDIENTES ── */
@@ -480,11 +480,11 @@
     <div class="page active" id="page-painel">
       <div class="painel-grid">
         <div class="painel-main">
-          <div class="card" style="border-left:4px solid var(--blue)">
+          <div class="card" style="border-left:5px solid var(--blue)">
             <div class="card-title" style="display:flex;align-items:center;gap:8px">🐾 Em consulta <span class="badge" id="painel-em-consulta-count" style="background:var(--blue-light);color:var(--blue)"></span></div>
             <div id="painel-em-consulta"></div>
           </div>
-          <div class="card" style="border-left:4px solid var(--amber)">
+          <div class="card" style="border-left:5px solid var(--amber)">
             <div class="card-title" style="display:flex;align-items:center;gap:8px">📋 Acompanhamento <span class="badge" id="painel-acompanhamento-count" style="background:var(--amber-light);color:var(--amber)"></span></div>
             <div id="painel-acompanhamento"></div>
           </div>
@@ -1823,7 +1823,7 @@ function renderPets() {
   filtrados = [...filtrados].sort((a,b) => (a.nome_pet||'').localeCompare(b.nome_pet||'', 'pt-BR', {sensitivity:'base'}))
   if (!filtrados.length) { el.innerHTML='<div class="empty"><i class="fi fi-rr-paw"></i><p>Nenhum paciente encontrado.</p></div>'; return }
   el.innerHTML = filtrados.map(p => `
-    <div class="pet-item" style="border-left:4px solid ${p.especie==='cao'?'var(--green)':'var(--purple)'}" onclick="abrirPerfil('${p.id}')">
+    <div class="pet-item" style="border-left:5px solid ${p.especie==='cao'?'var(--green)':'var(--purple)'}" onclick="abrirPerfil('${p.id}')">
       <div style="display:flex;align-items:center;flex:1">
         <div style="display:flex;flex-direction:column;align-items:center;gap:5px;margin-right:12px">
           ${p.foto_url ? `<img src="${p.foto_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2.5px solid ${corStatusPaciente(p.status_paciente)}">` : `<div class="pet-avatar" style="margin-right:0;border-color:${corStatusPaciente(p.status_paciente)};background:${p.especie==='cao'?'var(--green-light)':'var(--purple-light)'}">${p.especie==='gato'?'🐈':'🐕'}</div>`}
@@ -2203,7 +2203,7 @@ async function abrirPerfil(id) {
 
   el.innerHTML = `
     <button class="btn" style="margin-bottom:16px" onclick="mostrarListaPets();renderPets()"><i class="fi fi-rr-arrow-left"></i> Voltar</button>
-    <div class="perfil-header" style="border-left:4px solid ${p.especie==='cao'?'var(--green)':'var(--purple)'}">
+    <div class="perfil-header" style="border-left:5px solid ${p.especie==='cao'?'var(--green)':'var(--purple)'}">
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
         ${p.foto_url
           ? `<img src="${p.foto_url}" class="foto-avatar" style="border-color:${corStatusPaciente(p.status_paciente)}" onclick="abrirModalFoto('${p.id}')" title="Clique para ver a foto">`
