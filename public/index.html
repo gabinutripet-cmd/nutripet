@@ -1749,13 +1749,13 @@ function renderPainel() {
       else grupos[info.semana].push(p)
     })
     const secoes = [[1,'Semana 1'],[2,'Semana 2'],[3,'Semana 3'],[4,'Semana 4'],['extra','Semanas extras'],['sem','Sem semana iniciada']]
-    acompanhamentoEl.innerHTML = `<div class="semana-grid">` + secoes.filter(([k]) => grupos[k].length).map(([k,label]) => `
+    acompanhamentoEl.innerHTML = `<div class="semana-grid">` + secoes.filter(([k]) => typeof k === 'number' || grupos[k].length).map(([k,label]) => `
       <div class="semana-card${k==='extra'?' semana-card-extra':''}">
         <div class="semana-card-header">
           <span>${label}</span>
           <span class="badge" style="background:var(--bg);color:var(--text-2)">${grupos[k].length}</span>
         </div>
-        <div class="paciente-chips">${grupos[k].map(chipPacienteHtml).join('')}</div>
+        <div class="paciente-chips">${grupos[k].length ? grupos[k].map(chipPacienteHtml).join('') : '<p style="font-size:11.5px;color:var(--text-3)">Nenhum paciente</p>'}</div>
       </div>`).join('') + `</div>`
   }
 
