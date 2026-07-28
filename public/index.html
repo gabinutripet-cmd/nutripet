@@ -506,7 +506,13 @@
 
     <!-- BANCO -->
     <div class="page" id="page-banco">
-      <div id="banco-lista-view"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+      <div id="banco-lista-view-wrap">
+        <div class="search-bar">
+          <input type="text" id="banco-busca" placeholder="Buscar por nome da dieta..." oninput="renderLista()">
+          <button class="btn btn-primary" id="btn-nova-dieta" onclick="bancoTab('nova')"><i class="fi fi-rr-plus"></i> Cadastrar nova dieta</button>
+        </div>
+        <div id="banco-lista-view"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+      </div>
       <div id="banco-nova-view" style="display:none">
         <div class="card">
           <div class="card-title">Identificação</div>
@@ -1321,9 +1327,7 @@ function goTo(page, el) {
   }
   document.getElementById('topbar-title').textContent = map[page][0]
   document.getElementById('topbar-sub').textContent   = map[page][1]
-  document.getElementById('topbar-actions').innerHTML = page==='banco'
-    ? '<button class="btn btn-primary" id="btn-nova-dieta" onclick="bancoTab(\'nova\')"><i class="fi fi-rr-plus"></i> Cadastrar nova dieta</button>'
-    : ''
+  document.getElementById('topbar-actions').innerHTML = ''
   if (page==='painel')    renderPainel()
   if (page==='banco')     renderLista()
   if (page==='pacientes') { mostrarListaPets(); renderPets() }
@@ -1338,16 +1342,16 @@ function setDataHoje() {
 
 // ══ BANCO ══
 function bancoTab(tab) {
-  document.getElementById('banco-lista-view').style.display = tab==='lista' ? 'block' : 'none'
+  document.getElementById('banco-lista-view-wrap').style.display = tab==='lista' ? 'block' : 'none'
   document.getElementById('banco-nova-view').style.display  = tab==='nova'  ? 'block' : 'none'
-  const btnNova = document.getElementById('btn-nova-dieta')
-  if (btnNova) btnNova.style.display = tab==='lista' ? 'inline-flex' : 'none'
   if (tab==='lista') renderLista()
   if (tab==='nova' && !editingDietId) initNova()
 }
 
 function dietaPassaFiltro(d) {
   const prots = detectarProteinas(d.ingredientes)
+  const busca = (document.getElementById('banco-busca')?.value||'').trim().toLowerCase()
+  if (busca && !(d.nome||'').toLowerCase().includes(busca)) return false
   if (filtroProteinas.length && !filtroProteinas.some(p => prots.includes(p))) return false
   if (filtroEspecie && d.especie !== filtroEspecie) return false
   if (filtroFase && d.fase !== filtroFase) return false
