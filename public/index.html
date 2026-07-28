@@ -466,11 +466,17 @@
     <!-- PAINEL -->
     <div class="page active" id="page-painel">
       <div class="card">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px">🐾 Em consulta <span class="badge" id="painel-em-consulta-count" style="background:var(--blue-light);color:var(--blue)"></span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:0">🐾 Em consulta</div>
+          <div class="stat-value" id="painel-em-consulta-count" style="color:var(--blue)">0</div>
+        </div>
         <div id="painel-em-consulta"></div>
       </div>
       <div class="card">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px">📋 Acompanhamento <span class="badge" id="painel-acompanhamento-count" style="background:var(--amber-light);color:var(--amber)"></span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:0">📋 Acompanhamento</div>
+          <div class="stat-value" id="painel-acompanhamento-count" style="color:var(--amber)">0</div>
+        </div>
         <div id="painel-acompanhamento"></div>
       </div>
       <div class="card">
