@@ -23,6 +23,7 @@
     --purple-dark:#512980;
     --purple-border:#D4AAEF;
     --bg:#F4F3EE;
+    --page-bg:#F4FBF7;
     --surface:#FFFFFF;
     --border:rgba(0,0,0,0.09);
     --border-md:rgba(0,0,0,0.16);
@@ -35,9 +36,10 @@
     --blue-light:#EAF4FB;
     --red:#C0392B;
     --red-light:#FDECEA;
-    --radius:10px;
+    --radius:12px;
     --radius-lg:16px;
-    --shadow:0 1px 4px rgba(0,0,0,0.08),0 2px 8px rgba(0,0,0,0.04);
+    --shadow:0 2px 10px rgba(46,189,107,0.10);
+    --shadow-purple:0 2px 10px rgba(155,89,212,0.14);
 
     /* Shoelace theme bridge — mapeia os tokens acima para as variáveis que os
        componentes sl-* de fato consomem (fundo claro, borda, cor sólida,
@@ -145,7 +147,7 @@
   .topbar-left{flex:1;min-width:0;}
   .topbar-left h1{font-size:18px;font-weight:700;letter-spacing:-.02em;}
   .topbar-left p{font-size:12px;color:var(--text-3);margin-top:2px;}
-  .content{flex:1;overflow-y:auto;padding:28px 32px;}
+  .content{flex:1;overflow-y:auto;padding:28px 32px;background:var(--page-bg);}
 
   /* ── BOTÕES ── */
   .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;border:1.5px solid var(--border-md);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;}
