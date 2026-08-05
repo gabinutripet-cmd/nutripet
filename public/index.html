@@ -1123,6 +1123,25 @@
     </div>
 </sl-dialog>
 
+<!-- MODAL RECORTAR FOTO -->
+<sl-dialog id="modal-crop-foto" label="Ajustar foto" class="np-dialog">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+      <div id="crop-canvas-wrap" style="position:relative;width:260px;height:260px;overflow:hidden;border-radius:50%;background:var(--bg);border:2px solid var(--border-md);cursor:grab;touch-action:none;">
+        <canvas id="crop-canvas" width="260" height="260"></canvas>
+      </div>
+      <div style="width:100%;max-width:260px;display:flex;align-items:center;gap:10px">
+        <span style="color:var(--text-3);font-size:14px;font-weight:600">−</span>
+        <input type="range" id="crop-zoom" min="0" max="100" value="0" style="flex:1" oninput="atualizarCropZoom()">
+        <span style="color:var(--text-3);font-size:14px;font-weight:600">+</span>
+      </div>
+      <p style="font-size:11px;color:var(--text-3);text-align:center;margin:0">Arraste a imagem pra posicionar e use o controle pra dar zoom.</p>
+    </div>
+    <div slot="footer" style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="cancelarCropFoto()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarCropFoto()"><i class="fi fi-rr-check"></i> Usar foto</button>
+    </div>
+</sl-dialog>
+
 <!-- MODAL VISUALIZAR DIETA -->
 <sl-dialog id="modal-ver-dieta" label="Detalhes da dieta" class="np-dialog">
     <div id="ver-dieta-body"></div>
@@ -1971,9 +1990,12 @@ function selecionarFotoNovoPet(event) {
   const file = event.target.files[0]
   if (!file) return
   if (file.size > 5 * 1024 * 1024) { toast('Imagem muito grande. Máximo 5MB.', 'error'); event.target.value=''; return }
-  fotoNovoPetArquivo = file
-  const url = URL.createObjectURL(file)
-  document.getElementById('pt-foto-preview').innerHTML = `<img src="${url}" class="foto-avatar" style="width:64px;height:64px">`
+  event.target.value = ''
+  abrirCropFoto(file, (cropped) => {
+    fotoNovoPetArquivo = cropped
+    const url = URL.createObjectURL(cropped)
+    document.getElementById('pt-foto-preview').innerHTML = `<img src="${url}" class="foto-avatar" style="width:64px;height:64px">`
+  })
 }
 
 async function excluirPet(id) {
@@ -2541,18 +2563,127 @@ async function enviarFotoPet(petId, file) {
 
 async function uploadFoto(event) {
   const file = event.target.files[0]
-  if (!file || !uploadPetId) return
-  if (file.size > 5 * 1024 * 1024) { toast('Imagem muito grande. Máximo 5MB.', 'error'); return }
-
-  toast('Enviando foto...')
-  try {
-    await enviarFotoPet(uploadPetId, file)
-    toast('Foto atualizada!')
-    abrirPerfil(uploadPetId)
-  } catch(e) {
-    toast('Erro ao enviar foto.', 'error')
-  }
+  if (!file || !uploadPetId) { event.target.value=''; return }
+  if (file.size > 5 * 1024 * 1024) { toast('Imagem muito grande. Máximo 5MB.', 'error'); event.target.value=''; return }
+  const petId = uploadPetId
   event.target.value = ''
+
+  abrirCropFoto(file, async (cropped) => {
+    toast('Enviando foto...')
+    try {
+      await enviarFotoPet(petId, cropped)
+      toast('Foto atualizada!')
+      abrirPerfil(petId)
+    } catch(e) {
+      toast('Erro ao enviar foto.', 'error')
+    }
+  })
+}
+
+// ══ RECORTE CIRCULAR DE FOTO ══
+let cropState = null
+
+function abrirCropFoto(file, onDone) {
+  const url = URL.createObjectURL(file)
+  const img = new Image()
+  img.onload = () => {
+    const size = 260
+    const minScale = Math.max(size / img.width, size / img.height)
+    cropState = { img, url, size, scale: minScale, minScale, maxScale: minScale * 3, offsetX: 0, offsetY: 0, dragging: false, onDone }
+    document.getElementById('crop-zoom').value = 0
+    desenharCrop()
+    document.getElementById('modal-crop-foto').show()
+  }
+  img.onerror = () => { URL.revokeObjectURL(url); toast('Não foi possível abrir essa imagem.', 'error') }
+  img.src = url
+}
+
+function desenharCrop() {
+  if (!cropState) return
+  const { img, size, scale, offsetX, offsetY } = cropState
+  const canvas = document.getElementById('crop-canvas')
+  const ctx = canvas.getContext('2d')
+  ctx.clearRect(0, 0, size, size)
+  const w = img.width * scale, h = img.height * scale
+  ctx.drawImage(img, (size - w) / 2 + offsetX, (size - h) / 2 + offsetY, w, h)
+}
+
+function clampCropOffset() {
+  const { img, size, scale } = cropState
+  const w = img.width * scale, h = img.height * scale
+  const maxX = Math.max(0, (w - size) / 2)
+  const maxY = Math.max(0, (h - size) / 2)
+  cropState.offsetX = Math.max(-maxX, Math.min(maxX, cropState.offsetX))
+  cropState.offsetY = Math.max(-maxY, Math.min(maxY, cropState.offsetY))
+}
+
+function atualizarCropZoom() {
+  if (!cropState) return
+  const v = parseFloat(document.getElementById('crop-zoom').value)
+  cropState.scale = cropState.minScale + (cropState.maxScale - cropState.minScale) * (v / 100)
+  clampCropOffset()
+  desenharCrop()
+}
+
+function cropPointerPos(e) {
+  const t = e.touches && e.touches[0]
+  return { x: t ? t.clientX : e.clientX, y: t ? t.clientY : e.clientY }
+}
+
+function cropDragStart(e) {
+  if (!cropState) return
+  e.preventDefault()
+  const p = cropPointerPos(e)
+  cropState.dragging = true
+  cropState.startX = p.x - cropState.offsetX
+  cropState.startY = p.y - cropState.offsetY
+}
+
+function cropDragMove(e) {
+  if (!cropState || !cropState.dragging) return
+  e.preventDefault()
+  const p = cropPointerPos(e)
+  cropState.offsetX = p.x - cropState.startX
+  cropState.offsetY = p.y - cropState.startY
+  clampCropOffset()
+  desenharCrop()
+}
+
+function cropDragEnd() { if (cropState) cropState.dragging = false }
+
+;(() => {
+  const wrap = document.getElementById('crop-canvas-wrap')
+  wrap.addEventListener('mousedown', cropDragStart)
+  window.addEventListener('mousemove', cropDragMove)
+  window.addEventListener('mouseup', cropDragEnd)
+  wrap.addEventListener('touchstart', cropDragStart, { passive:false })
+  window.addEventListener('touchmove', cropDragMove, { passive:false })
+  window.addEventListener('touchend', cropDragEnd)
+})()
+
+function cancelarCropFoto() {
+  if (cropState?.url) URL.revokeObjectURL(cropState.url)
+  cropState = null
+  document.getElementById('modal-crop-foto').hide()
+}
+
+function confirmarCropFoto() {
+  if (!cropState) return
+  const { img, size, scale, offsetX, offsetY, onDone, url } = cropState
+  const OUT = 480
+  const out = document.createElement('canvas')
+  out.width = OUT; out.height = OUT
+  const octx = out.getContext('2d')
+  const factor = OUT / size
+  const w = img.width * scale * factor, h = img.height * scale * factor
+  octx.drawImage(img, (OUT - w) / 2 + offsetX * factor, (OUT - h) / 2 + offsetY * factor, w, h)
+  out.toBlob((blob) => {
+    URL.revokeObjectURL(url)
+    const croppedFile = new File([blob], 'foto.jpg', { type: 'image/jpeg' })
+    cropState = null
+    document.getElementById('modal-crop-foto').hide()
+    onDone(croppedFile)
+  }, 'image/jpeg', 0.92)
 }
 
 // ══ ANAMNESE ══
@@ -3039,6 +3170,7 @@ function confirmarModalUpsell() {
 }
 
 document.getElementById('modal-upsell').addEventListener('sl-request-close', cancelarModalUpsell)
+document.getElementById('modal-crop-foto').addEventListener('sl-request-close', cancelarCropFoto)
 
 async function mudarStatusPaciente(petId, novoStatus, dataLembreteUpsell) {
   const p = pets.find(x => x.id === petId)
