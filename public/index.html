@@ -1664,14 +1664,34 @@ function ocultarSugestoes(sugestoesId) {
 }
 
 // ── BUSCA DE TUTOR JÁ CADASTRADO (autofill p/ +1 pet do mesmo tutor) ──
+function chaveTutor(p) {
+  return (p.cpf || p.telefone || p.email || p.nome_tutor || '').trim().toLowerCase()
+}
+
 function tutoresUnicos() {
   const vistos = new Map()
   pets.forEach(p => {
     if (!p.nome_tutor) return
-    const chave = (p.cpf || p.telefone || p.email || p.nome_tutor).trim().toLowerCase()
+    const chave = chaveTutor(p)
     if (!vistos.has(chave)) vistos.set(chave, p)
   })
   return [...vistos.values()]
+}
+
+// Outros pets que compartilham o mesmo tutor (mesmo CPF/telefone/email/nome).
+function petsDoMesmoTutor(p) {
+  const chave = chaveTutor(p)
+  if (!chave) return []
+  return pets.filter(x => x.id !== p.id && chaveTutor(x) === chave)
+}
+
+function htmlOutrosPetsDoTutor(p) {
+  const irmaos = pacientesOrdenados(petsDoMesmoTutor(p))
+  if (!irmaos.length) return ''
+  return `<div class="card">
+    <div class="card-title">🐾 Outros pets de ${p.nome_tutor}</div>
+    <div class="paciente-chips">${irmaos.map(chipPacienteHtml).join('')}</div>
+  </div>`
 }
 
 function filtrarTutores() {
@@ -2257,6 +2277,8 @@ async function abrirPerfil(id) {
         <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="fi fi-rr-calculator"></i> Nova dieta</button>
       </div>
     </div>
+
+    ${htmlOutrosPetsDoTutor(p)}
 
     <div class="perfil-tabs">
       <button class="perfil-tab active" onclick="trocarAba(this,'aba-dados','${p.id}')">📋 Dados clínicos</button>
