@@ -2194,9 +2194,11 @@ async function renderAbaAnamneses(petId) {
 }
 
 function iniciarAnamnese(petId) {
-  selecionarPetAnamnese(petId)
   goTo('anamnese',document.querySelectorAll('.nav-item')[3])
-  setTimeout(() => irParaAnamnese(), 100)
+  setTimeout(() => {
+    selecionarPetAnamnese(petId)
+    irParaAnamnese()
+  }, 100)
 }
 
 // ── PERFIL DO PET ──
