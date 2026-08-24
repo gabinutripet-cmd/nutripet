@@ -2022,7 +2022,10 @@ async function salvarPet() {
       try { await enviarFotoPet(petId, fotoNovoPetArquivo) }
       catch(e) { toast('Paciente salvo, mas houve erro ao enviar a foto.', 'error') }
     }
-    editingPetId=null; fotoNovoPetArquivo=null; fecharFormPet()
+    const eraEdicao = !!editingPetId
+    editingPetId=null; fotoNovoPetArquivo=null
+    if (eraEdicao) abrirPerfil(petId)
+    else fecharFormPet()
   } catch(e) { toast('Erro ao salvar paciente.','error') }
 }
 
