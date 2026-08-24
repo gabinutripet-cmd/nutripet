@@ -589,11 +589,14 @@
             <div class="field"><label>CPF</label><input type="text" id="pt-cpf" placeholder="000.000.000-00"></div>
             <div class="field"><label>Telefone</label><input type="text" id="pt-tel" placeholder="(11) 99999-9999"></div>
           </div>
-          <div class="form-grid form-grid-4">
+          <div class="form-grid form-grid-4" style="margin-bottom:14px">
             <div class="field"><label>E-mail</label><input type="email" id="pt-email" placeholder="email@exemplo.com"></div>
             <div class="field"><label>Cidade</label><input type="text" id="pt-cidade" list="cidades-br" placeholder="São Paulo" oninput="preencherEstadoPorCidade()"></div>
             <div class="field"><label>Estado</label><input type="text" id="pt-estado" placeholder="SP"></div>
             <div class="field"><label>País</label><input type="text" id="pt-pais" placeholder="Brasil"></div>
+          </div>
+          <div class="form-grid form-grid-4">
+            <div class="field" style="position:relative"><label>Como conheceu nosso serviço?</label><input type="text" id="pt-como-conheceu" placeholder="Ex: Instagram, Indicação, Google" autocomplete="off" oninput="filtrarValoresPet('pt-como-conheceu','pt-como-conheceu-sugestoes','como_conheceu')" onfocus="filtrarValoresPet('pt-como-conheceu','pt-como-conheceu-sugestoes','como_conheceu')" onblur="ocultarSugestoes('pt-como-conheceu-sugestoes')"><div id="pt-como-conheceu-sugestoes" class="autocomplete-list"></div></div>
           </div>
         </div>
         <div class="card">
@@ -1694,6 +1697,21 @@ function htmlOutrosPetsDoTutor(p) {
   </div>`
 }
 
+// Autocomplete genérico p/ campos de texto livre reaproveitando valores já
+// usados em outros pets (ex: "Como conheceu nosso serviço?").
+function filtrarValoresPet(inputId, sugestoesId, campo) {
+  const input = document.getElementById(inputId)
+  const sugestoesEl = document.getElementById(sugestoesId)
+  const todos = [...new Set(pets.map(p => (p[campo]||'').trim()).filter(Boolean))].sort()
+  const q = input.value.trim().toLowerCase()
+  const matches = q ? todos.filter(v => v.toLowerCase().includes(q)).slice(0, 8) : todos.slice(0, 8)
+  if (!matches.length) { sugestoesEl.style.display = 'none'; return }
+  sugestoesEl.innerHTML = matches.map(v =>
+    `<div class="autocomplete-item" onmousedown="selecionarSugestao('${inputId}','${sugestoesId}','${v.replace(/'/g,"\\'")}')">${v}</div>`
+  ).join('')
+  sugestoesEl.style.display = 'block'
+}
+
 function filtrarTutores() {
   const input = document.getElementById('busca-tutor')
   const sugestoesEl = document.getElementById('busca-tutor-sugestoes')
@@ -1895,7 +1913,7 @@ function renderPets() {
 function abrirNovoPet() {
   editingPetId=null
   document.getElementById('busca-tutor').value=''
-  ;['pt-tutor','pt-cpf','pt-tel','pt-email','pt-cidade','pt-estado','pt-pais','pt-nome','pt-raca','pt-exercicios','pt-historico','pt-objetivos','pt-obs-estilo'].forEach(id=>document.getElementById(id).value='')
+  ;['pt-tutor','pt-cpf','pt-tel','pt-email','pt-cidade','pt-estado','pt-pais','pt-como-conheceu','pt-nome','pt-raca','pt-exercicios','pt-historico','pt-objetivos','pt-obs-estilo'].forEach(id=>document.getElementById(id).value='')
   ;['pt-especie','pt-sexo','pt-castrado','pt-dentropes','pt-tipdieta','pt-atividade','pt-ambiente','pt-convivencia','pt-porte'].forEach(id=>document.getElementById(id).value='')
   document.getElementById('pt-especie').value='cao'
   document.getElementById('pt-status').value='em_consulta'
@@ -1918,6 +1936,7 @@ function editarPet(id) {
   document.getElementById('pt-cpf').value=p.cpf||''
   document.getElementById('pt-tel').value=p.telefone||''
   document.getElementById('pt-email').value=p.email||''
+  document.getElementById('pt-como-conheceu').value=p.como_conheceu||''
   document.getElementById('pt-cidade').value=p.cidade||''
   document.getElementById('pt-estado').value=p.estado||''
   document.getElementById('pt-pais').value=p.pais||''
@@ -1964,6 +1983,7 @@ async function salvarPet() {
     cpf:document.getElementById('pt-cpf').value.trim()||null,
     telefone:document.getElementById('pt-tel').value.trim()||null,
     email:document.getElementById('pt-email').value.trim()||null,
+    como_conheceu:document.getElementById('pt-como-conheceu').value.trim()||null,
     cidade:document.getElementById('pt-cidade').value.trim()||null,
     estado:document.getElementById('pt-estado').value.trim()||null,
     pais:document.getElementById('pt-pais').value.trim()||null,
@@ -2238,6 +2258,7 @@ async function abrirPerfil(id) {
         <div class="info-box"><div class="info-box-label">Ambiente</div><div class="info-box-val">${ambienteMap(p.ambiente)}</div></div>
         <div class="info-box"><div class="info-box-label">Convivência com animais</div><div class="info-box-val">${bool(p.convivencia_animais)}</div></div>
         <div class="info-box"><div class="info-box-label">Cidade / Estado / País</div><div class="info-box-val">${[p.cidade,p.estado,p.pais].filter(Boolean).join(' / ')||'—'}</div></div>
+        <div class="info-box"><div class="info-box-label">Como conheceu</div><div class="info-box-val">${p.como_conheceu||'—'}</div></div>
       </div>
       ${p.obs_estilo_vida?`<p style="font-size:13px;color:var(--text-2);line-height:1.6;margin-top:14px">${p.obs_estilo_vida}</p>`:''}
     </div>
