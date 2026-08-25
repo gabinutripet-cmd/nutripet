@@ -305,6 +305,10 @@
 
   /* ── HISTÓRICO ── */
   .hist-item{background:var(--bg);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border:1.5px solid var(--border);}
+  .diario-timeline{position:relative;padding-left:22px;margin-top:16px;}
+  .diario-timeline::before{content:'';position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--border-md);}
+  .diario-item{position:relative;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;box-shadow:var(--shadow);}
+  .diario-item::before{content:'';position:absolute;left:-21px;top:18px;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--surface);box-shadow:0 0 0 2px var(--border-md);}
   .hist-data{font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
   .hist-dieta{font-size:14px;font-weight:600;margin-top:3px;}
   .hist-vals{font-size:12px;color:var(--text-2);margin-top:3px;font-family:'DM Mono',monospace;}
@@ -1142,6 +1146,39 @@
     <div slot="footer" style="display:flex;gap:8px;justify-content:flex-end">
       <button class="btn" onclick="cancelarCropFoto()">Cancelar</button>
       <button class="btn btn-primary" onclick="confirmarCropFoto()"><i class="fi fi-rr-check"></i> Usar foto</button>
+    </div>
+</sl-dialog>
+
+<!-- MODAL DIÁRIO DE ACOMPANHAMENTO (IA) -->
+<sl-dialog id="modal-diario" label="Atualizar diário de acompanhamento" class="np-dialog">
+    <div id="diario-passo-notas">
+      <div class="field" style="margin-bottom:14px">
+        <label>Anotações (texto livre)</label>
+        <textarea id="diario-texto" rows="5" placeholder="Ex: Pet está comendo bem, evacuação normal, tutor relatou mais disposição nos passeios..."></textarea>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Fotos (opcional — usadas só pra IA ler, não ficam salvas)</label>
+        <input type="file" id="diario-fotos" accept="image/*" multiple onchange="selecionarFotosDiario(event)">
+        <div id="diario-fotos-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      </div>
+      <button class="btn btn-primary" onclick="gerarRascunhoDiario()"><i class="fi fi-rr-file-edit"></i> Gerar resumo com IA</button>
+    </div>
+    <div id="diario-passo-rascunho" style="display:none">
+      <div class="card" style="background:var(--green-light);border-color:var(--green-border);margin-bottom:14px">
+        <div class="card-title" style="color:var(--green-dark)">Resumo gerado pela IA</div>
+        <p id="diario-rascunho-texto" style="font-size:13.5px;color:var(--text);line-height:1.6;white-space:pre-wrap;margin:0"></p>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Pedir ajuste (opcional)</label>
+        <input type="text" id="diario-ajuste" placeholder="Ex: deixa mais curto, menciona o peso...">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="ajustarRascunhoDiario()"><i class="fi fi-rr-refresh"></i> Ajustar</button>
+        <button class="btn btn-primary" onclick="publicarDiario()"><i class="fi fi-rr-check"></i> Publicar no diário</button>
+      </div>
+    </div>
+    <div slot="footer" style="display:flex;justify-content:flex-end">
+      <button class="btn" onclick="fecharModalDiario()">Cancelar</button>
     </div>
 </sl-dialog>
 
@@ -2054,11 +2091,12 @@ function fecharFormPet() {
 function trocarAba(el, abaId, petId) {
   document.querySelectorAll('.perfil-tab').forEach(t => t.classList.remove('active'))
   el.classList.add('active')
-  document.querySelectorAll('#aba-dados,#aba-medidas,#aba-anamneses,#aba-consultas').forEach(a => a.style.display='none')
+  document.querySelectorAll('#aba-dados,#aba-medidas,#aba-anamneses,#aba-consultas,#aba-diario').forEach(a => a.style.display='none')
   document.getElementById(abaId).style.display = 'block'
   if (abaId === 'aba-medidas'   && petId) renderAbaMedias(petId)
   if (abaId === 'aba-anamneses' && petId) renderAbaAnamneses(petId)
   if (abaId === 'aba-consultas' && petId) renderAbaConsultas(petId)
+  if (abaId === 'aba-diario'    && petId) renderAbaDiario(petId)
 }
 
 let consultasCache = {}
@@ -2094,6 +2132,114 @@ async function renderAbaConsultas(petId) {
         </div>
       </div>`
     }).join('')
+}
+
+let diarioCache = {}
+
+async function renderAbaDiario(petId) {
+  const el = document.getElementById('perfil-tab-diario')
+  if (!el) return
+  el.innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>'
+  let lista = []
+  try { lista = await apiFetch(`/pets/${petId}/diario`) } catch(e) {}
+  diarioCache[petId] = lista
+  if (!lista.length) {
+    el.innerHTML = `<div class="empty"><i class="fi fi-rr-book"></i><p>Nenhum registro no diário ainda.</p></div>
+      <div style="text-align:center;margin-top:16px"><button class="btn btn-primary" onclick="abrirModalDiario('${petId}')"><i class="fi fi-rr-plus"></i> Atualizar diário</button></div>`
+    return
+  }
+  el.innerHTML = `<div class="section-header"><div class="card-title" style="margin-bottom:0">Diário de acompanhamento</div>
+      <button class="btn btn-sm btn-primary" onclick="abrirModalDiario('${petId}')"><i class="fi fi-rr-plus"></i> Nova entrada</button>
+    </div>
+    <div class="diario-timeline">` + lista.map(d => {
+      const dataFmt = new Date(d.created_at).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+      return `<div class="diario-item">
+        <div class="hist-data">${dataFmt}</div>
+        <p style="font-size:13.5px;color:var(--text);line-height:1.6;margin-top:6px;white-space:pre-wrap">${d.resumo}</p>
+      </div>`
+    }).join('') + `</div>`
+}
+
+// ── DIÁRIO DE ACOMPANHAMENTO (chat com IA) ──
+let diarioState = null
+
+function abrirModalDiario(petId) {
+  diarioState = { petId, imagens: [], mensagens: [], resumoAtual: '' }
+  document.getElementById('diario-texto').value = ''
+  document.getElementById('diario-fotos').value = ''
+  document.getElementById('diario-fotos-preview').innerHTML = ''
+  document.getElementById('diario-ajuste').value = ''
+  document.getElementById('diario-passo-notas').style.display = 'block'
+  document.getElementById('diario-passo-rascunho').style.display = 'none'
+  document.getElementById('modal-diario').show()
+}
+
+function fecharModalDiario() {
+  diarioState = null
+  document.getElementById('modal-diario').hide()
+}
+
+function selecionarFotosDiario(event) {
+  const files = [...event.target.files].slice(0, 4)
+  const preview = document.getElementById('diario-fotos-preview')
+  preview.innerHTML = ''
+  diarioState.imagens = []
+  files.forEach(file => {
+    if (file.size > 4 * 1024 * 1024) { toast(`"${file.name}" é muito grande (máx. 4MB).`, 'error'); return }
+    const reader = new FileReader()
+    reader.onload = () => {
+      diarioState.imagens.push({ data: reader.result.split(',')[1], mediaType: file.type })
+      const img = document.createElement('img')
+      img.src = reader.result
+      img.style.cssText = 'width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--border-md)'
+      preview.appendChild(img)
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+async function gerarRascunhoDiario() {
+  const texto = document.getElementById('diario-texto').value.trim()
+  if (!texto && !diarioState.imagens.length) { toast('Escreva algo ou anexe uma foto.', 'error'); return }
+  const content = diarioState.imagens.map(img => ({ type:'image', source:{ type:'base64', media_type:img.mediaType, data:img.data } }))
+  content.push({ type:'text', text: texto || 'Veja as fotos anexadas.' })
+  diarioState.mensagens.push({ role:'user', content })
+  await chamarRascunhoDiario()
+}
+
+async function ajustarRascunhoDiario() {
+  const ajuste = document.getElementById('diario-ajuste').value.trim()
+  if (!ajuste) { toast('Descreva o ajuste que você quer.', 'error'); return }
+  diarioState.mensagens.push({ role:'assistant', content: diarioState.resumoAtual })
+  diarioState.mensagens.push({ role:'user', content: ajuste })
+  document.getElementById('diario-ajuste').value = ''
+  await chamarRascunhoDiario()
+}
+
+async function chamarRascunhoDiario() {
+  toast('Gerando resumo com IA...')
+  try {
+    const resp = await apiFetch(`/pets/${diarioState.petId}/diario?action=rascunho`, { method:'POST', body:{ messages: diarioState.mensagens } })
+    diarioState.resumoAtual = resp.resumo
+    document.getElementById('diario-rascunho-texto').textContent = resp.resumo
+    document.getElementById('diario-passo-notas').style.display = 'none'
+    document.getElementById('diario-passo-rascunho').style.display = 'block'
+  } catch(e) {
+    toast('Erro ao gerar resumo com a IA.', 'error')
+  }
+}
+
+async function publicarDiario() {
+  if (!diarioState?.resumoAtual) return
+  const petId = diarioState.petId
+  try {
+    await apiFetch(`/pets/${petId}/diario`, { method:'POST', body:{ resumo: diarioState.resumoAtual } })
+    toast('Diário atualizado!')
+    fecharModalDiario()
+    if (document.getElementById('pacientes-perfil-view')?.dataset.petid === petId) renderAbaDiario(petId)
+  } catch(e) {
+    toast('Erro ao publicar no diário.', 'error')
+  }
 }
 
 async function excluirConsultaHistorico(consultaId, petId) {
@@ -2299,6 +2445,7 @@ async function abrirPerfil(id) {
         ${p.status_paciente!=='acompanhamento'?`<button class="btn btn-sm" onclick="iniciarAcompanhamento('${p.id}')"><i class="fi fi-rr-flag"></i> Iniciar 1ª semana de acompanhamento</button>`:''}
         <button class="btn btn-sm" onclick="editarPet('${p.id}')"><i class="fi fi-rr-edit"></i> Editar</button>
         <button class="btn btn-sm" onclick="abrirModalMedidas('${p.id}')"><i class="fi fi-rr-ruler-horizontal"></i> Peso e medidas</button>
+        <button class="btn btn-sm" onclick="abrirModalDiario('${p.id}')"><i class="fi fi-rr-book"></i> Atualizar diário</button>
         <button class="btn btn-sm" onclick="window.open('/exportar.html?pet=${p.id}','_blank')"><i class="fi fi-rr-file-download"></i> Exportar PDF</button>
         <button class="btn btn-sm btn-primary" onclick="iniciarConsultaPet('${p.id}',null,${p.peso_atual||''})"><i class="fi fi-rr-calculator"></i> Nova dieta</button>
       </div>
@@ -2311,6 +2458,7 @@ async function abrirPerfil(id) {
       <button class="perfil-tab" onclick="trocarAba(this,'aba-medidas','${p.id}')">📏 Diário de medidas</button>
       <button class="perfil-tab" onclick="trocarAba(this,'aba-anamneses','${p.id}')">📄 Anamneses</button>
       <button class="perfil-tab" onclick="trocarAba(this,'aba-consultas','${p.id}')">📅 Histórico de dietas</button>
+      <button class="perfil-tab" onclick="trocarAba(this,'aba-diario','${p.id}')">📔 Diário</button>
     </div>
 
     <div id="aba-dados">
@@ -2324,6 +2472,9 @@ async function abrirPerfil(id) {
     </div>
     <div id="aba-consultas" style="display:none">
       <div id="perfil-tab-consultas"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
+    </div>
+    <div id="aba-diario" style="display:none">
+      <div id="perfil-tab-diario"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
     </div>
     <div style="padding-bottom:30px"></div>`
 }
@@ -3218,6 +3369,8 @@ function confirmarModalUpsell() {
 }
 
 document.getElementById('modal-upsell').addEventListener('sl-request-close', cancelarModalUpsell)
+
+document.getElementById('modal-diario').addEventListener('sl-request-close', fecharModalDiario)
 document.getElementById('modal-crop-foto').addEventListener('sl-request-close', cancelarCropFoto)
 
 async function mudarStatusPaciente(petId, novoStatus, dataLembreteUpsell) {
