@@ -2178,19 +2178,51 @@ function renderMensagemChatDiario(autor, texto, imagensBase64) {
   chat.scrollTop = chat.scrollHeight
 }
 
-function adicionarAnexoDiario(file) {
-  if (file.size > 4 * 1024 * 1024) { toast(`"${file.name||'imagem'}" é muito grande (máx. 4MB).`, 'error'); return }
+// Redimensiona a imagem (lado maior <= 1568px) e recomprime como JPEG antes
+// de virar base64 — evita payloads gigantes de prints/fotos direto da câmera.
+function redimensionarImagemDiario(file) {
+  return new Promise((resolve, reject) => {
+    if (file.size > 12 * 1024 * 1024) { reject(new Error(`"${file.name||'imagem'}" é muito grande (máx. 12MB).`)); return }
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      const MAX = 1568
+      let { width, height } = img
+      if (width > MAX || height > MAX) {
+        const escala = MAX / Math.max(width, height)
+        width = Math.round(width * escala)
+        height = Math.round(height * escala)
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width; canvas.height = height
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+      URL.revokeObjectURL(url)
+      canvas.toBlob(blob => {
+        if (!blob) { reject(new Error('Não foi possível processar a imagem.')); return }
+        const reader = new FileReader()
+        reader.onload = () => resolve({ data: reader.result.split(',')[1], mediaType: 'image/jpeg' })
+        reader.onerror = () => reject(new Error('Não foi possível ler a imagem.'))
+        reader.readAsDataURL(blob)
+      }, 'image/jpeg', 0.85)
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Não foi possível abrir essa imagem.')) }
+    img.src = url
+  })
+}
+
+async function adicionarAnexoDiario(file) {
   if (diarioState.anexosAtuais.length >= 4) { toast('Máximo de 4 imagens por mensagem.', 'error'); return }
-  const reader = new FileReader()
-  reader.onload = () => {
-    diarioState.anexosAtuais.push({ data: reader.result.split(',')[1], mediaType: file.type })
+  try {
+    const imagem = await redimensionarImagemDiario(file)
+    diarioState.anexosAtuais.push(imagem)
     const preview = document.getElementById('diario-anexos-preview')
     const img = document.createElement('img')
-    img.src = reader.result
+    img.src = `data:${imagem.mediaType};base64,${imagem.data}`
     img.style.cssText = 'width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid var(--border-md)'
     preview.appendChild(img)
+  } catch(e) {
+    toast(e.message || 'Erro ao processar imagem.', 'error')
   }
-  reader.readAsDataURL(file)
 }
 
 function selecionarFotosDiario(event) {
@@ -2228,6 +2260,7 @@ async function enviarMensagemDiario() {
 
   try {
     const resp = await apiFetch(`/pets/${diarioState.petId}/diario?action=rascunho`, { method:'POST', body:{ messages: diarioState.mensagens } })
+    if (!resp || resp.error || !resp.resumo) throw new Error(resp?.error || 'A IA não retornou um resumo.')
     diarioState.mensagens.push({ role:'assistant', content: resp.resumo })
     diarioState.resumoAtual = resp.resumo
     loadingEl.remove()
@@ -2235,7 +2268,7 @@ async function enviarMensagemDiario() {
     document.getElementById('diario-publicar-btn').style.display = 'inline-flex'
   } catch(e) {
     loadingEl.remove()
-    toast('Erro ao gerar resumo com a IA.', 'error')
+    toast(e.message || 'Erro ao gerar resumo com a IA.', 'error')
   }
 }
 
