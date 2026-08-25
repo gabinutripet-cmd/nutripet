@@ -28,12 +28,18 @@ function paraGeminiContents(mensagens) {
 // disco/storage); o que fica gravado no diário é só o texto final publicado.
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (!(await requireUser(req, res))) return
 
-  const { id, action } = req.query
+  const { id, action, entryId } = req.query
+
+  if (req.method === 'DELETE' && entryId) {
+    const { error } = await supabase.from('diario_pets').delete().eq('id', entryId).eq('pet_id', id)
+    if (error) return res.status(500).json({ error: error.message })
+    return res.status(204).end()
+  }
 
   if (req.method === 'POST' && action === 'rascunho') {
     const { messages } = req.body
