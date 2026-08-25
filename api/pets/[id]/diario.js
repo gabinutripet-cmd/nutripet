@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { requireUser } from '../../../lib/auth.js'
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
 
-const GEMINI_MODEL = 'gemini-2.0-flash'
+const GEMINI_MODEL = 'gemini-3.6-flash'
 
 // Converte o histórico de mensagens (formato genérico: role user/assistant,
 // content string ou array de blocos {type:'text'|'image', ...}) pro formato
