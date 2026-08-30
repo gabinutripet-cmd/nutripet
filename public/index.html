@@ -388,6 +388,32 @@
   .foto-placeholder:hover{border-color:var(--green);background:#D1FAE5;}
   .foto-upload-hint{font-size:10px;color:var(--text-3);margin-top:4px;text-align:center;}
 
+  /* ── FINANCEIRO ── */
+  .fin-monthbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+  .fin-monthnav{display:flex;align-items:center;gap:8px;}
+  .fin-mes-label{font-size:15px;font-weight:700;color:var(--text);min-width:150px;text-align:center;}
+  .fin-delta{font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:3px;}
+  .fin-delta.up{color:var(--green-mid);}
+  .fin-delta.down{color:var(--red);}
+  .fin-delta.flat{color:var(--text-3);}
+  .fin-bar-track{position:relative;height:26px;background:var(--bg);border-radius:6px;overflow:hidden;}
+  .fin-bar-fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;}
+  .fin-week-grid{display:grid;grid-template-columns:auto 1fr auto;gap:10px 12px;align-items:center;}
+  .fin-week-label{font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+  .fin-week-val{font-family:'DM Mono',monospace;font-size:12.5px;color:var(--text);white-space:nowrap;}
+  .fin-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);}
+  .fin-item:last-child{border-bottom:none;}
+  .fin-item-date{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text-3);flex-shrink:0;width:52px;}
+  .fin-item-main{flex:1;min-width:0;}
+  .fin-item-name{font-size:13.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .fin-item-sub{font-size:11px;color:var(--text-3);margin-top:1px;}
+  .fin-item-val{font-family:'DM Mono',monospace;font-size:13.5px;font-weight:500;color:var(--text);flex-shrink:0;}
+  .fin-item-actions{display:flex;gap:4px;flex-shrink:0;}
+  .fin-item.clickable{cursor:pointer;border-radius:8px;}
+  .fin-item.clickable:hover{background:var(--bg);}
+  .fin-total-row{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 2px;font-weight:700;font-size:14px;border-top:2px solid var(--border-md);margin-top:4px;}
+  .fin-total-row span:last-child{font-family:'DM Mono',monospace;}
+
   /* ── RESPONSIVO ── */
   .menu-toggle{display:none;background:none;border:none;cursor:pointer;color:var(--text);font-size:20px;padding:6px;margin-right:10px;border-radius:8px;flex-shrink:0;}
   .menu-toggle:hover{background:var(--bg);}
@@ -419,6 +445,12 @@
     .pet-item>div:first-child{flex:1 1 100%;}
     .cp-card{padding:20px;}
     .cp-calcs{grid-template-columns:1fr 1fr;}
+    .fin-item{flex-wrap:wrap;}
+    .fin-item-main{flex:1 1 60%;}
+    .fin-item-val{margin-left:auto;}
+    .fin-week-grid{grid-template-columns:1fr auto;gap:9px 12px;}
+    .fin-week-grid .fin-bar-track{display:none;}
+    .fin-week-val{text-align:right;}
   }
 </style>
 </head>
@@ -459,6 +491,8 @@
     <div class="nav-item" onclick="goTo('anamnese',this)"><i class="fi fi-rr-clipboard-check"></i> Iniciar consulta</div>
     <div class="nav-item" onclick="goTo('consulta',this)"><i class="fi fi-rr-calculator"></i> Plano nutricional</div>
     <div class="nav-item" onclick="goTo('cardapio',this)"><i class="fi fi-rr-document"></i> Cardápio gerado</div>
+    <div class="nav-group-label">Gestão</div>
+    <div class="nav-item" onclick="goTo('financeiro',this)"><i class="fi fi-rr-sack-dollar"></i> Financeiro</div>
   </div>
   <div class="sidebar-footer"><span id="sb-count">0</span> dietas · <span id="sb-pets">0</span> pacientes<br><a href="https://www.flaticon.com/uicons" target="_blank" rel="noopener" style="color:var(--text-3);font-size:9.5px;text-decoration:none">Uicons by Flaticon</a></div>
   <div id="sb-user">
@@ -819,8 +853,9 @@
             <span style="background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span>
             Dados clínicos na consulta
           </div>
-          <div class="form-grid form-grid-3">
+          <div class="form-grid form-grid-4">
             <div class="field"><label>Data da consulta</label><input type="date" id="an-data"></div>
+            <div class="field"><label>Valor da consulta (R$)</label><input type="number" id="an-valor" step="0.01" min="0" inputmode="decimal" placeholder="Ex: 250"></div>
             <div class="field field-var"><label>Peso na consulta (kg)</label><input type="number" id="an-peso" step="0.1" min="0" placeholder="Ex: 12.5"></div>
             <div class="field"><label>Fator NEM utilizado</label>
               <select id="an-fator-nem">
@@ -985,6 +1020,20 @@
         <button class="btn" onclick="goTo('consulta',document.querySelectorAll('.nav-item')[4])"><i class="fi fi-rr-plus"></i> Nova dieta</button>
       </div>
       <div id="cardapio-output"></div>
+    </div>
+
+    <!-- FINANCEIRO -->
+    <div class="page" id="page-financeiro">
+      <div class="fin-monthbar">
+        <div class="fin-monthnav">
+          <button class="btn btn-icon" onclick="financeiroNavMes(-1)" aria-label="Mês anterior"><i class="fi fi-rr-arrow-left"></i></button>
+          <div class="fin-mes-label" id="fin-mes-label">—</div>
+          <button class="btn btn-icon" onclick="financeiroNavMes(1)" aria-label="Próximo mês"><i class="fi fi-rr-arrow-right"></i></button>
+          <button class="btn btn-sm" id="fin-btn-hoje" onclick="financeiroIrHoje()" style="display:none">Mês atual</button>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="abrirModalLancamento()"><i class="fi fi-rr-plus"></i> Novo lançamento</button>
+      </div>
+      <div id="financeiro-conteudo"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
     </div>
 
   </div>
@@ -1258,6 +1307,28 @@
     </div>
 </sl-dialog>
 
+<!-- MODAL LANÇAMENTO FINANCEIRO AVULSO -->
+<sl-dialog id="modal-lancamento" label="Lançamento avulso" class="np-dialog">
+    <p style="font-size:12.5px;color:var(--text-3);margin:0 0 16px">Para receitas que não passam por uma anamnese nova — retornos, pacotes, avaliações extras.</p>
+    <div class="form-grid form-grid-2" style="margin-bottom:14px">
+      <div class="field"><label>Data</label><input type="date" id="lanc-data"></div>
+      <div class="field"><label>Valor (R$)</label><input type="number" id="lanc-valor" step="0.01" min="0" inputmode="decimal" placeholder="Ex: 150"></div>
+    </div>
+    <div class="field" style="margin-bottom:14px"><label>Paciente (opcional)</label>
+      <select id="lanc-pet"><option value="">— nenhum —</option></select>
+    </div>
+    <div class="field"><label>Descrição (opcional)</label>
+      <input type="text" id="lanc-descricao" placeholder="Ex: Retorno · Pacote 4 consultas · Avaliação">
+    </div>
+    <div slot="footer" style="display:flex;gap:8px;justify-content:space-between">
+      <button class="btn btn-danger btn-sm" id="lanc-btn-excluir" onclick="excluirLancamento()" style="display:none"><i class="fi fi-rr-trash"></i> Excluir</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn" onclick="document.getElementById('modal-lancamento').hide()">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarLancamento()"><i class="fi fi-rr-check"></i> Salvar</button>
+      </div>
+    </div>
+</sl-dialog>
+
 <script>
 const API = '/api'
 let dietas = [], pets = [], selectedDietId = null, editingDietId = null, editingPetId = null
@@ -1409,6 +1480,7 @@ function goTo(page, el) {
     anamnese:  ['Iniciar consulta',  'Selecione o paciente e preencha a anamnese'],
     consulta:  ['Plano nutricional', 'Preencha os dados e gere o cardápio'],
     cardapio:  ['Cardápio gerado',   'Pronto para imprimir ou salvar como PDF'],
+    financeiro:['Financeiro',        'Balanço mensal do consultório'],
   }
   document.getElementById('topbar-title').textContent = map[page][0]
   document.getElementById('topbar-sub').textContent   = map[page][1]
@@ -1418,6 +1490,7 @@ function goTo(page, el) {
   if (page==='pacientes') { mostrarListaPets(); renderPets() }
   if (page==='anamnese')  resetAnamnese()
   if (page==='consulta')  { renderConsultaDietas(); setDataHoje() }
+  if (page==='financeiro') renderFinanceiro()
 }
 
 function setDataHoje() {
@@ -1848,6 +1921,33 @@ function pacientesOrdenados(lista) {
 
 const MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']
 
+// ── HELPERS FINANCEIRO / DATAS ──
+function formatBRL(v) {
+  return (Number(v) || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' })
+}
+// 'YYYY-MM' do mês vigente
+function mesAtualYM() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
+}
+// desloca um 'YYYY-MM' por N meses (N pode ser negativo)
+function ymShift(ym, delta) {
+  const [ano, mes] = ym.split('-').map(Number)
+  const d = new Date(ano, (mes - 1) + delta, 1)
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
+}
+// 'Agosto de 2026' a partir de 'YYYY-MM'
+function labelMesAno(ym) {
+  const [ano, mes] = ym.split('-').map(Number)
+  const m = MESES_PT[mes-1]
+  return `${m.charAt(0).toUpperCase()}${m.slice(1)} de ${ano}`
+}
+// nº de dias do mês de um 'YYYY-MM'
+function diasNoMes(ym) {
+  const [ano, mes] = ym.split('-').map(Number)
+  return new Date(ano, mes, 0).getDate()
+}
+
 function renderPainel() {
   const emConsultaCountEl = document.getElementById('painel-em-consulta-count')
   if (!emConsultaCountEl) return
@@ -2132,7 +2232,8 @@ async function renderAbaConsultas(petId) {
   if (!el) return
   el.innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>'
   let lista = []
-  try { lista = await apiFetch(`/pets/${petId}/consultas`) } catch(e) {}
+  // O endpoint /pets/:id já devolve { pet, consultas:[...] } com a dieta embutida.
+  try { const r = await apiFetch(`/pets/${petId}`); lista = r?.consultas || [] } catch(e) {}
   consultasCache[petId] = lista
   const p = pets.find(x => x.id === petId)
   if (!lista.length) {
@@ -2399,6 +2500,7 @@ function anamneseSecoes(a) {
   return [
     ['Dados clínicos na consulta', [
       ['Data da consulta', dataFmt],
+      ['Valor da consulta', a.valor!=null ? formatBRL(a.valor) : null],
       ['Peso na consulta', a.peso_consulta!=null ? a.peso_consulta+' kg' : null],
       ['Fator NEM utilizado', a.fator_nem],
     ]],
@@ -3152,6 +3254,7 @@ function irParaAnamnese() {
   const p = pets.find(x => x.id === anamnesePetId)
   // Preencher campos com dados do cadastro
   document.getElementById('an-data').value = new Date().toISOString().split('T')[0]
+  document.getElementById('an-valor').value = ''
   document.getElementById('an-peso').value = p?.peso_atual || ''
   // Sugerir fator baseado em atividade
   if (p?.nivel_atividade === 'alto') document.getElementById('an-fator-nem').value = 'Cães Ativos - 140'
@@ -3201,6 +3304,7 @@ function preencherFormAnamnese(petId, a) {
   editingAnamneseId = a.id
   const boolSel = v => v===null||v===undefined?'':String(v)
   document.getElementById('an-data').value = a.data_consulta || ''
+  document.getElementById('an-valor').value = a.valor ?? ''
   document.getElementById('an-peso').value = a.peso_consulta ?? ''
   document.getElementById('an-fator-nem').value = a.fator_nem || ''
   document.getElementById('an-por-que-peso').value = a.por_que_peso_atual || ''
@@ -3263,6 +3367,7 @@ async function salvarAnamnese(irParaPlano) {
   const boolVal = (id) => { const v = document.getElementById(id).value; return v===''?null:v==='true' }
   const body = {
     data_consulta:     document.getElementById('an-data').value || new Date().toISOString().split('T')[0],
+    valor:             parseFloat(document.getElementById('an-valor').value) || null,
     peso_consulta:     parseFloat(document.getElementById('an-peso').value) || null,
     fator_nem:         document.getElementById('an-fator-nem').value || null,
     por_que_peso_atual:document.getElementById('an-por-que-peso').value.trim() || null,
@@ -3316,6 +3421,7 @@ async function salvarAnamnese(irParaPlano) {
     }
     toast(wasEditing ? 'Anamnese atualizada!' : 'Anamnese salva!')
     editingAnamneseId = null
+    financeiroData = null  // o valor da consulta pode ter mudado
     if (irParaPlano) {
       iniciarConsultaPet(petIdAtual, null, peso || p?.peso_atual)
     } else if (wasEditing) {
@@ -3328,6 +3434,375 @@ async function salvarAnamnese(irParaPlano) {
       goTo('pacientes', document.querySelectorAll('.nav-item')[2])
     }
   } catch(e) { toast('Erro ao salvar anamnese.', 'error') }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  FINANCEIRO — balanço mensal do consultório
+// ══════════════════════════════════════════════════════════════════
+// financeiroData: { consultas:[{id,pet_id,data,valor|null}], lancamentos:[{id,pet_id,descricao,data,valor}] }
+//   "consultas" = anamneses (valor cobrado, data_consulta como data de entrada).
+//   "lancamentos" = valores avulsos (retornos, pacotes) sem anamnese nova.
+let financeiroData = null
+let financeiroMes = mesAtualYM()
+let editingLancamentoId = null
+
+function nomeMes(ym) { return MESES_PT[parseInt(ym.slice(5,7), 10) - 1] }
+
+function financeiroNavMes(delta) {
+  financeiroMes = ymShift(financeiroMes, delta)
+  renderFinanceiro()
+}
+function financeiroIrHoje() {
+  financeiroMes = mesAtualYM()
+  renderFinanceiro()
+}
+function irParaPerfilPet(petId) {
+  goTo('pacientes', document.querySelectorAll('.nav-item')[2])
+  abrirPerfil(petId)
+}
+
+// Abre a anamnese daquela consulta direto no modo edição (pra preencher o valor).
+async function editarConsultaValor(anamneseId, petId) {
+  goTo('anamnese', document.querySelectorAll('.nav-item')[3])
+  try {
+    let lista = anamnesesCache[petId]
+    if (!lista) { lista = await apiFetch(`/pets/${petId}/anamneses`); anamnesesCache[petId] = lista }
+    const a = lista.find(x => x.id === anamneseId)
+    if (a) preencherFormAnamnese(petId, a)
+    else toast('Anamnese não encontrada.', 'error')
+  } catch(e) { toast('Erro ao abrir a anamnese.', 'error') }
+}
+
+async function renderFinanceiro() {
+  const wrap = document.getElementById('financeiro-conteudo')
+  if (!wrap) return
+
+  document.getElementById('fin-mes-label').textContent = labelMesAno(financeiroMes)
+  document.getElementById('fin-btn-hoje').style.display =
+    financeiroMes === mesAtualYM() ? 'none' : 'inline-flex'
+
+  if (!financeiroData) {
+    wrap.innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>'
+    try { financeiroData = await apiFetch('/financeiro') }
+    catch(e) {
+      wrap.innerHTML = `<div class="card"><div class="empty">
+        <i class="fi fi-rr-triangle-warning"></i>
+        <p>Não foi possível carregar os dados financeiros.</p>
+        <p style="font-size:12px;margin-top:6px;color:var(--text-3)">Confira se as migrações do banco (coluna <code>valor</code> em anamneses e a tabela <code>lancamentos_financeiros</code>) já foram aplicadas.</p>
+      </div></div>`
+      return
+    }
+  }
+
+  const ym = financeiroMes
+  const ymAnt = ymShift(ym, -1)
+  const entradas = entradasDoMes(ym)
+  const entradasAnt = entradasDoMes(ymAnt)
+  const semValor = consultasSemValorNoMes(ym)
+
+  const consultasMes = entradas.filter(e => e.tipo === 'consulta')
+  const receita = entradas.reduce((s, e) => s + e.valor, 0)
+  const receitaConsultas = consultasMes.reduce((s, e) => s + e.valor, 0)
+  const nConsultas = consultasMes.length
+  const ticket = nConsultas ? receitaConsultas / nConsultas : 0
+  const receitaAnt = entradasAnt.reduce((s, e) => s + e.valor, 0)
+  const nConsultasAnt = entradasAnt.filter(e => e.tipo === 'consulta').length
+
+  const avisoHtml = semValor.length ? finSemValorAviso(semValor) : ''
+
+  if (!entradas.length) {
+    wrap.innerHTML = avisoHtml + `<div class="card"><div class="empty">
+      <i class="fi fi-rr-sack-dollar"></i>
+      <p>Nenhuma receita registrada em ${labelMesAno(ym)}.</p>
+      <p style="font-size:12px;margin-top:6px;color:var(--text-3)">O valor de cada consulta é preenchido ao iniciar a anamnese. Retornos e pacotes entram como lançamento avulso.</p>
+    </div>
+    <div style="text-align:center;margin-top:8px"><button class="btn btn-primary btn-sm" onclick="abrirModalLancamento()"><i class="fi fi-rr-plus"></i> Novo lançamento</button></div></div>`
+    return
+  }
+
+  wrap.innerHTML =
+    finStatRow(receita, nConsultas, ticket, receitaAnt, nConsultasAnt, ymAnt) +
+    finDiaChartCard(entradas, ym) +
+    finSemanaCard(entradas, ym) +
+    finEspecieCard(entradas) +
+    avisoHtml +
+    finListaCard(entradas)
+}
+
+// une consultas (anamneses c/ valor) + lançamentos do mês `ym`, já com o pet resolvido
+function entradasDoMes(ym) {
+  if (!financeiroData) return []
+  const out = []
+  for (const c of financeiroData.consultas) {
+    if (c.valor == null || c.valor <= 0) continue
+    if ((c.data || '').slice(0, 7) !== ym) continue
+    const p = pets.find(x => x.id === c.pet_id)
+    out.push({
+      id: c.id, tipo: 'consulta', data: c.data, valor: Number(c.valor),
+      pet_id: c.pet_id,
+      nome: p ? p.nome_pet : 'Pet removido',
+      sub: p ? ('Tutor: ' + p.nome_tutor) : '',
+      especie: p ? p.especie : null,
+    })
+  }
+  for (const l of financeiroData.lancamentos) {
+    if ((l.data || '').slice(0, 7) !== ym) continue
+    const p = l.pet_id ? pets.find(x => x.id === l.pet_id) : null
+    const desc = (l.descricao || '').trim()
+    out.push({
+      id: l.id, tipo: 'avulso', data: l.data, valor: Number(l.valor) || 0,
+      pet_id: l.pet_id || null,
+      nome: desc || (p ? p.nome_pet : 'Lançamento avulso'),
+      sub: (desc || p) ? ('Lançamento avulso' + (desc && p ? ' · ' + p.nome_pet : '')) : '',
+      especie: p ? p.especie : null,
+    })
+  }
+  return out.sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : 0))
+}
+
+// anamneses do mês `ym` que ainda não têm valor lançado
+function consultasSemValorNoMes(ym) {
+  if (!financeiroData) return []
+  return financeiroData.consultas
+    .filter(c => c.valor == null && (c.data || '').slice(0, 7) === ym)
+    .sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : 0))
+}
+
+function finDelta(atual, anterior) {
+  if (anterior == null || anterior === 0) return '<span class="fin-delta flat">—</span>'
+  const pct = Math.round((atual - anterior) / anterior * 100)
+  const cls = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat'
+  const arrow = pct > 0 ? '▲' : pct < 0 ? '▼' : '–'
+  return `<span class="fin-delta ${cls}">${arrow} ${Math.abs(pct)}%</span>`
+}
+
+function finStatRow(receita, nConsultas, ticket, receitaAnt, nConsultasAnt, ymAnt) {
+  const vs = `<span style="opacity:.6"> vs. ${nomeMes(ymAnt)}</span>`
+  return `<div class="card">
+    <div class="stats-row" style="margin-bottom:0">
+      <div class="stat-box">
+        <div class="stat-label">Receita do mês</div>
+        <div class="stat-value" style="font-size:23px">${formatBRL(receita)}</div>
+        <div class="stat-unit">${finDelta(receita, receitaAnt)}${vs} · ${formatBRL(receitaAnt)}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Consultas</div>
+        <div class="stat-value">${nConsultas}</div>
+        <div class="stat-unit">${finDelta(nConsultas, nConsultasAnt)}${vs} · ${nConsultasAnt}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Ticket médio</div>
+        <div class="stat-value" style="font-size:23px">${formatBRL(ticket)}</div>
+        <div class="stat-unit">por consulta com valor</div>
+      </div>
+    </div>
+  </div>`
+}
+
+// gráfico de barras: soma de entradas por dia do mês
+function finDiaChartCard(entradas, ym) {
+  const nDias = diasNoMes(ym)
+  const porDia = new Array(nDias + 1).fill(0)
+  for (const e of entradas) {
+    const dia = parseInt(e.data.slice(8, 10), 10)
+    if (dia >= 1 && dia <= nDias) porDia[dia] += e.valor
+  }
+  const total = porDia.reduce((s, v) => s + v, 0)
+  if (total <= 0) {
+    return `<div class="card"><div class="card-title">Entrada por dia do mês</div>
+      <p style="font-size:12px;color:var(--text-3)">Sem entradas neste mês.</p></div>`
+  }
+  const max = Math.max(...porDia)
+  const W = 640, H = 170, padL = 8, padR = 8, padT = 12, padB = 24
+  const innerW = W - padL - padR, innerH = H - padT - padB
+  const bw = innerW / nDias
+  const bars = []
+  for (let d = 1; d <= nDias; d++) {
+    const v = porDia[d]
+    if (v <= 0) continue
+    const h = Math.max(2, (v / max) * innerH)
+    const x = padL + (d - 1) * bw
+    const y = padT + innerH - h
+    bars.push(`<rect x="${(x + bw * 0.15).toFixed(1)}" y="${y.toFixed(1)}" width="${(bw * 0.7).toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="var(--green)"><title>Dia ${d}: ${formatBRL(v)}</title></rect>`)
+  }
+  const passo = nDias > 20 ? 5 : 3
+  const labels = []
+  for (let d = 1; d <= nDias; d += passo) {
+    const x = padL + (d - 1) * bw + bw / 2
+    labels.push(`<text x="${x.toFixed(1)}" y="${H - 8}" font-size="9" fill="var(--text-3)" text-anchor="middle" font-family="DM Sans">${d}</text>`)
+  }
+  return `<div class="card">
+    <div class="card-title">Entrada por dia do mês</div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;overflow:visible">
+      <line x1="${padL}" y1="${(padT + innerH).toFixed(1)}" x2="${(padL + innerW).toFixed(1)}" y2="${(padT + innerH).toFixed(1)}" stroke="var(--border-md)" stroke-width="1"/>
+      ${bars.join('')}
+      ${labels.join('')}
+    </svg>
+    <p style="font-size:11px;color:var(--text-3);margin-top:4px">Passe o mouse sobre uma barra para ver o valor do dia.</p>
+  </div>`
+}
+
+// resumo por semana do mês (dias 1–7, 8–14, ...)
+function finSemanaCard(entradas, ym) {
+  const nDias = diasNoMes(ym)
+  const faixas = [['1ª semana', 1, 7], ['2ª semana', 8, 14], ['3ª semana', 15, 21], ['4ª semana', 22, 28], ['5ª semana', 29, nDias]]
+    .filter(f => f[1] <= nDias)
+  const somas = faixas.map(([label, ini, fim]) => ({
+    label, ini, fim: Math.min(fim, nDias),
+    total: entradas.filter(e => {
+      const d = parseInt(e.data.slice(8, 10), 10)
+      return d >= ini && d <= fim
+    }).reduce((s, e) => s + e.valor, 0),
+  }))
+  const max = Math.max(...somas.map(s => s.total), 1)
+  return `<div class="card">
+    <div class="card-title">Por semana do mês</div>
+    <div class="fin-week-grid">
+      ${somas.map(s => `
+        <div class="fin-week-label">${s.label}<br><span style="font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0">dias ${s.ini}–${s.fim}</span></div>
+        <div class="fin-bar-track"><div class="fin-bar-fill" style="width:${(s.total / max * 100).toFixed(1)}%;background:var(--green)"></div></div>
+        <div class="fin-week-val">${formatBRL(s.total)}</div>
+      `).join('')}
+    </div>
+  </div>`
+}
+
+function finEspecieCard(entradas) {
+  const grupo = (f) => entradas.filter(f)
+  const cao = grupo(e => e.especie === 'cao')
+  const gato = grupo(e => e.especie === 'gato')
+  const outros = grupo(e => e.especie !== 'cao' && e.especie !== 'gato')
+  const soma = arr => arr.reduce((s, e) => s + e.valor, 0)
+  const sCao = soma(cao), sGato = soma(gato), sOutros = soma(outros)
+  const total = sCao + sGato + sOutros
+  if (total <= 0) return ''
+  const seg = (v, cor) => v > 0 ? `<div style="width:${(v / total * 100).toFixed(1)}%;background:${cor}"></div>` : ''
+  const item = (label, v, n, cor) => v > 0
+    ? `<span style="display:inline-flex;align-items:center;gap:6px"><span class="dot" style="background:${cor}"></span>${label} — <strong>${formatBRL(v)}</strong> <span style="color:var(--text-3)">(${n})</span></span>`
+    : ''
+  return `<div class="card">
+    <div class="card-title">Receita por espécie</div>
+    <div style="display:flex;height:24px;border-radius:6px;overflow:hidden;margin-bottom:12px;background:var(--bg)">
+      ${seg(sCao, 'var(--blue)')}${seg(sGato, 'var(--amber)')}${seg(sOutros, 'var(--text-3)')}
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:18px;font-size:12.5px">
+      ${item('🐕 Cães', sCao, cao.length, 'var(--blue)')}
+      ${item('🐈 Gatos', sGato, gato.length, 'var(--amber)')}
+      ${item('Sem pet vinculado', sOutros, outros.length, 'var(--text-3)')}
+    </div>
+  </div>`
+}
+
+function finSemValorAviso(lista) {
+  return `<div class="alert" style="border-left-color:var(--amber);background:var(--amber-light);color:#7a5200">
+    <i class="fi fi-rr-info"></i>
+    <div style="flex:1">
+      <strong>${lista.length} consulta${lista.length > 1 ? 's' : ''} sem valor lançado</strong> neste mês — não entra${lista.length > 1 ? 'm' : ''} na receita.
+      <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">
+        ${lista.map(a => {
+          const p = pets.find(x => x.id === a.pet_id)
+          const dia = a.data.slice(8, 10) + '/' + a.data.slice(5, 7)
+          if (!p) return `<span class="btn btn-sm" style="opacity:.6">Pet removido · ${dia}</span>`
+          return `<button class="btn btn-sm" onclick="editarConsultaValor('${a.id}','${a.pet_id}')"><i class="fi fi-rr-edit"></i> ${p.nome_pet} · ${dia}</button>`
+        }).join('')}
+      </div>
+    </div>
+  </div>`
+}
+
+function finListaCard(entradas) {
+  const total = entradas.reduce((s, e) => s + e.valor, 0)
+  const rows = [...entradas]
+    .sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0))
+    .map(e => {
+      const dia = e.data.slice(8, 10) + '/' + e.data.slice(5, 7)
+      const badge = e.tipo === 'consulta'
+        ? '<span class="badge badge-phase">consulta</span>'
+        : '<span class="badge badge-protein">avulso</span>'
+      const attrs = e.pet_id
+        ? `class="fin-item clickable" onclick="irParaPerfilPet('${e.pet_id}')"`
+        : 'class="fin-item"'
+      const acoes = e.tipo === 'avulso'
+        ? `<div class="fin-item-actions"><button class="btn btn-icon btn-sm" title="Editar" onclick="event.stopPropagation();abrirModalLancamento('${e.id}')"><i class="fi fi-rr-edit"></i></button></div>`
+        : ''
+      return `<div ${attrs}>
+        <div class="fin-item-date">${dia}</div>
+        <div class="fin-item-main">
+          <div class="fin-item-name">${e.nome} ${badge}</div>
+          ${e.sub ? `<div class="fin-item-sub">${e.sub}</div>` : ''}
+        </div>
+        <div class="fin-item-val">${formatBRL(e.valor)}</div>
+        ${acoes}
+      </div>`
+    }).join('')
+  return `<div class="card">
+    <div class="card-title">Consultas e lançamentos do mês</div>
+    ${rows}
+    <div class="fin-total-row"><span>Total</span><span>${formatBRL(total)}</span></div>
+  </div>`
+}
+
+// ── MODAL DE LANÇAMENTO AVULSO ──
+function abrirModalLancamento(id) {
+  editingLancamentoId = id || null
+  const dlg = document.getElementById('modal-lancamento')
+  const sel = document.getElementById('lanc-pet')
+  sel.innerHTML = '<option value="">— nenhum —</option>' +
+    pacientesOrdenados(pets).map(p => `<option value="${p.id}">${p.nome_pet} — ${p.nome_tutor}</option>`).join('')
+  const btnExcluir = document.getElementById('lanc-btn-excluir')
+
+  if (editingLancamentoId) {
+    const l = (financeiroData?.lancamentos || []).find(x => x.id === editingLancamentoId)
+    dlg.label = 'Editar lançamento'
+    document.getElementById('lanc-data').value = l?.data || ''
+    document.getElementById('lanc-valor').value = l?.valor ?? ''
+    document.getElementById('lanc-pet').value = l?.pet_id || ''
+    document.getElementById('lanc-descricao').value = l?.descricao || ''
+    btnExcluir.style.display = 'inline-flex'
+  } else {
+    dlg.label = 'Lançamento avulso'
+    document.getElementById('lanc-data').value = financeiroMes === mesAtualYM()
+      ? new Date().toISOString().split('T')[0]
+      : financeiroMes + '-01'
+    document.getElementById('lanc-valor').value = ''
+    document.getElementById('lanc-pet').value = ''
+    document.getElementById('lanc-descricao').value = ''
+    btnExcluir.style.display = 'none'
+  }
+  dlg.show()
+}
+
+async function salvarLancamento() {
+  const data = document.getElementById('lanc-data').value
+  const valor = parseFloat(document.getElementById('lanc-valor').value)
+  if (!data || !valor || valor <= 0) { toast('Informe uma data e um valor.', 'error'); return }
+  const body = {
+    data, valor,
+    pet_id: document.getElementById('lanc-pet').value || null,
+    descricao: document.getElementById('lanc-descricao').value.trim() || null,
+  }
+  try {
+    if (editingLancamentoId) await apiFetch(`/financeiro?id=${editingLancamentoId}`, { method: 'PUT', body })
+    else await apiFetch('/financeiro', { method: 'POST', body })
+    financeiroData = null
+    editingLancamentoId = null
+    document.getElementById('modal-lancamento').hide()
+    toast('Lançamento salvo!')
+    renderFinanceiro()
+  } catch(e) { toast('Erro ao salvar lançamento.', 'error') }
+}
+
+async function excluirLancamento() {
+  if (!editingLancamentoId) return
+  if (!confirm('Excluir este lançamento?')) return
+  try {
+    await apiFetch(`/financeiro?id=${editingLancamentoId}`, { method: 'DELETE' })
+    financeiroData = null
+    editingLancamentoId = null
+    document.getElementById('modal-lancamento').hide()
+    toast('Lançamento excluído.')
+    renderFinanceiro()
+  } catch(e) { toast('Erro ao excluir lançamento.', 'error') }
 }
 
 // ── INIT ──
