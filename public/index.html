@@ -840,9 +840,46 @@
         <!-- ALIMENTAÇÃO ATUAL -->
         <div class="card">
           <div class="card-title">🍽️ Alimentação atual</div>
+          <div class="form-grid form-grid-2" style="margin-bottom:14px">
+            <div class="field"><label>Nº de refeições por dia</label>
+              <select id="an-refeicoes">
+                <option value="">Não informado</option>
+                <option value="À vontade">À vontade (livre)</option>
+                <option value="1x ao dia">1x ao dia</option>
+                <option value="2x ao dia">2x ao dia</option>
+                <option value="3x ao dia">3x ao dia</option>
+                <option value="4x ao dia">4x ao dia</option>
+                <option value="5x ou mais">5x ou mais</option>
+              </select>
+            </div>
+            <div class="field"><label>Material da tigela</label>
+              <select id="an-material-tigela" onchange="toggleMaterialTigelaOutro()">
+                <option value="">Não informado</option>
+                <option value="Plástico">Plástico</option>
+                <option value="Inox">Inox</option>
+                <option value="Cerâmica">Cerâmica</option>
+                <option value="Vidro">Vidro</option>
+                <option value="Silicone">Silicone</option>
+                <option value="Comedouro lento/interativo">Comedouro lento / interativo</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" id="an-material-tigela-outro-field" style="display:none;margin-bottom:14px">
+            <label>Qual material da tigela?</label>
+            <input type="text" id="an-material-tigela-outro" placeholder="Especifique o material...">
+          </div>
+          <div class="form-grid form-grid-2" style="margin-bottom:14px">
+            <div class="field"><label>Seletividade alimentar</label>
+              <input type="text" id="an-seletividade" placeholder="Ex: come de tudo, seletivo com proteínas, enjoa fácil...">
+            </div>
+            <div class="field"><label>Porção diária atual</label>
+              <input type="text" id="an-porcao-atual" placeholder="Ex: 200 g, 1½ xícara, 80 g ração + 120 g AN">
+            </div>
+          </div>
           <div class="form-grid" style="gap:14px">
             <div class="field"><label>Por que considera o pet no peso atual? (abaixo / ideal / acima)</label><textarea id="an-por-que-peso" placeholder="Descreva a percepção do tutor sobre o peso do pet..."></textarea></div>
-            <div class="field"><label>Quantidade diária da alimentação atual e considerações</label><textarea id="an-qtd-diaria" placeholder="Quantidades, marcas, horários, divisão de refeições..."></textarea></div>
+            <div class="field"><label>Considerações sobre a alimentação atual</label><textarea id="an-qtd-diaria" placeholder="Marcas, horários, forma de oferta, outras observações..."></textarea></div>
             <div class="field"><label>Como estão o xixi e o coco do pet?</label><textarea id="an-xixi-coco" placeholder="Frequência, cor, consistência, cheiro, dificuldades..."></textarea></div>
           </div>
         </div>
@@ -2377,7 +2414,11 @@ async function renderAbaAnamneses(petId) {
         ['Peso na consulta', a.peso_consulta ? a.peso_consulta+' kg' : null],
         ['Fator NEM', a.fator_nem],
         ['Por que peso atual', a.por_que_peso_atual],
-        ['Quantidade diária', a.quantidade_diaria],
+        ['Nº de refeições/dia', a.refeicoes_dia_atual],
+        ['Material da tigela', a.material_tigela === 'Outro' ? (a.material_tigela_outro || 'Outro') : a.material_tigela],
+        ['Seletividade alimentar', a.seletividade_alimentar],
+        ['Porção diária atual', a.porcao_diaria_atual],
+        ['Considerações sobre a alimentação atual', a.quantidade_diaria],
         ['Xixi e coco', a.xixi_coco],
         ['Petiscos — quais', a.petiscos_quais],
         ['Petiscos — frequência', a.petiscos_frequencia],
@@ -3052,12 +3093,14 @@ function irParaAnamnese() {
   ;['an-por-que-peso','an-qtd-diaria','an-xixi-coco','an-petiscos-quais','an-petiscos-freq',
     'an-gostou','an-nao-gostou','an-passou-mal','an-alimentos-tutor','an-frutas','an-legumes',
     'an-arroz','an-alimentos-desejados','an-alimentos-indesejados','an-expectativa','an-orcamento',
-    'an-obs-dieta','an-obs-consultoria','an-obs-momento','an-obs-conclusao','an-mudar-racao'
+    'an-obs-dieta','an-obs-consultoria','an-obs-momento','an-obs-conclusao','an-mudar-racao',
+    'an-refeicoes','an-material-tigela','an-material-tigela-outro','an-seletividade','an-porcao-atual'
   ].forEach(id => { const el = document.getElementById(id); if(el) el.value = '' })
   document.getElementById('an-faz-comida').value = ''
   document.getElementById('an-manter-racao').value = ''
   document.getElementById('an-manter-racao-mix').value = ''
   document.getElementById('an-dieta-escolhida').value = ''
+  toggleMaterialTigelaOutro()
   // Mostrar step 2
   document.getElementById('an-step-1').style.display = 'none'
   document.getElementById('an-step-2').style.display = 'block'
@@ -3088,6 +3131,12 @@ function preencherFormAnamnese(petId, a) {
   document.getElementById('an-peso').value = a.peso_consulta ?? ''
   document.getElementById('an-fator-nem').value = a.fator_nem || ''
   document.getElementById('an-por-que-peso').value = a.por_que_peso_atual || ''
+  document.getElementById('an-refeicoes').value = a.refeicoes_dia_atual || ''
+  document.getElementById('an-material-tigela').value = a.material_tigela || ''
+  document.getElementById('an-material-tigela-outro').value = a.material_tigela_outro || ''
+  toggleMaterialTigelaOutro()
+  document.getElementById('an-seletividade').value = a.seletividade_alimentar || ''
+  document.getElementById('an-porcao-atual').value = a.porcao_diaria_atual || ''
   document.getElementById('an-qtd-diaria').value = a.quantidade_diaria || ''
   document.getElementById('an-xixi-coco').value = a.xixi_coco || ''
   document.getElementById('an-petiscos-quais').value = a.petiscos_quais || ''
@@ -3130,6 +3179,12 @@ function voltarStep1() {
   document.getElementById('an-step-2').style.display = 'none'
 }
 
+function toggleMaterialTigelaOutro() {
+  const outro = document.getElementById('an-material-tigela').value === 'Outro'
+  document.getElementById('an-material-tigela-outro-field').style.display = outro ? 'block' : 'none'
+  if (!outro) document.getElementById('an-material-tigela-outro').value = ''
+}
+
 async function salvarAnamnese(irParaPlano) {
   if (!anamnesePetId) return
   const boolVal = (id) => { const v = document.getElementById(id).value; return v===''?null:v==='true' }
@@ -3138,6 +3193,12 @@ async function salvarAnamnese(irParaPlano) {
     peso_consulta:     parseFloat(document.getElementById('an-peso').value) || null,
     fator_nem:         document.getElementById('an-fator-nem').value || null,
     por_que_peso_atual:document.getElementById('an-por-que-peso').value.trim() || null,
+    refeicoes_dia_atual: document.getElementById('an-refeicoes').value || null,
+    material_tigela:     document.getElementById('an-material-tigela').value || null,
+    material_tigela_outro: document.getElementById('an-material-tigela').value === 'Outro'
+      ? (document.getElementById('an-material-tigela-outro').value.trim() || null) : null,
+    seletividade_alimentar: document.getElementById('an-seletividade').value.trim() || null,
+    porcao_diaria_atual: document.getElementById('an-porcao-atual').value.trim() || null,
     quantidade_diaria: document.getElementById('an-qtd-diaria').value.trim() || null,
     xixi_coco:         document.getElementById('an-xixi-coco').value.trim() || null,
     petiscos_quais:    document.getElementById('an-petiscos-quais').value.trim() || null,
