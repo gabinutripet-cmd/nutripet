@@ -2388,6 +2388,113 @@ function fecharAsideCardapio() {
 
 let anamnesesCache = {}
 
+// Estrutura completa da anamnese, agrupada como no formulário (passo 2).
+// Fonte única para a exibição no perfil e para o download em Markdown.
+function anamneseSecoes(a) {
+  const bool = v => v===null||v===undefined ? null : (v ? 'Sim' : 'Não')
+  const dataFmt = a.data_consulta ? new Date(a.data_consulta+'T12:00').toLocaleDateString('pt-BR') : null
+  const materialTigela = a.material_tigela === 'Outro'
+    ? (a.material_tigela_outro ? `Outro — ${a.material_tigela_outro}` : 'Outro')
+    : a.material_tigela
+  return [
+    ['Dados clínicos na consulta', [
+      ['Data da consulta', dataFmt],
+      ['Peso na consulta', a.peso_consulta!=null ? a.peso_consulta+' kg' : null],
+      ['Fator NEM utilizado', a.fator_nem],
+    ]],
+    ['Observações da consultoria', [
+      ['Observações gerais da consultoria', a.obs_consultoria],
+      ['Observações do momento da consultoria', a.obs_momento_consultoria],
+      ['Observações de conclusão após a consultoria', a.obs_conclusao],
+    ]],
+    ['Alimentação atual', [
+      ['Nº de refeições por dia', a.refeicoes_dia_atual],
+      ['Material da tigela', materialTigela],
+      ['Seletividade alimentar', a.seletividade_alimentar],
+      ['Porção diária atual', a.porcao_diaria_atual],
+      ['Por que considera o pet no peso atual (abaixo / ideal / acima)', a.por_que_peso_atual],
+      ['Considerações sobre a alimentação atual', a.quantidade_diaria],
+      ['Como estão o xixi e o coco do pet', a.xixi_coco],
+    ]],
+    ['Petiscos', [
+      ['Quais petiscos costuma oferecer', a.petiscos_quais],
+      ['Quantas vezes oferece por dia / é todos os dias', a.petiscos_frequencia],
+    ]],
+    ['Preferências alimentares', [
+      ['O que já ofereceu e o pet gostou', a.alimentos_gostou],
+      ['O que já ofereceu e o pet não gostou', a.alimentos_nao_gostou],
+      ['Já passou mal com algum alimento', a.alimentos_passou_mal],
+    ]],
+    ['Rotina do tutor', [
+      ['Faz comida em casa', bool(a.faz_comida_casa)],
+      ['Tipo de arroz que costuma comer', a.arroz_tipo],
+      ['Quais alimentos costuma comer', a.alimentos_tutor],
+      ['Frutas mais consumidas', a.frutas_tutor],
+      ['Legumes mais consumidos', a.legumes_tutor],
+    ]],
+    ['Nova dieta', [
+      ['Opção de dieta pretendida pelo tutor', a.dieta_pretendida_tutor],
+      ['Opção de dieta escolhida', a.dieta_escolhida],
+      ['Em caso de ração: manter a mesma', bool(a.manter_racao)],
+      ['Em caso de mix: manter a mesma ração', bool(a.manter_racao_mix)],
+      ['Em caso de mix: mudar ração — qual', a.mudar_racao_qual],
+      ['Alimentos que gostaria que tivesse na dieta', a.alimentos_desejados],
+      ['Alimentos que gostaria que NÃO tivesse na dieta', a.alimentos_indesejados],
+      ['Qual a expectativa com a nova dieta', a.expectativa_dieta],
+      ['Quanto pretende gastar com a nova dieta', a.orcamento_dieta],
+      ['Observações sobre a nova dieta', a.obs_nova_dieta],
+    ]],
+  ]
+}
+
+// Baixa uma anamnese como arquivo Markdown (.md) com todos os campos.
+// Campos não preenchidos aparecem como "Não informado".
+function baixarAnamnese(anamneseId, petId) {
+  const a = (anamnesesCache[petId] || []).find(x => x.id === anamneseId)
+  if (!a) return
+  const p = pets.find(x => x.id === petId)
+  const NI = 'Não informado'
+
+  const especie = p?.especie === 'gato' ? 'Gato' : 'Cão'
+  const porte = { pequeno:'Pequeno', medio:'Médio', grande:'Grande', gigante:'Gigante' }[p?.porte]
+  const sexo = { macho:'macho', femea:'fêmea' }[p?.sexo]
+  const castr = p?.castrado===true ? 'castrado(a)' : p?.castrado===false ? 'não castrado(a)' : null
+  const idade = formatarIdade(p?.idade_anos, p?.idade_unidade)
+  const petLinha = [p?.nome_pet, especie, p?.raca, porte, sexo, castr, idade!=='—'?idade:null].filter(Boolean).join(' · ')
+  const dataConsulta = a.data_consulta ? new Date(a.data_consulta+'T12:00').toLocaleDateString('pt-BR') : NI
+
+  let md = `# Anamnese nutricional — ${p?.nome_pet || 'Pet'}\n\n`
+  md += `**Pet:** ${petLinha || NI}  \n`
+  md += `**Tutor:** ${p?.nome_tutor || NI}  \n`
+  md += `**Data da consulta:** ${dataConsulta}  \n`
+  md += `**Arquivo gerado em:** ${new Date().toLocaleDateString('pt-BR')}\n`
+
+  for (const [titulo, campos] of anamneseSecoes(a)) {
+    md += `\n## ${titulo}\n\n`
+    for (const [label, valor] of campos) {
+      const v = valor==null || String(valor).trim()==='' ? NI : String(valor).trim()
+      md += `- **${label}:** ${v}\n`
+    }
+  }
+
+  const slug = (p?.nome_pet || 'pet').toLowerCase()
+    .replace(/[áàâãä]/g,'a').replace(/[éèêë]/g,'e').replace(/[íìîï]/g,'i')
+    .replace(/[óòôõö]/g,'o').replace(/[úùûü]/g,'u').replace(/ç/g,'c').replace(/ñ/g,'n')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'pet'
+  const nome = `anamnese-${slug}-${a.data_consulta || new Date().toISOString().split('T')[0]}.md`
+
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = nome
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  toast('Anamnese baixada!')
+}
+
 async function renderAbaAnamneses(petId) {
   const el = document.getElementById('perfil-tab-anamneses')
   if (!el) return
@@ -2402,54 +2509,20 @@ async function renderAbaAnamneses(petId) {
       </div>`
     return
   }
-  const boolStr = v => v===null||v===undefined?'—':v?'Sim':'Não'
   el.innerHTML = `
     <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
       <button class="btn btn-primary btn-sm" onclick="iniciarAnamnese('${petId}')"><i class="fi fi-rr-plus"></i> Nova anamnese</button>
     </div>` +
     lista.map(a => {
       const dataFmt = a.data_consulta ? new Date(a.data_consulta+'T12:00').toLocaleDateString('pt-BR') : '—'
-      const campos = [
-        ['Data', dataFmt],
-        ['Peso na consulta', a.peso_consulta ? a.peso_consulta+' kg' : null],
-        ['Fator NEM', a.fator_nem],
-        ['Por que peso atual', a.por_que_peso_atual],
-        ['Nº de refeições/dia', a.refeicoes_dia_atual],
-        ['Material da tigela', a.material_tigela === 'Outro' ? (a.material_tigela_outro || 'Outro') : a.material_tigela],
-        ['Seletividade alimentar', a.seletividade_alimentar],
-        ['Porção diária atual', a.porcao_diaria_atual],
-        ['Considerações sobre a alimentação atual', a.quantidade_diaria],
-        ['Xixi e coco', a.xixi_coco],
-        ['Petiscos — quais', a.petiscos_quais],
-        ['Petiscos — frequência', a.petiscos_frequencia],
-        ['Alimentos que gostou', a.alimentos_gostou],
-        ['Alimentos que não gostou', a.alimentos_nao_gostou],
-        ['Passou mal com', a.alimentos_passou_mal],
-        ['Tutor faz comida em casa', a.faz_comida_casa!==null?boolStr(a.faz_comida_casa):null],
-        ['Alimentos do tutor', a.alimentos_tutor],
-        ['Frutas do tutor', a.frutas_tutor],
-        ['Legumes do tutor', a.legumes_tutor],
-        ['Tipo de arroz', a.arroz_tipo],
-        ['Dieta pretendida pelo tutor', a.dieta_pretendida_tutor],
-        ['Dieta escolhida', a.dieta_escolhida],
-        ['Manter ração', a.manter_racao!==null?boolStr(a.manter_racao):null],
-        ['Manter ração (mix)', a.manter_racao_mix!==null?boolStr(a.manter_racao_mix):null],
-        ['Mudar ração para', a.mudar_racao_qual],
-        ['Alimentos desejados', a.alimentos_desejados],
-        ['Alimentos indesejados', a.alimentos_indesejados],
-        ['Expectativa da dieta', a.expectativa_dieta],
-        ['Orçamento', a.orcamento_dieta],
-        ['Obs. nova dieta', a.obs_nova_dieta],
-        ['Obs. consultoria', a.obs_consultoria],
-        ['Obs. momento', a.obs_momento_consultoria],
-        ['Obs. conclusão', a.obs_conclusao],
-      ].filter(([_, v]) => v)
+      const campos = anamneseSecoes(a).flatMap(([, cs]) => cs).filter(([, v]) => v)
 
       return `<div class="card" style="margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
           <div style="font-size:14px;font-weight:600">📄 Anamnese — ${dataFmt}</div>
           <div style="display:flex;align-items:center;gap:8px">
             ${a.peso_consulta?`<span class="badge badge-phase">${a.peso_consulta} kg</span>`:''}
+            <button class="btn btn-sm" onclick="baixarAnamnese('${a.id}','${petId}')"><i class="fi fi-rr-file-download"></i> Baixar</button>
             <button class="btn btn-sm" onclick="editarAnamnese('${a.id}','${petId}')"><i class="fi fi-rr-edit"></i> Editar</button>
           </div>
         </div>
