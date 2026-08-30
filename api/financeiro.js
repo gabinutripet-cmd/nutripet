@@ -3,10 +3,11 @@ import { requireUser } from '../lib/auth.js'
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
 
 // Dados da tela Financeiro (balanço mensal do consultório).
-//   GET    /api/financeiro         → { consultas:[{id,pet_id,data,valor|null}], lancamentos:[<rows>] }
-//   POST   /api/financeiro         → cria lançamento avulso  { pet_id?, descricao?, valor, data }
-//   PUT    /api/financeiro?id=xxx  → edita lançamento avulso
-//   DELETE /api/financeiro?id=xxx  → remove lançamento avulso
+//   GET    /api/financeiro                 → { consultas:[{id,pet_id,data,valor|null,pago}], lancamentos:[<rows>] }
+//   POST   /api/financeiro                 → cria lançamento avulso  { pet_id?, descricao?, valor, data, pago? }
+//   PUT    /api/financeiro?id=xxx          → edita lançamento (corpo completo) ou só alterna { pago }
+//   PUT    /api/financeiro?anamneseId=xxx  → alterna o "pago" de uma consulta (anamnese)  { pago }
+//   DELETE /api/financeiro?id=xxx          → remove lançamento avulso
 //
 // "consultas" aqui são anamneses com valor preenchido (o valor cobrado na
 // consulta, com data_consulta como data de entrada). "lancamentos" são valores
@@ -18,7 +19,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (!(await requireUser(req, res))) return
 
-  const { id } = req.query
+  const { id, anamneseId } = req.query
 
   if (req.method === 'GET') {
     const [anamnesesRes, lancamentosRes] = await Promise.all([
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
       // avisar "consulta sem valor lançado".
       supabase
         .from('anamneses')
-        .select('id, pet_id, data_consulta, valor'),
+        .select('id, pet_id, data_consulta, valor, pago'),
       supabase
         .from('lancamentos_financeiros')
         .select('*')
@@ -42,12 +43,13 @@ export default async function handler(req, res) {
         pet_id: a.pet_id,
         data: a.data_consulta,
         valor: a.valor == null ? null : Number(a.valor),
+        pago: !!a.pago,
       }))
     return res.status(200).json({ consultas, lancamentos: lancamentosRes.data || [] })
   }
 
   if (req.method === 'POST') {
-    const { pet_id, descricao, valor, data } = req.body || {}
+    const { pet_id, descricao, valor, data, pago } = req.body || {}
     const valorNum = Number(valor)
     if (!valorNum || valorNum <= 0 || !data) {
       return res.status(400).json({ error: 'Informe um valor e uma data.' })
@@ -59,6 +61,7 @@ export default async function handler(req, res) {
         descricao: (descricao || '').trim() || null,
         valor: valorNum,
         data,
+        pago: !!pago,
       }])
       .select()
       .single()
@@ -66,20 +69,38 @@ export default async function handler(req, res) {
     return res.status(201).json(row)
   }
 
+  // Alterna o "pago" de uma consulta (anamnese). Só toca esse campo.
+  if (req.method === 'PUT' && anamneseId) {
+    const { error } = await supabase
+      .from('anamneses')
+      .update({ pago: !!(req.body || {}).pago })
+      .eq('id', anamneseId)
+    if (error) return res.status(500).json({ error: error.message })
+    return res.status(200).json({ ok: true })
+  }
+
   if (req.method === 'PUT' && id) {
-    const { pet_id, descricao, valor, data } = req.body || {}
-    const valorNum = Number(valor)
-    if (!valorNum || valorNum <= 0 || !data) {
-      return res.status(400).json({ error: 'Informe um valor e uma data.' })
+    const b = req.body || {}
+    const patch = {}
+    // edição completa (a partir do modal)
+    if (b.valor !== undefined || b.data !== undefined) {
+      const valorNum = Number(b.valor)
+      if (!valorNum || valorNum <= 0 || !b.data) {
+        return res.status(400).json({ error: 'Informe um valor e uma data.' })
+      }
+      patch.valor = valorNum
+      patch.data = b.data
+      patch.pet_id = b.pet_id || null
+      patch.descricao = (b.descricao || '').trim() || null
+    }
+    // alternar "pago" (a partir da lista, ou junto com a edição do modal)
+    if (b.pago !== undefined) patch.pago = !!b.pago
+    if (!Object.keys(patch).length) {
+      return res.status(400).json({ error: 'Nada para atualizar.' })
     }
     const { data: row, error } = await supabase
       .from('lancamentos_financeiros')
-      .update({
-        pet_id: pet_id || null,
-        descricao: (descricao || '').trim() || null,
-        valor: valorNum,
-        data,
-      })
+      .update(patch)
       .eq('id', id)
       .select()
       .single()

@@ -408,9 +408,18 @@
   .fin-item-name{font-size:13.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .fin-item-sub{font-size:11px;color:var(--text-3);margin-top:1px;}
   .fin-item-val{font-family:'DM Mono',monospace;font-size:13.5px;font-weight:500;color:var(--text);flex-shrink:0;}
-  .fin-item-actions{display:flex;gap:4px;flex-shrink:0;}
+  .fin-item-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
   .fin-item.clickable{cursor:pointer;border-radius:8px;}
   .fin-item.clickable:hover{background:var(--bg);}
+  .fin-paytag{font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:20px;cursor:pointer;border:1.5px solid transparent;white-space:nowrap;transition:all .12s;}
+  .fin-paytag.pago{background:var(--green-light);color:var(--green-dark);border-color:var(--green-border);}
+  .fin-paytag.pago:hover{background:#d6f3e3;}
+  .fin-paytag.pendente{background:var(--amber-light);color:var(--amber);border-color:#f0dcae;}
+  .fin-paytag.pendente:hover{background:#fdecc8;}
+  .fin-filtros{display:flex;gap:6px;}
+  .fin-filtro{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;padding:5px 11px;border-radius:20px;cursor:pointer;border:1.5px solid var(--border-md);background:var(--surface);color:var(--text-2);}
+  .fin-filtro:hover{border-color:var(--green);color:var(--green-mid);}
+  .fin-filtro.ativo{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
   .fin-total-row{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 2px;font-weight:700;font-size:14px;border-top:2px solid var(--border-md);margin-top:4px;}
   .fin-total-row span:last-child{font-family:'DM Mono',monospace;}
 
@@ -853,9 +862,14 @@
             <span style="background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span>
             Dados clínicos na consulta
           </div>
-          <div class="form-grid form-grid-4">
+          <div class="form-grid form-grid-3" style="margin-bottom:14px">
             <div class="field"><label>Data da consulta</label><input type="date" id="an-data"></div>
             <div class="field"><label>Valor da consulta (R$)</label><input type="number" id="an-valor" step="0.01" min="0" inputmode="decimal" placeholder="Ex: 250"></div>
+            <div class="field"><label>Pagamento</label>
+              <select id="an-pago"><option value="false">Pendente</option><option value="true">Pago</option></select>
+            </div>
+          </div>
+          <div class="form-grid form-grid-2">
             <div class="field field-var"><label>Peso na consulta (kg)</label><input type="number" id="an-peso" step="0.1" min="0" placeholder="Ex: 12.5"></div>
             <div class="field"><label>Fator NEM utilizado</label>
               <select id="an-fator-nem">
@@ -1310,9 +1324,12 @@
 <!-- MODAL LANÇAMENTO FINANCEIRO AVULSO -->
 <sl-dialog id="modal-lancamento" label="Lançamento avulso" class="np-dialog">
     <p style="font-size:12.5px;color:var(--text-3);margin:0 0 16px">Para receitas que não passam por uma anamnese nova — retornos, pacotes, avaliações extras.</p>
-    <div class="form-grid form-grid-2" style="margin-bottom:14px">
+    <div class="form-grid form-grid-3" style="margin-bottom:14px">
       <div class="field"><label>Data</label><input type="date" id="lanc-data"></div>
       <div class="field"><label>Valor (R$)</label><input type="number" id="lanc-valor" step="0.01" min="0" inputmode="decimal" placeholder="Ex: 150"></div>
+      <div class="field"><label>Pagamento</label>
+        <select id="lanc-pago"><option value="false">Pendente</option><option value="true">Pago</option></select>
+      </div>
     </div>
     <div class="field" style="margin-bottom:14px"><label>Paciente (opcional)</label>
       <select id="lanc-pet"><option value="">— nenhum —</option></select>
@@ -2501,6 +2518,7 @@ function anamneseSecoes(a) {
     ['Dados clínicos na consulta', [
       ['Data da consulta', dataFmt],
       ['Valor da consulta', a.valor!=null ? formatBRL(a.valor) : null],
+      ['Pagamento', a.valor!=null ? (a.pago ? 'Pago' : 'Pendente') : null],
       ['Peso na consulta', a.peso_consulta!=null ? a.peso_consulta+' kg' : null],
       ['Fator NEM utilizado', a.fator_nem],
     ]],
@@ -3255,6 +3273,7 @@ function irParaAnamnese() {
   // Preencher campos com dados do cadastro
   document.getElementById('an-data').value = new Date().toISOString().split('T')[0]
   document.getElementById('an-valor').value = ''
+  document.getElementById('an-pago').value = 'false'
   document.getElementById('an-peso').value = p?.peso_atual || ''
   // Sugerir fator baseado em atividade
   if (p?.nivel_atividade === 'alto') document.getElementById('an-fator-nem').value = 'Cães Ativos - 140'
@@ -3305,6 +3324,7 @@ function preencherFormAnamnese(petId, a) {
   const boolSel = v => v===null||v===undefined?'':String(v)
   document.getElementById('an-data').value = a.data_consulta || ''
   document.getElementById('an-valor').value = a.valor ?? ''
+  document.getElementById('an-pago').value = String(!!a.pago)
   document.getElementById('an-peso').value = a.peso_consulta ?? ''
   document.getElementById('an-fator-nem').value = a.fator_nem || ''
   document.getElementById('an-por-que-peso').value = a.por_que_peso_atual || ''
@@ -3368,6 +3388,7 @@ async function salvarAnamnese(irParaPlano) {
   const body = {
     data_consulta:     document.getElementById('an-data').value || new Date().toISOString().split('T')[0],
     valor:             parseFloat(document.getElementById('an-valor').value) || null,
+    pago:              document.getElementById('an-pago').value === 'true',
     peso_consulta:     parseFloat(document.getElementById('an-peso').value) || null,
     fator_nem:         document.getElementById('an-fator-nem').value || null,
     por_que_peso_atual:document.getElementById('an-por-que-peso').value.trim() || null,
@@ -3444,6 +3465,7 @@ async function salvarAnamnese(irParaPlano) {
 //   "lancamentos" = valores avulsos (retornos, pacotes) sem anamnese nova.
 let financeiroData = null
 let financeiroMes = mesAtualYM()
+let financeiroFiltro = 'todas'   // 'todas' | 'pendentes'
 let editingLancamentoId = null
 
 function nomeMes(ym) { return MESES_PT[parseInt(ym.slice(5,7), 10) - 1] }
@@ -3502,11 +3524,13 @@ async function renderFinanceiro() {
 
   const consultasMes = entradas.filter(e => e.tipo === 'consulta')
   const receita = entradas.reduce((s, e) => s + e.valor, 0)
+  const recebido = entradas.filter(e => e.pago).reduce((s, e) => s + e.valor, 0)
+  const aReceber = receita - recebido
+  const nPendentes = entradas.filter(e => !e.pago).length
   const receitaConsultas = consultasMes.reduce((s, e) => s + e.valor, 0)
   const nConsultas = consultasMes.length
   const ticket = nConsultas ? receitaConsultas / nConsultas : 0
   const receitaAnt = entradasAnt.reduce((s, e) => s + e.valor, 0)
-  const nConsultasAnt = entradasAnt.filter(e => e.tipo === 'consulta').length
 
   const avisoHtml = semValor.length ? finSemValorAviso(semValor) : ''
 
@@ -3521,12 +3545,35 @@ async function renderFinanceiro() {
   }
 
   wrap.innerHTML =
-    finStatRow(receita, nConsultas, ticket, receitaAnt, nConsultasAnt, ymAnt) +
+    finStatRow({ receita, recebido, aReceber, nPendentes, nConsultas, ticket, receitaAnt, ymAnt }) +
     finDiaChartCard(entradas, ym) +
     finSemanaCard(entradas, ym) +
     finEspecieCard(entradas) +
     avisoHtml +
     finListaCard(entradas)
+}
+
+function financeiroFiltrar(f) {
+  financeiroFiltro = f
+  renderFinanceiro()
+}
+
+// Alterna pago/pendente de uma entrada (consulta ou lançamento), otimista.
+async function togglePagoEntrada(tipo, entryId, novoPago) {
+  const pago = novoPago === 'true' || novoPago === true
+  // atualiza o cache local na hora
+  const arr = tipo === 'consulta' ? financeiroData?.consultas : financeiroData?.lancamentos
+  const row = arr?.find(x => x.id === entryId)
+  if (row) row.pago = pago
+  renderFinanceiro()
+  try {
+    const qs = tipo === 'consulta' ? `anamneseId=${entryId}` : `id=${entryId}`
+    await apiFetch(`/financeiro?${qs}`, { method: 'PUT', body: { pago } })
+  } catch(e) {
+    if (row) row.pago = !pago
+    toast('Erro ao atualizar o pagamento.', 'error')
+    renderFinanceiro()
+  }
 }
 
 // une consultas (anamneses c/ valor) + lançamentos do mês `ym`, já com o pet resolvido
@@ -3538,7 +3585,7 @@ function entradasDoMes(ym) {
     if ((c.data || '').slice(0, 7) !== ym) continue
     const p = pets.find(x => x.id === c.pet_id)
     out.push({
-      id: c.id, tipo: 'consulta', data: c.data, valor: Number(c.valor),
+      id: c.id, tipo: 'consulta', data: c.data, valor: Number(c.valor), pago: !!c.pago,
       pet_id: c.pet_id,
       nome: p ? p.nome_pet : 'Pet removido',
       sub: p ? ('Tutor: ' + p.nome_tutor) : '',
@@ -3550,7 +3597,7 @@ function entradasDoMes(ym) {
     const p = l.pet_id ? pets.find(x => x.id === l.pet_id) : null
     const desc = (l.descricao || '').trim()
     out.push({
-      id: l.id, tipo: 'avulso', data: l.data, valor: Number(l.valor) || 0,
+      id: l.id, tipo: 'avulso', data: l.data, valor: Number(l.valor) || 0, pago: !!l.pago,
       pet_id: l.pet_id || null,
       nome: desc || (p ? p.nome_pet : 'Lançamento avulso'),
       sub: (desc || p) ? ('Lançamento avulso' + (desc && p ? ' · ' + p.nome_pet : '')) : '',
@@ -3576,25 +3623,29 @@ function finDelta(atual, anterior) {
   return `<span class="fin-delta ${cls}">${arrow} ${Math.abs(pct)}%</span>`
 }
 
-function finStatRow(receita, nConsultas, ticket, receitaAnt, nConsultasAnt, ymAnt) {
-  const vs = `<span style="opacity:.6"> vs. ${nomeMes(ymAnt)}</span>`
+function finStatRow(d) {
+  const { receita, recebido, aReceber, nPendentes, nConsultas, ticket, receitaAnt, ymAnt } = d
+  const pctRecebido = receita > 0 ? Math.round(recebido / receita * 100) : 0
   return `<div class="card">
     <div class="stats-row" style="margin-bottom:0">
       <div class="stat-box">
-        <div class="stat-label">Receita do mês</div>
+        <div class="stat-label">Recebido no mês</div>
+        <div class="stat-value" style="font-size:23px;color:var(--green-dark)">${formatBRL(recebido)}</div>
+        <div class="stat-unit">${pctRecebido}% do previsto</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">A receber</div>
+        <div class="stat-value" style="font-size:23px;color:${aReceber > 0 ? 'var(--amber)' : 'var(--text-3)'}">${formatBRL(aReceber)}</div>
+        <div class="stat-unit">${nPendentes} lançamento${nPendentes === 1 ? '' : 's'} pendente${nPendentes === 1 ? '' : 's'}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Total previsto</div>
         <div class="stat-value" style="font-size:23px">${formatBRL(receita)}</div>
-        <div class="stat-unit">${finDelta(receita, receitaAnt)}${vs} · ${formatBRL(receitaAnt)}</div>
+        <div class="stat-unit">${finDelta(receita, receitaAnt)} <span style="opacity:.6">vs. ${nomeMes(ymAnt)} · ${formatBRL(receitaAnt)}</span></div>
       </div>
-      <div class="stat-box">
-        <div class="stat-label">Consultas</div>
-        <div class="stat-value">${nConsultas}</div>
-        <div class="stat-unit">${finDelta(nConsultas, nConsultasAnt)}${vs} · ${nConsultasAnt}</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Ticket médio</div>
-        <div class="stat-value" style="font-size:23px">${formatBRL(ticket)}</div>
-        <div class="stat-unit">por consulta com valor</div>
-      </div>
+    </div>
+    <div style="margin-top:14px;font-size:12px;color:var(--text-2)">
+      ${nConsultas} consulta${nConsultas === 1 ? '' : 's'} no mês · ticket médio <strong style="font-family:'DM Mono',monospace">${formatBRL(ticket)}</strong>
     </div>
   </div>`
 }
@@ -3711,34 +3762,43 @@ function finSemValorAviso(lista) {
 }
 
 function finListaCard(entradas) {
-  const total = entradas.reduce((s, e) => s + e.valor, 0)
-  const rows = [...entradas]
-    .sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0))
-    .map(e => {
-      const dia = e.data.slice(8, 10) + '/' + e.data.slice(5, 7)
-      const badge = e.tipo === 'consulta'
-        ? '<span class="badge badge-phase">consulta</span>'
-        : '<span class="badge badge-protein">avulso</span>'
-      const attrs = e.pet_id
-        ? `class="fin-item clickable" onclick="irParaPerfilPet('${e.pet_id}')"`
-        : 'class="fin-item"'
-      const acoes = e.tipo === 'avulso'
-        ? `<div class="fin-item-actions"><button class="btn btn-icon btn-sm" title="Editar" onclick="event.stopPropagation();abrirModalLancamento('${e.id}')"><i class="fi fi-rr-edit"></i></button></div>`
-        : ''
-      return `<div ${attrs}>
-        <div class="fin-item-date">${dia}</div>
-        <div class="fin-item-main">
-          <div class="fin-item-name">${e.nome} ${badge}</div>
-          ${e.sub ? `<div class="fin-item-sub">${e.sub}</div>` : ''}
-        </div>
-        <div class="fin-item-val">${formatBRL(e.valor)}</div>
-        ${acoes}
-      </div>`
-    }).join('')
+  const soPendentes = financeiroFiltro === 'pendentes'
+  const visiveis = (soPendentes ? entradas.filter(e => !e.pago) : entradas)
+    .slice().sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0))
+  const total = visiveis.reduce((s, e) => s + e.valor, 0)
+  const tag = (f) => `<button class="fin-filtro${financeiroFiltro === f ? ' ativo' : ''}" onclick="financeiroFiltrar('${f}')">${f === 'todas' ? 'Todas' : 'Só pendentes'}</button>`
+
+  const rows = visiveis.map(e => {
+    const dia = e.data.slice(8, 10) + '/' + e.data.slice(5, 7)
+    const badge = e.tipo === 'consulta'
+      ? '<span class="badge badge-phase">consulta</span>'
+      : '<span class="badge badge-protein">avulso</span>'
+    const paytag = `<button class="fin-paytag ${e.pago ? 'pago' : 'pendente'}" title="Clique para alternar"
+      onclick="event.stopPropagation();togglePagoEntrada('${e.tipo}','${e.id}','${!e.pago}')">${e.pago ? '✓ Pago' : 'Pendente'}</button>`
+    const attrs = e.pet_id
+      ? `class="fin-item clickable" onclick="irParaPerfilPet('${e.pet_id}')"`
+      : 'class="fin-item"'
+    const acoes = e.tipo === 'avulso'
+      ? `<button class="btn btn-icon btn-sm" title="Editar" onclick="event.stopPropagation();abrirModalLancamento('${e.id}')"><i class="fi fi-rr-edit"></i></button>`
+      : ''
+    return `<div ${attrs}>
+      <div class="fin-item-date">${dia}</div>
+      <div class="fin-item-main">
+        <div class="fin-item-name">${e.nome} ${badge}</div>
+        ${e.sub ? `<div class="fin-item-sub">${e.sub}</div>` : ''}
+      </div>
+      <div class="fin-item-val">${formatBRL(e.valor)}</div>
+      <div class="fin-item-actions">${paytag}${acoes}</div>
+    </div>`
+  }).join('')
+
   return `<div class="card">
-    <div class="card-title">Consultas e lançamentos do mês</div>
-    ${rows}
-    <div class="fin-total-row"><span>Total</span><span>${formatBRL(total)}</span></div>
+    <div class="section-header">
+      <div class="card-title" style="margin-bottom:0">Consultas e lançamentos do mês</div>
+      <div class="fin-filtros">${tag('todas')}${tag('pendentes')}</div>
+    </div>
+    ${rows || '<p style="font-size:12.5px;color:var(--text-3);padding:8px 0">Nenhum pendente neste mês. 🎉</p>'}
+    <div class="fin-total-row"><span>${soPendentes ? 'Total pendente' : 'Total'}</span><span>${formatBRL(total)}</span></div>
   </div>`
 }
 
@@ -3756,6 +3816,7 @@ function abrirModalLancamento(id) {
     dlg.label = 'Editar lançamento'
     document.getElementById('lanc-data').value = l?.data || ''
     document.getElementById('lanc-valor').value = l?.valor ?? ''
+    document.getElementById('lanc-pago').value = String(!!l?.pago)
     document.getElementById('lanc-pet').value = l?.pet_id || ''
     document.getElementById('lanc-descricao').value = l?.descricao || ''
     btnExcluir.style.display = 'inline-flex'
@@ -3765,6 +3826,7 @@ function abrirModalLancamento(id) {
       ? new Date().toISOString().split('T')[0]
       : financeiroMes + '-01'
     document.getElementById('lanc-valor').value = ''
+    document.getElementById('lanc-pago').value = 'false'
     document.getElementById('lanc-pet').value = ''
     document.getElementById('lanc-descricao').value = ''
     btnExcluir.style.display = 'none'
@@ -3778,6 +3840,7 @@ async function salvarLancamento() {
   if (!data || !valor || valor <= 0) { toast('Informe uma data e um valor.', 'error'); return }
   const body = {
     data, valor,
+    pago: document.getElementById('lanc-pago').value === 'true',
     pet_id: document.getElementById('lanc-pet').value || null,
     descricao: document.getElementById('lanc-descricao').value.trim() || null,
   }
